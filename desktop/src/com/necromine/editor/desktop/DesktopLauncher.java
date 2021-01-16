@@ -14,15 +14,13 @@ public class DesktopLauncher {
 	public static void main(final String[] arg) {
 		EventQueue.invokeLater(() -> {
 			LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-			handleScreen(config);
-			NecromineMapEditor listener = new NecromineMapEditor();
+			config.samples = 3;
+			config.width = WIDTH;
+			config.height = HEIGHT;
+			NecromineMapEditor listener = new NecromineMapEditor(WIDTH,HEIGHT);
 			LwjglAWTCanvas lwjgl = new LwjglAWTCanvas(listener, config);
 			new MapperWindow(WINDOW_HEADER, lwjgl);
 		});
 	}
 
-	private static void handleScreen(final LwjglApplicationConfiguration config) {
-		config.width = WIDTH;
-		config.height = HEIGHT;
-	}
 }
