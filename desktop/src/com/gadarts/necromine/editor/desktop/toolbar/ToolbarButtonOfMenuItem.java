@@ -1,6 +1,6 @@
-package com.necromine.editor.desktop.toolbar;
+package com.gadarts.necromine.editor.desktop.toolbar;
 
-import com.necromine.editor.desktop.menuitems.MenuItemDefinition;
+import com.gadarts.necromine.editor.desktop.menuitems.MenuItemDefinition;
 import lombok.Getter;
 
 @Getter

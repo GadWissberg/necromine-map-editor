@@ -5,16 +5,19 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g3d.Material;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.Ray;
+import com.gadarts.necromine.Assets;
+import lombok.Setter;
 
-public class NecromineMapEditor extends ApplicationAdapter {
+public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsSubscriber, InputProcessor {
 	public static final float FAR = 100f;
 	private static final float NEAR = 0.01f;
 	private static final Vector3 auxVector1 = new Vector3();
@@ -22,7 +25,10 @@ public class NecromineMapEditor extends ApplicationAdapter {
 	private static final int LEVEL_SIZE = 20;
 	private static final Color GRID_COLOR = Color.GRAY;
 	private static final float CAMERA_HEIGHT = 6;
-
+	private static final Plane auxPlane = new Plane();
+	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
+	@Setter
+	private static EditorModes mode;
 	public final int VIEWPORT_WIDTH;
 	public final int VIEWPORT_HEIGHT;
 	private ModelBatch modelBatch;
@@ -35,6 +41,10 @@ public class NecromineMapEditor extends ApplicationAdapter {
 	private Camera camera;
 	private Model gridModel;
 	private ModelInstance gridModelInstance;
+	private Assets.FloorsTextures selectedTile;
+	private ModelInstance cursorTileModelInstance;
+	private Model cursorTileModel;
+	private ModelInstance cursorModelInstance;
 
 	public NecromineMapEditor(final int width, final int height) {
 		VIEWPORT_WIDTH = width / 50;
@@ -72,11 +82,33 @@ public class NecromineMapEditor extends ApplicationAdapter {
 		this.modelBatch = new ModelBatch();
 		createAxis();
 		createGrid();
+		createCursorTile();
 		camera = createCamera();
+		initializeInput();
+	}
+
+	private void createCursorTile() {
+		ModelBuilder builder = new ModelBuilder();
+		Material material = new Material(ColorAttribute.createDiffuse(CURSOR_COLOR));
+		cursorTileModel = builder.createRect(
+				1, 0, 0,
+				0, 0, 0,
+				0, 0, 1,
+				1, 0, 1,
+				0, 1, 0,
+				material,
+				Usage.Position | Usage.Normal | Usage.TextureCoordinates
+		);
+		cursorTileModelInstance = new ModelInstance(cursorTileModel);
+	}
+
+	private void initializeInput() {
 		if (DefaultSettings.ENABLE_DEBUG_INPUT) {
 			CameraInputController processor = new CameraInputController(camera);
 			Gdx.input.setInputProcessor(processor);
 			processor.autoUpdate = true;
+		} else {
+			Gdx.input.setInputProcessor(this);
 		}
 	}
 
@@ -118,12 +150,15 @@ public class NecromineMapEditor extends ApplicationAdapter {
 		modelBatch.render(axisModelInstanceX);
 		modelBatch.render(axisModelInstanceY);
 		modelBatch.render(axisModelInstanceZ);
+		if (cursorModelInstance != null) {
+			modelBatch.render(cursorModelInstance);
+		}
 		modelBatch.end();
 	}
 
 	private void update() {
 		InputProcessor inputProcessor = Gdx.input.getInputProcessor();
-		if (inputProcessor != null) {
+		if (inputProcessor != null && DefaultSettings.ENABLE_DEBUG_INPUT) {
 			CameraInputController cameraInputController = (CameraInputController) inputProcessor;
 			cameraInputController.update();
 		}
@@ -137,5 +172,68 @@ public class NecromineMapEditor extends ApplicationAdapter {
 		axisModelY.dispose();
 		axisModelZ.dispose();
 		gridModel.dispose();
+		cursorTileModel.dispose();
+	}
+
+	@Override
+	public void onTileSelected(final Assets.FloorsTextures texture) {
+		setMode(EditorModes.TILES);
+		selectedTile = texture;
+		cursorModelInstance = cursorTileModelInstance;
+	}
+
+	@Override
+	public boolean keyDown(final int keycode) {
+		return false;
+	}
+
+	@Override
+	public boolean keyUp(final int keycode) {
+		return false;
+	}
+
+	@Override
+	public boolean keyTyped(final char character) {
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(final int screenX, final int screenY, final int pointer, final int button) {
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(final int screenX, final int screenY, final int pointer, final int button) {
+		return false;
+	}
+
+	@Override
+	public boolean touchDragged(final int screenX, final int screenY, final int pointer) {
+		return false;
+	}
+
+	@Override
+	public boolean mouseMoved(final int screenX, final int screenY) {
+		boolean result = false;
+		if (cursorModelInstance != null) {
+			Vector3 collisionPoint = castRayTowardsPlane(screenX, screenY);
+			int x = MathUtils.clamp((int) collisionPoint.x, 0, LEVEL_SIZE);
+			int z = MathUtils.clamp((int) collisionPoint.z, 0, LEVEL_SIZE);
+			cursorModelInstance.transform.setTranslation(x, 0, z);
+			result = true;
+		}
+		return result;
+	}
+
+	Vector3 castRayTowardsPlane(final float screenX, final float screenY) {
+		Ray ray = camera.getPickRay(screenX, screenY);
+		auxPlane.set(Vector3.Zero, auxVector1.set(0, 1, 0));
+		Intersector.intersectRayPlane(ray, auxPlane, auxVector2);
+		return auxVector2;
+	}
+
+	@Override
+	public boolean scrolled(final float amountX, final float amountY) {
+		return false;
 	}
 }

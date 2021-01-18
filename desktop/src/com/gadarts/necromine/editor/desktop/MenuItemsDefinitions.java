@@ -1,8 +1,9 @@
-package com.necromine.editor.desktop;
+package com.gadarts.necromine.editor.desktop;
 
-import com.necromine.editor.desktop.actions.SetModeAction;
-import com.necromine.editor.desktop.menuitems.MenuItemDefinition;
-import com.necromine.editor.desktop.menuitems.MenuItemProperties;
+import com.gadarts.necromine.editor.desktop.actions.SetModeAction;
+import com.gadarts.necromine.editor.desktop.menuitems.MenuItemDefinition;
+import com.gadarts.necromine.editor.desktop.menuitems.MenuItemProperties;
+import com.necromine.editor.EditorModes;
 
 public enum MenuItemsDefinitions implements MenuItemDefinition {
 	MODE_TILE(new MenuItemProperties("Tiles Mode", new SetModeAction(EditorModes.TILES), "tile_mode")),

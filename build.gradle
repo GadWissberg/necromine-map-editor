@@ -31,6 +31,7 @@ allprojects {
         google()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url 'https://jitpack.io' }
     }
 }
 
@@ -39,6 +40,7 @@ project(":desktop") {
 
 
     dependencies {
+        implementation 'com.github.GadWissberg:necromine-shared:master-SNAPSHOT'
         implementation project(":core")
         api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
@@ -52,7 +54,9 @@ project(":core") {
 
 
     dependencies {
+        implementation 'com.github.GadWissberg:necromine-shared:master-SNAPSHOT'
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
-
+        compileOnly 'org.projectlombok:lombok:1.18.12'
+        annotationProcessor 'org.projectlombok:lombok:1.18.12'
     }
 }

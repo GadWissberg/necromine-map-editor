@@ -1,6 +1,6 @@
-package com.necromine.editor.desktop.toolbar;
+package com.gadarts.necromine.editor.desktop.toolbar;
 
-import com.necromine.editor.desktop.MenuItemsDefinitions;
+import com.gadarts.necromine.editor.desktop.MenuItemsDefinitions;
 
 public enum ToolbarButtonsDefinitions implements ToolbarButtonDefinition {
 	MODE_TILE(new ToolbarButtonOfMenuItem("tile_mode", "Tiles Mode", MenuItemsDefinitions.MODE_TILE, Constants.BUTTON_GROUP_MODE)),

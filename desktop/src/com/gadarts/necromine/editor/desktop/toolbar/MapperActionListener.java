@@ -1,4 +1,4 @@
-package com.necromine.editor.desktop.toolbar;
+package com.gadarts.necromine.editor.desktop.toolbar;
 
 import java.awt.event.ActionListener;
 

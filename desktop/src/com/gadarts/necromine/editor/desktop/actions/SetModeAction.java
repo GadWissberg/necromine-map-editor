@@ -1,8 +1,8 @@
-package com.necromine.editor.desktop.actions;
+package com.gadarts.necromine.editor.desktop.actions;
 
-import com.necromine.editor.desktop.EditorModes;
-import com.necromine.editor.desktop.MapperWindow;
-import com.necromine.editor.desktop.toolbar.MapperActionListener;
+import com.necromine.editor.EditorModes;
+import com.gadarts.necromine.editor.desktop.MapperWindow;
+import com.gadarts.necromine.editor.desktop.toolbar.MapperActionListener;
 
 import java.awt.event.ActionEvent;
 

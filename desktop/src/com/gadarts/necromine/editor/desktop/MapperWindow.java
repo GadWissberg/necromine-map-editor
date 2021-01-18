@@ -1,10 +1,13 @@
-package com.necromine.editor.desktop;
+package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
-import com.necromine.editor.desktop.toolbar.RadioToolBarButton;
-import com.necromine.editor.desktop.toolbar.ToolBarButton;
-import com.necromine.editor.desktop.toolbar.ToolbarButtonOfMenuItem;
-import com.necromine.editor.desktop.toolbar.ToolbarButtonsDefinitions;
+import com.gadarts.necromine.Assets;
+import com.gadarts.necromine.editor.desktop.toolbar.RadioToolBarButton;
+import com.gadarts.necromine.editor.desktop.toolbar.ToolBarButton;
+import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonOfMenuItem;
+import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonsDefinitions;
+import com.necromine.editor.EditorModes;
+import com.necromine.editor.GuiEventsSubscriber;
 import lombok.Getter;
 import lombok.Setter;
 import org.lwjgl.openal.AL;
@@ -12,13 +15,11 @@ import org.lwjgl.openal.AL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 
 public class MapperWindow extends JFrame {
 	public static final String FOLDER_TOOLBAR_BUTTONS = "toolbar_buttons";
@@ -33,19 +34,22 @@ public class MapperWindow extends JFrame {
 
 	private final LwjglAWTCanvas lwjgl;
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
+	private final File assetsFolderLocation = new File("C:\\Users\\gadw1\\StudioProjects\\isometric-game\\core\\assets");
+	private final GuiEventsSubscriber guiEventsSubscriber;
 
 
-	public MapperWindow(final String header, final LwjglAWTCanvas lwjgl) {
+	public MapperWindow(final String header, final LwjglAWTCanvas lwjgl, final GuiEventsSubscriber guiEventsSubscriber) {
 		super(header);
 		this.lwjgl = lwjgl;
-		addToolBar(ToolbarButtonsDefinitions.values()).add(Box.createHorizontalGlue());
-		defineMapperWindow(lwjgl.getCanvas());
+		this.guiEventsSubscriber = guiEventsSubscriber;
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			SwingUtilities.updateComponentTreeUI(this);
 		} catch (final Exception e1) {
 			e1.printStackTrace();
 		}
+		addToolBar(ToolbarButtonsDefinitions.values()).add(Box.createHorizontalGlue());
+		defineMapperWindow(lwjgl.getCanvas());
 	}
 
 	protected JToolBar addToolBar(final ToolbarButtonsDefinitions[] toolbarOptions) {
@@ -101,10 +105,72 @@ public class MapperWindow extends JFrame {
 	private void defineMapperWindow(final Canvas canvas) {
 		defineMapperWindowAttributes();
 		JPanel mainPanel = new JPanel(new BorderLayout());
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JPanel(), canvas);
+		JPanel entitiesPanel = createEntitiesPanel();
+		addEntitiesGallery(entitiesPanel);
+		JSplitPane splitPane = createSplitPane(canvas, entitiesPanel);
 		mainPanel.add(splitPane);
 		getContentPane().add(mainPanel);
 	}
+
+	private JSplitPane createSplitPane(final Canvas canvas, final JPanel entitiesPanel) {
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, entitiesPanel, canvas);
+		splitPane.setEnabled(false);
+		splitPane.setDividerLocation(0.4);
+		return splitPane;
+	}
+
+	private JPanel createEntitiesPanel() {
+		CardLayout entitiesLayout = new CardLayout();
+		return new JPanel(entitiesLayout);
+	}
+
+	private void addEntitiesGallery(final JPanel entitiesPanel) {
+		try {
+			entitiesPanel.add(createEntitiesGallery(), EntitiesPanelCards.GALLERY.name());
+			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
+			entitiesLayout.next(entitiesPanel);
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private JScrollPane createEntitiesGallery() throws IOException {
+		GridLayout layout = new GridLayout(0, 3);
+		JPanel gallery = new JPanel(layout);
+		JScrollPane jScrollPane = new JScrollPane(gallery);
+		fillGallery(gallery);
+		jScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		return jScrollPane;
+	}
+
+	private void fillGallery(final JPanel gallery) {
+		ButtonGroup buttonGroup = new ButtonGroup();
+		Arrays.stream(Assets.FloorsTextures.values()).forEach(texture -> {
+			try {
+				addImageButtonToGallery(gallery, texture, buttonGroup);
+			} catch (final IOException e) {
+				e.printStackTrace();
+			}
+		});
+	}
+
+	private GalleryButton addImageButtonToGallery(final JPanel gallery,
+												  final Assets.FloorsTextures texture,
+												  final ButtonGroup buttonGroup) throws IOException {
+		String path = assetsFolderLocation.getAbsolutePath() + File.separator + texture.getFilePath();
+		FileInputStream inputStream = new FileInputStream(path);
+		GalleryButton button = new GalleryButton(texture, new ImageIcon(ImageIO.read(inputStream)));
+		button.addItemListener(itemEvent -> {
+			if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
+				guiEventsSubscriber.onTileSelected(texture);
+			}
+		});
+		inputStream.close();
+		buttonGroup.add(button);
+		gallery.add(button);
+		return button;
+	}
+
 
 	private void defineMapperWindowAttributes() {
 		defineWindowClose();
@@ -125,4 +191,6 @@ public class MapperWindow extends JFrame {
 			}
 		});
 	}
+
+	private enum EntitiesPanelCards {TREE, GALLERY}
 }

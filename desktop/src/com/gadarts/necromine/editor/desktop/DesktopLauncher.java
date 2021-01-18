@@ -1,4 +1,4 @@
-package com.necromine.editor.desktop;
+package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
@@ -19,7 +19,7 @@ public class DesktopLauncher {
 			config.height = HEIGHT;
 			NecromineMapEditor listener = new NecromineMapEditor(WIDTH,HEIGHT);
 			LwjglAWTCanvas lwjgl = new LwjglAWTCanvas(listener, config);
-			new MapperWindow(WINDOW_HEADER, lwjgl);
+			new MapperWindow(WINDOW_HEADER, lwjgl, listener);
 		});
 	}
 
