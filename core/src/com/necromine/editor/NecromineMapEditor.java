@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
@@ -27,10 +28,14 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static final float CAMERA_HEIGHT = 6;
 	private static final Plane auxPlane = new Plane();
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
+	public static final float FLICKER_RATE = 0.05f;
+
 	@Setter
 	private static EditorModes mode;
+
 	public final int VIEWPORT_WIDTH;
 	public final int VIEWPORT_HEIGHT;
+	private final Tile[][] map;
 	private ModelBatch modelBatch;
 	private Model axisModelX;
 	private ModelInstance axisModelInstanceX;
@@ -45,10 +50,13 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private ModelInstance cursorTileModelInstance;
 	private Model cursorTileModel;
 	private ModelInstance cursorModelInstance;
+	private float flicker;
+	private MappingProcess currentProcess;
 
 	public NecromineMapEditor(final int width, final int height) {
 		VIEWPORT_WIDTH = width / 50;
 		VIEWPORT_HEIGHT = height / 50;
+		map = new Tile[LEVEL_SIZE][LEVEL_SIZE];
 	}
 
 	private void createAxis() {
@@ -90,6 +98,8 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private void createCursorTile() {
 		ModelBuilder builder = new ModelBuilder();
 		Material material = new Material(ColorAttribute.createDiffuse(CURSOR_COLOR));
+		BlendingAttribute highlightBlend = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		material.set(highlightBlend);
 		cursorTileModel = builder.createRect(
 				1, 0, 0,
 				0, 0, 0,
@@ -147,13 +157,18 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private void renderWorld() {
 		modelBatch.begin(camera);
 		modelBatch.render(gridModelInstance);
-		modelBatch.render(axisModelInstanceX);
-		modelBatch.render(axisModelInstanceY);
-		modelBatch.render(axisModelInstanceZ);
+		renderAxis();
 		if (cursorModelInstance != null) {
 			modelBatch.render(cursorModelInstance);
 		}
+		renderExistingProcess();
 		modelBatch.end();
+	}
+
+	private void renderAxis() {
+		modelBatch.render(axisModelInstanceX);
+		modelBatch.render(axisModelInstanceY);
+		modelBatch.render(axisModelInstanceZ);
 	}
 
 	private void update() {
@@ -163,6 +178,16 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 			cameraInputController.update();
 		}
 		camera.update();
+		updateCursorFlicker();
+	}
+
+	private void updateCursorFlicker() {
+		if (cursorModelInstance != null) {
+			Material material = cursorModelInstance.materials.get(0);
+			BlendingAttribute blend = (BlendingAttribute) material.get(BlendingAttribute.Type);
+			blend.opacity = Math.abs(MathUtils.sin(flicker += FLICKER_RATE));
+			material.set(blend);
+		}
 	}
 
 	@Override
@@ -199,30 +224,68 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	@Override
 	public boolean touchDown(final int screenX, final int screenY, final int pointer, final int button) {
-		return false;
+		boolean result = false;
+		if (cursorModelInstance == cursorTileModelInstance && currentProcess == null) {
+			Vector3 position = cursorTileModelInstance.transform.getTranslation(auxVector1);
+			PlaceTilesProcess placeTilesProcess = new PlaceTilesProcess(map);
+			currentProcess = placeTilesProcess;
+			placeTilesProcess.begin((int) position.z, (int) position.x);
+			result = true;
+		}
+		return result;
 	}
 
 	@Override
 	public boolean touchUp(final int screenX, final int screenY, final int pointer, final int button) {
-		return false;
+		boolean result = false;
+		if (currentProcess != null) {
+			Vector3 position = cursorTileModelInstance.transform.getTranslation(auxVector1);
+			((PlaceTilesProcess) currentProcess).finish((int) position.z, (int) position.x, selectedTile);
+			currentProcess = null;
+			result = true;
+		}
+		return result;
 	}
 
 	@Override
 	public boolean touchDragged(final int screenX, final int screenY, final int pointer) {
-		return false;
+		return updateCursorByScreenCoords(screenX, screenY);
 	}
 
 	@Override
 	public boolean mouseMoved(final int screenX, final int screenY) {
-		boolean result = false;
+		return updateCursorByScreenCoords(screenX, screenY);
+	}
+
+	private boolean updateCursorByScreenCoords(final int screenX, final int screenY) {
 		if (cursorModelInstance != null) {
 			Vector3 collisionPoint = castRayTowardsPlane(screenX, screenY);
 			int x = MathUtils.clamp((int) collisionPoint.x, 0, LEVEL_SIZE);
 			int z = MathUtils.clamp((int) collisionPoint.z, 0, LEVEL_SIZE);
 			cursorModelInstance.transform.setTranslation(x, 0, z);
-			result = true;
+			return true;
 		}
-		return result;
+		return false;
+	}
+
+	private void renderExistingProcess() {
+		if (currentProcess != null) {
+			if (currentProcess instanceof PlaceTilesProcess) {
+				PlaceTilesProcess process = (PlaceTilesProcess) currentProcess;
+				renderRectangleMarking(process.getSrcRow(), process.getSrcCol());
+			}
+		}
+	}
+
+	private void renderRectangleMarking(final int srcRow, final int srcCol) {
+		Vector3 initialTilePos = cursorModelInstance.transform.getTranslation(auxVector1);
+		for (int i = Math.min((int) initialTilePos.x, srcCol); i <= Math.max((int) initialTilePos.x, srcCol); i++) {
+			for (int j = Math.min((int) initialTilePos.z, srcRow); j <= Math.max((int) initialTilePos.z, srcRow); j++) {
+				cursorModelInstance.transform.setTranslation(i, initialTilePos.y, j);
+				modelBatch.render(cursorModelInstance);
+			}
+		}
+		cursorModelInstance.transform.setTranslation(initialTilePos);
 	}
 
 	Vector3 castRayTowardsPlane(final float screenX, final float screenY) {
