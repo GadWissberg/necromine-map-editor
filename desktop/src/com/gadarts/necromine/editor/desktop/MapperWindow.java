@@ -8,6 +8,7 @@ import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonOfMenuItem;
 import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonsDefinitions;
 import com.necromine.editor.EditorModes;
 import com.necromine.editor.GuiEventsSubscriber;
+import com.necromine.editor.NecromineMapEditor;
 import lombok.Getter;
 import lombok.Setter;
 import org.lwjgl.openal.AL;
@@ -34,7 +35,7 @@ public class MapperWindow extends JFrame {
 
 	private final LwjglAWTCanvas lwjgl;
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
-	private final File assetsFolderLocation = new File("C:\\Users\\gadw1\\StudioProjects\\isometric-game\\core\\assets");
+	private final File assetsFolderLocation = new File(NecromineMapEditor.TEMP_ASSETS_FOLDER);
 	private final GuiEventsSubscriber guiEventsSubscriber;
 
 

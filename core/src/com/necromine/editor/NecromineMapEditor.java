@@ -3,9 +3,15 @@ package com.necromine.editor;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
@@ -16,10 +22,16 @@ import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gadarts.necromine.Assets;
-import lombok.Setter;
+import com.gadarts.necromine.Assets.AssetsTypes;
+import com.gadarts.necromine.assets.GameAssetsManager;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsSubscriber, InputProcessor {
 	public static final float FAR = 100f;
+	public static final float FLICKER_RATE = 0.05f;
+	public static final String TEMP_ASSETS_FOLDER = "C:\\Users\\gadw1\\StudioProjects\\isometric-game\\core\\assets";
 	private static final float NEAR = 0.01f;
 	private static final Vector3 auxVector1 = new Vector3();
 	private static final Vector3 auxVector2 = new Vector3();
@@ -28,14 +40,11 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static final float CAMERA_HEIGHT = 6;
 	private static final Plane auxPlane = new Plane();
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
-	public static final float FLICKER_RATE = 0.05f;
-
-	@Setter
-	private static EditorModes mode;
-
 	public final int VIEWPORT_WIDTH;
 	public final int VIEWPORT_HEIGHT;
 	private final Tile[][] map;
+	private final GameAssetsManager assetsManager;
+	private final Set<Tile> initializedTiles = new HashSet<>();
 	private ModelBatch modelBatch;
 	private Model axisModelX;
 	private ModelInstance axisModelInstanceX;
@@ -57,6 +66,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		VIEWPORT_WIDTH = width / 50;
 		VIEWPORT_HEIGHT = height / 50;
 		map = new Tile[LEVEL_SIZE][LEVEL_SIZE];
+		assetsManager = new GameAssetsManager(TEMP_ASSETS_FOLDER.replace('\\', '/') + '/');
 	}
 
 	private void createAxis() {
@@ -88,6 +98,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	@Override
 	public void create() {
 		this.modelBatch = new ModelBatch();
+		assetsManager.loadGameFiles(AssetsTypes.FONT, AssetsTypes.MELODY, AssetsTypes.SOUND, AssetsTypes.SHADER);
 		createAxis();
 		createGrid();
 		createCursorTile();
@@ -162,7 +173,14 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 			modelBatch.render(cursorModelInstance);
 		}
 		renderExistingProcess();
+		renderTiles();
 		modelBatch.end();
+	}
+
+	private void renderTiles() {
+		for (Tile tile : initializedTiles) {
+			modelBatch.render(tile.getModelInstance());
+		}
 	}
 
 	private void renderAxis() {
@@ -198,11 +216,11 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		axisModelZ.dispose();
 		gridModel.dispose();
 		cursorTileModel.dispose();
+		assetsManager.dispose();
 	}
 
 	@Override
 	public void onTileSelected(final Assets.FloorsTextures texture) {
-		setMode(EditorModes.TILES);
 		selectedTile = texture;
 		cursorModelInstance = cursorTileModelInstance;
 	}
@@ -229,7 +247,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 			Vector3 position = cursorTileModelInstance.transform.getTranslation(auxVector1);
 			PlaceTilesProcess placeTilesProcess = new PlaceTilesProcess(map);
 			currentProcess = placeTilesProcess;
-			placeTilesProcess.begin((int) position.z, (int) position.x);
+			placeTilesProcess.begin((int) position.z, (int) position.x, assetsManager, initializedTiles);
 			result = true;
 		}
 		return result;
@@ -240,8 +258,9 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		boolean result = false;
 		if (currentProcess != null) {
 			Vector3 position = cursorTileModelInstance.transform.getTranslation(auxVector1);
-			((PlaceTilesProcess) currentProcess).finish((int) position.z, (int) position.x, selectedTile);
-			currentProcess = null;
+			PlaceTilesProcess currentProcess = (PlaceTilesProcess) this.currentProcess;
+			currentProcess.finish((int) position.z, (int) position.x, selectedTile, cursorTileModel);
+			this.currentProcess = null;
 			result = true;
 		}
 		return result;
