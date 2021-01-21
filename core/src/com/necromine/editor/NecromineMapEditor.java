@@ -226,6 +226,11 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	@Override
+	public void onModeChanged(EditorModes mode) {
+
+	}
+
+	@Override
 	public boolean keyDown(final int keycode) {
 		return false;
 	}
@@ -281,7 +286,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 			Vector3 collisionPoint = castRayTowardsPlane(screenX, screenY);
 			int x = MathUtils.clamp((int) collisionPoint.x, 0, LEVEL_SIZE);
 			int z = MathUtils.clamp((int) collisionPoint.z, 0, LEVEL_SIZE);
-			cursorModelInstance.transform.setTranslation(x, 0, z);
+			cursorModelInstance.transform.setTranslation(x, 0.01f, z);
 			return true;
 		}
 		return false;

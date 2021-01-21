@@ -1,9 +1,11 @@
 package com.gadarts.necromine.editor.desktop.actions;
 
-import com.necromine.editor.EditorModes;
-import com.gadarts.necromine.editor.desktop.MapperWindow;
+import com.gadarts.necromine.editor.desktop.Events;
+import com.gadarts.necromine.editor.desktop.ModesHandler;
 import com.gadarts.necromine.editor.desktop.toolbar.MapperActionListener;
+import com.necromine.editor.EditorModes;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 public class SetModeAction extends MapperActionListener {
@@ -15,7 +17,8 @@ public class SetModeAction extends MapperActionListener {
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		MapperWindow.setMode(mode);
+		JComponent source = (JComponent) e.getSource();
+		source.firePropertyChange(Events.REQUEST_TO_CHANGE_MODE.name(), ModesHandler.getMode().ordinal(), mode.ordinal());
 	}
 
 }

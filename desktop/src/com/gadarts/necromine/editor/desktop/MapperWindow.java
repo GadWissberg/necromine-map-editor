@@ -9,40 +9,42 @@ import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonsDefinitions;
 import com.necromine.editor.EditorModes;
 import com.necromine.editor.GuiEventsSubscriber;
 import com.necromine.editor.NecromineMapEditor;
-import lombok.Getter;
-import lombok.Setter;
 import org.lwjgl.openal.AL;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.*;
 import java.util.*;
 
-public class MapperWindow extends JFrame {
+public class MapperWindow extends JFrame implements PropertyChangeListener {
 	public static final String FOLDER_TOOLBAR_BUTTONS = "toolbar_buttons";
 	public static final int WIDTH = 1280;
 	public static final int HEIGHT = 720;
-	private static final String ICON_FORMAT = "png";
+	private static final String ICON_FORMAT = ".png";
 	private static final String FOLDER_ASSETS = "core" + File.separator + "assets";
-
-	@Getter
-	@Setter
-	private static EditorModes mode;
+	public static final String UI_ASSETS_FOLDER_PATH = FOLDER_ASSETS + File.separator + "%s" + File.separator + "%s" + ICON_FORMAT;
 
 	private final LwjglAWTCanvas lwjgl;
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
 	private final File assetsFolderLocation = new File(NecromineMapEditor.TEMP_ASSETS_FOLDER);
 	private final GuiEventsSubscriber guiEventsSubscriber;
+	private final ModesHandler modesHandler;
+	private JPanel entitiesPanel;
 
 
 	public MapperWindow(final String header, final LwjglAWTCanvas lwjgl, final GuiEventsSubscriber guiEventsSubscriber) {
 		super(header);
 		this.lwjgl = lwjgl;
 		this.guiEventsSubscriber = guiEventsSubscriber;
+		modesHandler = new ModesHandler();
+		modesHandler.setVisible(false);
+		add(modesHandler);
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			SwingUtilities.updateComponentTreeUI(this);
@@ -75,10 +77,12 @@ public class MapperWindow extends JFrame {
 		ImageIcon imageIcon = getButtonIcon(buttonProperties);
 		AbstractButton toolBarButton;
 		if (button.getButtonProperties().getButtonGroup() == null) {
-			toolBarButton = new ToolBarButton(imageIcon, buttonProperties);
+			toolBarButton = new ToolBarButton(imageIcon, buttonProperties, modesHandler);
 		} else {
 			toolBarButton = createToolbarRadioButtonOfMenuItem(button, buttonProperties, imageIcon);
 		}
+		toolBarButton.addPropertyChangeListener(modesHandler);
+		modesHandler.addPropertyChangeListener(this);
 		return toolBarButton;
 	}
 
@@ -98,15 +102,14 @@ public class MapperWindow extends JFrame {
 	}
 
 	private ImageIcon getButtonIcon(final ToolbarButtonOfMenuItem buttonProperties) throws IOException {
-		final String FOLDER_PATH = FOLDER_ASSETS + File.separator + FOLDER_TOOLBAR_BUTTONS + File.separator;
-		String pathname = FOLDER_PATH + buttonProperties.getIcon() + "." + ICON_FORMAT;
-		return new ImageIcon(ImageIO.read(new File(pathname)), buttonProperties.getToolTip());
+		String path = String.format(UI_ASSETS_FOLDER_PATH, FOLDER_TOOLBAR_BUTTONS, buttonProperties.getIcon());
+		return new ImageIcon(ImageIO.read(new File(path)), buttonProperties.getToolTip());
 	}
 
 	private void defineMapperWindow(final Canvas canvas) {
 		defineMapperWindowAttributes();
 		JPanel mainPanel = new JPanel(new BorderLayout());
-		JPanel entitiesPanel = createEntitiesPanel();
+		entitiesPanel = createEntitiesPanel();
 		addEntitiesGallery(entitiesPanel);
 		JSplitPane splitPane = createSplitPane(canvas, entitiesPanel);
 		mainPanel.add(splitPane);
@@ -125,8 +128,40 @@ public class MapperWindow extends JFrame {
 		return new JPanel(entitiesLayout);
 	}
 
+	private DefaultMutableTreeNode createSectionNodeForTree(final String header) {
+		DefaultMutableTreeNode sectionNode = new DefaultMutableTreeNode(header);
+//			sectionNode.add(assetEntry);
+		return sectionNode;
+	}
+
+	private EditorTree createResourcesTree() {
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Characters");
+		top.add(createSectionNodeForTree("Enemies"));
+		EditorTree tree = new EditorTree(top);
+		tree.setCellRenderer(new ResourcesTreeCellRenderer());
+		tree.addMouseListener(new MouseAdapter() {
+			private void runAction(final DefaultMutableTreeNode node) {
+			}
+
+			@Override
+			public void mouseClicked(final MouseEvent e) {
+				super.mouseClicked(e);
+				TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+				tree.setSelectionPath(path);
+				if (path != null && e.getClickCount() > 1) {
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+					if (node.isLeaf()) {
+						runAction(node);
+					}
+				}
+			}
+		});
+		return tree;
+	}
+
 	private void addEntitiesGallery(final JPanel entitiesPanel) {
 		try {
+			entitiesPanel.add(createResourcesTree(), EntitiesPanelCards.TREE.name());
 			entitiesPanel.add(createEntitiesGallery(), EntitiesPanelCards.GALLERY.name());
 			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
 			entitiesLayout.next(entitiesPanel);
@@ -155,9 +190,9 @@ public class MapperWindow extends JFrame {
 		});
 	}
 
-	private GalleryButton addImageButtonToGallery(final JPanel gallery,
-												  final Assets.FloorsTextures texture,
-												  final ButtonGroup buttonGroup) throws IOException {
+	private void addImageButtonToGallery(final JPanel gallery,
+										 final Assets.FloorsTextures texture,
+										 final ButtonGroup buttonGroup) throws IOException {
 		String path = assetsFolderLocation.getAbsolutePath() + File.separator + texture.getFilePath();
 		FileInputStream inputStream = new FileInputStream(path);
 		GalleryButton button = new GalleryButton(texture, new ImageIcon(ImageIO.read(inputStream)));
@@ -169,7 +204,6 @@ public class MapperWindow extends JFrame {
 		inputStream.close();
 		buttonGroup.add(button);
 		gallery.add(button);
-		return button;
 	}
 
 
@@ -191,6 +225,21 @@ public class MapperWindow extends JFrame {
 				e.getWindow().dispose();
 			}
 		});
+	}
+
+	@Override
+	public void propertyChange(final PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals(Events.MODE_CHANGED.name())) {
+			int newModeIndex = (int) evt.getNewValue();
+			EditorModes mode = EditorModes.values()[newModeIndex];
+			guiEventsSubscriber.onModeChanged(mode);
+			CardLayout cardLayout = (CardLayout) entitiesPanel.getLayout();
+			if (mode == EditorModes.TILES) {
+				cardLayout.show(entitiesPanel, EntitiesPanelCards.GALLERY.name());
+			} else {
+				cardLayout.show(entitiesPanel, EntitiesPanelCards.TREE.name());
+			}
+		}
 	}
 
 	private enum EntitiesPanelCards {TREE, GALLERY}
