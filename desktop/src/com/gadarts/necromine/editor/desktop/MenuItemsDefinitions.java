@@ -7,7 +7,7 @@ import com.necromine.editor.EditorModes;
 
 public enum MenuItemsDefinitions implements MenuItemDefinition {
 	MODE_TILE(new MenuItemProperties("Tiles Mode", new SetModeAction(EditorModes.TILES), "tile_mode")),
-	MODE_OBJECT(new MenuItemProperties("Objects Mode", new SetModeAction(EditorModes.OBJECTS), "object_mode"));
+	MODE_OBJECT(new MenuItemProperties("Objects Mode", new SetModeAction(EditorModes.CHARACTERS), "object_mode"));
 	private final MenuItemProperties menuItemProperties;
 
 	MenuItemsDefinitions(final MenuItemProperties menuItemProperties) {

@@ -1,11 +1,13 @@
 package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
-import com.gadarts.necromine.Assets;
+import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.toolbar.RadioToolBarButton;
 import com.gadarts.necromine.editor.desktop.toolbar.ToolBarButton;
 import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonOfMenuItem;
 import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonsDefinitions;
+import com.gadarts.necromine.model.CharacterDefinition;
+import com.gadarts.necromine.model.ElementDefinition;
 import com.necromine.editor.EditorModes;
 import com.necromine.editor.GuiEventsSubscriber;
 import com.necromine.editor.NecromineMapEditor;
@@ -29,6 +31,7 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 	private static final String ICON_FORMAT = ".png";
 	private static final String FOLDER_ASSETS = "core" + File.separator + "assets";
 	public static final String UI_ASSETS_FOLDER_PATH = FOLDER_ASSETS + File.separator + "%s" + File.separator + "%s" + ICON_FORMAT;
+	private static final String ICON_CHARACTER = "character";
 
 	private final LwjglAWTCanvas lwjgl;
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
@@ -110,7 +113,7 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 		defineMapperWindowAttributes();
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		entitiesPanel = createEntitiesPanel();
-		addEntitiesGallery(entitiesPanel);
+		addEntitiesDataSelectors(entitiesPanel);
 		JSplitPane splitPane = createSplitPane(canvas, entitiesPanel);
 		mainPanel.add(splitPane);
 		getContentPane().add(mainPanel);
@@ -128,40 +131,44 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 		return new JPanel(entitiesLayout);
 	}
 
-	private DefaultMutableTreeNode createSectionNodeForTree(final String header) {
+	private DefaultMutableTreeNode createSectionNodeForTree(final String header, final ElementDefinition[] definitions) {
 		DefaultMutableTreeNode sectionNode = new DefaultMutableTreeNode(header);
-//			sectionNode.add(assetEntry);
+		Arrays.stream(definitions).forEach(def -> sectionNode.add(new DefaultMutableTreeNode(def, false)));
 		return sectionNode;
 	}
 
-	private EditorTree createResourcesTree() {
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Characters");
-		top.add(createSectionNodeForTree("Enemies"));
+	private EditorTree createResourcesTree(final String rootHeader) {
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode(rootHeader);
 		EditorTree tree = new EditorTree(top);
-		tree.setCellRenderer(new ResourcesTreeCellRenderer());
-		tree.addMouseListener(new MouseAdapter() {
-			private void runAction(final DefaultMutableTreeNode node) {
-			}
+		Arrays.stream(EditorModes.CHARACTERS.getModeSections()).forEach(modeSection -> {
+			top.add(createSectionNodeForTree(modeSection.getHeader(), modeSection.getDefinitions()));
+			tree.setCellRenderer(new ResourcesTreeCellRenderer(ICON_CHARACTER));
+			tree.addMouseListener(new MouseAdapter() {
 
-			@Override
-			public void mouseClicked(final MouseEvent e) {
-				super.mouseClicked(e);
-				TreePath path = tree.getPathForLocation(e.getX(), e.getY());
-				tree.setSelectionPath(path);
-				if (path != null && e.getClickCount() > 1) {
-					DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-					if (node.isLeaf()) {
-						runAction(node);
+				@Override
+				public void mouseClicked(final MouseEvent e) {
+					super.mouseClicked(e);
+					TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+					tree.setSelectionPath(path);
+					if (path != null && e.getClickCount() > 1) {
+						DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+						if (node.isLeaf()) {
+							ElementDefinition definition = (ElementDefinition) node.getUserObject();
+							tree.firePropertyChange(Events.TREE_CHARACTER_SELECTED.name(), null, definition);
+						}
 					}
 				}
-			}
+			});
 		});
+		tree.expandPath(new TreePath(top.getPath()));
 		return tree;
 	}
 
-	private void addEntitiesGallery(final JPanel entitiesPanel) {
+	private void addEntitiesDataSelectors(final JPanel entitiesPanel) {
 		try {
-			entitiesPanel.add(createResourcesTree(), EntitiesPanelCards.TREE.name());
+			EditorTree resourcesTree = createResourcesTree("Characters");
+			resourcesTree.addPropertyChangeListener(this);
+			entitiesPanel.add(resourcesTree, EntitiesPanelCards.TREE.name());
 			entitiesPanel.add(createEntitiesGallery(), EntitiesPanelCards.GALLERY.name());
 			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
 			entitiesLayout.next(entitiesPanel);
@@ -229,7 +236,8 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(final PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(Events.MODE_CHANGED.name())) {
+		String propertyName = evt.getPropertyName();
+		if (propertyName.equals(Events.MODE_CHANGED.name())) {
 			int newModeIndex = (int) evt.getNewValue();
 			EditorModes mode = EditorModes.values()[newModeIndex];
 			guiEventsSubscriber.onModeChanged(mode);
@@ -239,6 +247,8 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 			} else {
 				cardLayout.show(entitiesPanel, EntitiesPanelCards.TREE.name());
 			}
+		} else if (propertyName.equals(Events.TREE_CHARACTER_SELECTED.name())) {
+			guiEventsSubscriber.onTreeCharacterSelected((CharacterDefinition) evt.getNewValue());
 		}
 	}
 

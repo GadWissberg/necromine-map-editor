@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
-import com.gadarts.necromine.Assets;
+import com.gadarts.necromine.assets.Assets;
 import lombok.Getter;
 import lombok.Setter;
 

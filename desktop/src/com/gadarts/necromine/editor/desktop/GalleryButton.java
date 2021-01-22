@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop;
 
-import com.gadarts.necromine.Assets;
+import com.gadarts.necromine.assets.Assets;
 import lombok.Getter;
 
 import javax.swing.*;

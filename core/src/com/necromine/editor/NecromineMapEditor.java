@@ -21,9 +21,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
-import com.gadarts.necromine.Assets;
-import com.gadarts.necromine.Assets.AssetsTypes;
+import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.CharacterDefinition;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -98,7 +98,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	@Override
 	public void create() {
 		this.modelBatch = new ModelBatch();
-		assetsManager.loadGameFiles(AssetsTypes.FONT, AssetsTypes.MELODY, AssetsTypes.SOUND, AssetsTypes.SHADER);
+		assetsManager.loadGameFiles(Assets.AssetsTypes.FONT, Assets.AssetsTypes.MELODY, Assets.AssetsTypes.SOUND, Assets.AssetsTypes.SHADER);
 		createAxis();
 		createGrid();
 		createCursorTile();
@@ -226,8 +226,13 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	@Override
-	public void onModeChanged(EditorModes mode) {
+	public void onModeChanged(final EditorModes mode) {
 
+	}
+
+	@Override
+	public void onTreeCharacterSelected(final CharacterDefinition definition) {
+		selectedTile = null;
 	}
 
 	@Override

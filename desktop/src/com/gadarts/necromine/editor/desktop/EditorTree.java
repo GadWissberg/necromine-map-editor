@@ -12,6 +12,11 @@ public class EditorTree extends JTree {
 
 	}
 
+	@Override
+	public void firePropertyChange(final String propertyName, final Object oldValue, final Object newValue) {
+		super.firePropertyChange(propertyName, oldValue, newValue);
+	}
+
 	public EditorTree(final DefaultMutableTreeNode top, final boolean alwaysOpen) {
 		super(top);
 		setExpandsSelectedPaths(true);
