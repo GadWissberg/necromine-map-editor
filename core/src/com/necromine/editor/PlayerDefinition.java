@@ -1,7 +1,8 @@
 package com.necromine.editor;
 
-import com.gadarts.necromine.model.CharacterDefinition;
-import com.gadarts.necromine.model.CharacterTypes;
+
+import com.gadarts.necromine.model.characters.CharacterDefinition;
+import com.gadarts.necromine.model.characters.CharacterTypes;
 
 public class PlayerDefinition implements CharacterDefinition {
 	@Override

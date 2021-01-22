@@ -8,7 +8,7 @@ public class ModeSection {
 	private final String header;
 	private final ElementDefinition[] definitions;
 
-	public ModeSection(final String header, ElementDefinition[] definitions) {
+	public ModeSection(final String header, final ElementDefinition[] definitions) {
 		this.header = header;
 		this.definitions = definitions;
 	}

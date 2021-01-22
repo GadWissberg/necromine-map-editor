@@ -8,30 +8,39 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
+import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Plane;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gadarts.necromine.assets.Assets;
+import com.gadarts.necromine.assets.Assets.AssetsTypes;
+import com.gadarts.necromine.assets.Assets.Atlases;
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.CharacterDefinition;
+import com.gadarts.necromine.model.characters.CharacterDefinition;
+import com.gadarts.necromine.model.characters.Direction;
+import com.gadarts.necromine.model.characters.SpriteType;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_SCALE;
+import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 
 public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsSubscriber, InputProcessor {
 	public static final float FAR = 100f;
 	public static final float FLICKER_RATE = 0.05f;
 	public static final String TEMP_ASSETS_FOLDER = "C:\\Users\\gadw1\\StudioProjects\\isometric-game\\core\\assets";
+	private static final int DECALS_POOL_SIZE = 200;
 	private static final float NEAR = 0.01f;
 	private static final Vector3 auxVector1 = new Vector3();
 	private static final Vector3 auxVector2 = new Vector3();
@@ -40,6 +49,8 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static final float CAMERA_HEIGHT = 6;
 	private static final Plane auxPlane = new Plane();
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
+	private static final float CURSOR_CHARACTER_OPACITY = 0.5f;
+	private static EditorModes mode;
 	public final int VIEWPORT_WIDTH;
 	public final int VIEWPORT_HEIGHT;
 	private final Tile[][] map;
@@ -61,6 +72,9 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private ModelInstance cursorModelInstance;
 	private float flicker;
 	private MappingProcess currentProcess;
+	private CharacterDefinition selectedCharacter;
+	private Decal cursorCharacterDecal;
+	private DecalBatch decalBatch;
 
 	public NecromineMapEditor(final int width, final int height) {
 		VIEWPORT_WIDTH = width / 50;
@@ -97,21 +111,47 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	@Override
 	public void create() {
-		this.modelBatch = new ModelBatch();
-		assetsManager.loadGameFiles(Assets.AssetsTypes.FONT, Assets.AssetsTypes.MELODY, Assets.AssetsTypes.SOUND, Assets.AssetsTypes.SHADER);
+		camera = createCamera();
+		createBatches();
+		assetsManager.loadGameFiles(AssetsTypes.FONT, AssetsTypes.MELODY, AssetsTypes.SOUND, AssetsTypes.SHADER);
 		createAxis();
 		createGrid();
-		createCursorTile();
-		camera = createCamera();
+		createCursors();
 		initializeInput();
 	}
 
+	private void createBatches() {
+		CameraGroupStrategy groupStrategy = new CameraGroupStrategy(camera);
+		this.decalBatch = new DecalBatch(DECALS_POOL_SIZE, groupStrategy);
+		this.modelBatch = new ModelBatch();
+	}
+
+	private void createCursors() {
+		createCursorTile();
+		createCursorCharacterModelInstance();
+		cursorModelInstance = cursorTileModelInstance;
+	}
+
 	private void createCursorTile() {
+		cursorTileModel = createRectModel();
+		cursorTileModel.materials.get(0).set(ColorAttribute.createDiffuse(CURSOR_COLOR));
+		cursorTileModelInstance = new ModelInstance(cursorTileModel);
+	}
+
+	private void createCursorCharacterModelInstance() {
+		String idle = SpriteType.IDLE.name() + "_" + Direction.SOUTH;
+		TextureAtlas.AtlasRegion region = assetsManager.getAtlas(Atlases.PLAYER_AXE_PICK).findRegion(idle.toLowerCase());
+		cursorCharacterDecal = Decal.newDecal(region, true);
+		Color color = cursorCharacterDecal.getColor();
+		cursorCharacterDecal.setColor(color.r, color.g, color.b, CURSOR_CHARACTER_OPACITY);
+		cursorCharacterDecal.setScale(BILLBOARD_SCALE);
+	}
+
+	private Model createRectModel() {
 		ModelBuilder builder = new ModelBuilder();
-		Material material = new Material(ColorAttribute.createDiffuse(CURSOR_COLOR));
 		BlendingAttribute highlightBlend = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		material.set(highlightBlend);
-		cursorTileModel = builder.createRect(
+		Material material = new Material(highlightBlend);
+		return builder.createRect(
 				1, 0, 0,
 				0, 0, 0,
 				0, 0, 1,
@@ -120,7 +160,6 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 				material,
 				Usage.Position | Usage.Normal | Usage.TextureCoordinates
 		);
-		cursorTileModelInstance = new ModelInstance(cursorTileModel);
 	}
 
 	private void initializeInput() {
@@ -166,16 +205,34 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void renderWorld() {
+		renderModels();
+		if (mode == EditorModes.CHARACTERS && selectedCharacter != null) {
+			renderDecals();
+		}
+	}
+
+	private void renderDecals() {
+		Gdx.gl.glDepthMask(false);
+		cursorCharacterDecal.lookAt(auxVector1.set(cursorCharacterDecal.getPosition()).sub(camera.direction), camera.up);
+		decalBatch.add(cursorCharacterDecal);
+		decalBatch.flush();
+		Gdx.gl.glDepthMask(true);
+	}
+
+	private void renderModels() {
 		modelBatch.begin(camera);
 		modelBatch.render(gridModelInstance);
 		renderAxis();
-		if (cursorModelInstance != null) {
-			modelBatch.render(cursorModelInstance);
-		}
+		renderCursor();
 		renderExistingProcess();
 		renderTiles();
 		modelBatch.end();
 	}
+
+	private void renderCursor() {
+		modelBatch.render(cursorModelInstance);
+	}
+
 
 	private void renderTiles() {
 		for (Tile tile : initializedTiles) {
@@ -216,23 +273,23 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		axisModelZ.dispose();
 		gridModel.dispose();
 		cursorTileModel.dispose();
+		decalBatch.dispose();
 		assetsManager.dispose();
 	}
 
 	@Override
 	public void onTileSelected(final Assets.FloorsTextures texture) {
 		selectedTile = texture;
-		cursorModelInstance = cursorTileModelInstance;
 	}
 
 	@Override
 	public void onModeChanged(final EditorModes mode) {
-
+		NecromineMapEditor.mode = mode;
 	}
 
 	@Override
 	public void onTreeCharacterSelected(final CharacterDefinition definition) {
-		selectedTile = null;
+		selectedCharacter = definition;
 	}
 
 	@Override
@@ -292,9 +349,16 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 			int x = MathUtils.clamp((int) collisionPoint.x, 0, LEVEL_SIZE);
 			int z = MathUtils.clamp((int) collisionPoint.z, 0, LEVEL_SIZE);
 			cursorModelInstance.transform.setTranslation(x, 0.01f, z);
+			updateCursorCharacter(x, z);
 			return true;
 		}
 		return false;
+	}
+
+	private void updateCursorCharacter(final int x, final int z) {
+		if (mode == EditorModes.CHARACTERS) {
+			cursorCharacterDecal.setPosition(x + 0.5f, BILLBOARD_Y, z + 0.5f);
+		}
 	}
 
 	private void renderExistingProcess() {

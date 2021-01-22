@@ -1,6 +1,6 @@
 package com.necromine.editor;
 
-import com.gadarts.necromine.model.Enemies;
+import com.gadarts.necromine.model.characters.Enemies;
 import lombok.Getter;
 
 @Getter
