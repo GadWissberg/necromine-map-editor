@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -20,20 +19,26 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Plane;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.Assets.AssetsTypes;
 import com.gadarts.necromine.assets.Assets.Atlases;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
-import com.gadarts.necromine.model.characters.Direction;
-import com.gadarts.necromine.model.characters.SpriteType;
+import com.necromine.editor.actions.ActionsHandler;
+import com.necromine.editor.actions.MappingProcess;
+import com.necromine.editor.actions.PlaceTilesProcess;
+import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_SCALE;
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 
 public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsSubscriber, InputProcessor {
@@ -50,12 +55,17 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static final Plane auxPlane = new Plane();
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
 	private static final float CURSOR_CHARACTER_OPACITY = 0.5f;
-	private static EditorModes mode;
+
+	@Getter
+	private static EditorModes mode = EditorModes.TILES;
+
 	public final int VIEWPORT_WIDTH;
 	public final int VIEWPORT_HEIGHT;
 	private final Tile[][] map;
 	private final GameAssetsManager assetsManager;
 	private final Set<Tile> initializedTiles = new HashSet<>();
+	private final List<PlacedCharacter> placedCharacters = new ArrayList<>();
+	private ActionsHandler actionsHandler;
 	private ModelBatch modelBatch;
 	private Model axisModelX;
 	private ModelInstance axisModelInstanceX;
@@ -71,7 +81,6 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private Model cursorTileModel;
 	private ModelInstance cursorModelInstance;
 	private float flicker;
-	private MappingProcess currentProcess;
 	private CharacterDefinition selectedCharacter;
 	private Decal cursorCharacterDecal;
 	private DecalBatch decalBatch;
@@ -117,6 +126,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		createAxis();
 		createGrid();
 		createCursors();
+		actionsHandler = new ActionsHandler(cursorTileModelInstance, map, placedCharacters);
 		initializeInput();
 	}
 
@@ -139,12 +149,9 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void createCursorCharacterModelInstance() {
-		String idle = SpriteType.IDLE.name() + "_" + Direction.SOUTH;
-		TextureAtlas.AtlasRegion region = assetsManager.getAtlas(Atlases.PLAYER_AXE_PICK).findRegion(idle.toLowerCase());
-		cursorCharacterDecal = Decal.newDecal(region, true);
+		cursorCharacterDecal = Utils.createCharacterDecal(assetsManager, Atlases.PLAYER_AXE_PICK, 0, 0);
 		Color color = cursorCharacterDecal.getColor();
 		cursorCharacterDecal.setColor(color.r, color.g, color.b, CURSOR_CHARACTER_OPACITY);
-		cursorCharacterDecal.setScale(BILLBOARD_SCALE);
 	}
 
 	private Model createRectModel() {
@@ -213,10 +220,17 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void renderDecals() {
 		Gdx.gl.glDepthMask(false);
-		cursorCharacterDecal.lookAt(auxVector1.set(cursorCharacterDecal.getPosition()).sub(camera.direction), camera.up);
-		decalBatch.add(cursorCharacterDecal);
+		renderDecal(cursorCharacterDecal);
+		for (PlacedCharacter character : placedCharacters) {
+			renderDecal(character.getDecal());
+		}
 		decalBatch.flush();
 		Gdx.gl.glDepthMask(true);
+	}
+
+	private void renderDecal(final Decal cursorCharacterDecal) {
+		cursorCharacterDecal.lookAt(auxVector1.set(cursorCharacterDecal.getPosition()).sub(camera.direction), camera.up);
+		decalBatch.add(cursorCharacterDecal);
 	}
 
 	private void renderModels() {
@@ -290,6 +304,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	@Override
 	public void onTreeCharacterSelected(final CharacterDefinition definition) {
 		selectedCharacter = definition;
+		actionsHandler.setSelectedCharacter(selectedCharacter);
 	}
 
 	@Override
@@ -309,28 +324,13 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	@Override
 	public boolean touchDown(final int screenX, final int screenY, final int pointer, final int button) {
-		boolean result = false;
-		if (cursorModelInstance == cursorTileModelInstance && currentProcess == null) {
-			Vector3 position = cursorTileModelInstance.transform.getTranslation(auxVector1);
-			PlaceTilesProcess placeTilesProcess = new PlaceTilesProcess(map);
-			currentProcess = placeTilesProcess;
-			placeTilesProcess.begin((int) position.z, (int) position.x, assetsManager, initializedTiles);
-			result = true;
-		}
-		return result;
+		return actionsHandler.onTouchDown(assetsManager, initializedTiles);
 	}
+
 
 	@Override
 	public boolean touchUp(final int screenX, final int screenY, final int pointer, final int button) {
-		boolean result = false;
-		if (currentProcess != null) {
-			Vector3 position = cursorTileModelInstance.transform.getTranslation(auxVector1);
-			PlaceTilesProcess currentProcess = (PlaceTilesProcess) this.currentProcess;
-			currentProcess.finish((int) position.z, (int) position.x, selectedTile, cursorTileModel);
-			this.currentProcess = null;
-			result = true;
-		}
-		return result;
+		return actionsHandler.onTouchUp(selectedTile, cursorTileModel);
 	}
 
 	@Override
@@ -362,6 +362,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void renderExistingProcess() {
+		MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess = actionsHandler.getCurrentProcess();
 		if (currentProcess != null) {
 			if (currentProcess instanceof PlaceTilesProcess) {
 				PlaceTilesProcess process = (PlaceTilesProcess) currentProcess;
