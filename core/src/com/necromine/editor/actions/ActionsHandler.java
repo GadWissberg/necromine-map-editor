@@ -25,6 +25,9 @@ public class ActionsHandler {
 	private final List<PlacedCharacter> placedCharacters;
 
 	@Setter
+	private Assets.FloorsTextures selectedTile;
+
+	@Setter
 	private CharacterDefinition selectedCharacter;
 
 	@Getter
@@ -51,7 +54,7 @@ public class ActionsHandler {
 	public boolean onTouchDown(final GameAssetsManager assetsManager,
 							   final Set<Tile> initializedTiles) {
 		EditorModes mode = NecromineMapEditor.getMode();
-		if (mode == EditorModes.TILES && currentProcess == null) {
+		if (mode == EditorModes.TILES && currentProcess == null && selectedTile != null) {
 			beginTilePlacingProcess(cursorTileModelInstance, assetsManager, initializedTiles);
 			return true;
 		} else if (mode == EditorModes.CHARACTERS && selectedCharacter != null) {

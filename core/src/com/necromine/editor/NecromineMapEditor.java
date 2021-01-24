@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -29,15 +30,15 @@ import com.gadarts.necromine.assets.Assets.AssetsTypes;
 import com.gadarts.necromine.assets.Assets.Atlases;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
+import com.gadarts.necromine.model.characters.CharacterUtils;
+import com.gadarts.necromine.model.characters.Direction;
+import com.gadarts.necromine.model.characters.SpriteType;
 import com.necromine.editor.actions.ActionsHandler;
 import com.necromine.editor.actions.MappingProcess;
 import com.necromine.editor.actions.PlaceTilesProcess;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 
@@ -55,6 +56,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static final Plane auxPlane = new Plane();
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
 	private static final float CURSOR_CHARACTER_OPACITY = 0.5f;
+	private static final String FRAMES_KEY_PLAYER = "frames/player";
 
 	@Getter
 	private static EditorModes mode = EditorModes.TILES;
@@ -82,7 +84,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private ModelInstance cursorModelInstance;
 	private float flicker;
 	private CharacterDefinition selectedCharacter;
-	private Decal cursorCharacterDecal;
+	private CharacterDecal cursorCharacterDecal;
 	private DecalBatch decalBatch;
 
 	public NecromineMapEditor(final int width, final int height) {
@@ -122,12 +124,23 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	public void create() {
 		camera = createCamera();
 		createBatches();
-		assetsManager.loadGameFiles(AssetsTypes.FONT, AssetsTypes.MELODY, AssetsTypes.SOUND, AssetsTypes.SHADER);
+		initializeGameFiles();
 		createAxis();
 		createGrid();
 		createCursors();
 		actionsHandler = new ActionsHandler(cursorTileModelInstance, map, placedCharacters);
 		initializeInput();
+	}
+
+	private void initializeGameFiles() {
+		assetsManager.loadGameFiles(AssetsTypes.FONT, AssetsTypes.MELODY, AssetsTypes.SOUND, AssetsTypes.SHADER);
+		TextureAtlas playerAtlas = assetsManager.getAtlas(Atlases.PLAYER_AXE_PICK);
+		HashMap<Direction, TextureAtlas.AtlasRegion> playerFrames = new HashMap<>();
+		Arrays.stream(Direction.values()).forEach(direction -> {
+			String name = SpriteType.IDLE.name() + "_" + direction.name();
+			playerFrames.put(direction, playerAtlas.findRegion(name.toLowerCase()));
+		});
+		assetsManager.addAsset(FRAMES_KEY_PLAYER, Map.class, playerFrames);
 	}
 
 	private void createBatches() {
@@ -139,7 +152,6 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private void createCursors() {
 		createCursorTile();
 		createCursorCharacterModelInstance();
-		cursorModelInstance = cursorTileModelInstance;
 	}
 
 	private void createCursorTile() {
@@ -150,8 +162,8 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void createCursorCharacterModelInstance() {
 		cursorCharacterDecal = Utils.createCharacterDecal(assetsManager, Atlases.PLAYER_AXE_PICK, 0, 0);
-		Color color = cursorCharacterDecal.getColor();
-		cursorCharacterDecal.setColor(color.r, color.g, color.b, CURSOR_CHARACTER_OPACITY);
+		Color color = cursorCharacterDecal.getDecal().getColor();
+		cursorCharacterDecal.getDecal().setColor(color.r, color.g, color.b, CURSOR_CHARACTER_OPACITY);
 	}
 
 	private Model createRectModel() {
@@ -220,17 +232,31 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void renderDecals() {
 		Gdx.gl.glDepthMask(false);
-		renderDecal(cursorCharacterDecal);
+		renderCharacter(cursorCharacterDecal, Direction.SOUTH);
 		for (PlacedCharacter character : placedCharacters) {
-			renderDecal(character.getDecal());
+			renderCharacter(character);
 		}
 		decalBatch.flush();
 		Gdx.gl.glDepthMask(true);
 	}
 
-	private void renderDecal(final Decal cursorCharacterDecal) {
-		cursorCharacterDecal.lookAt(auxVector1.set(cursorCharacterDecal.getPosition()).sub(camera.direction), camera.up);
-		decalBatch.add(cursorCharacterDecal);
+	private void renderCharacter(final PlacedCharacter character) {
+		renderCharacter(character.getCharacterDecal(), character.getFacingDirection());
+	}
+
+	private void renderCharacter(final CharacterDecal characterDecal, final Direction facingDirection) {
+		Direction spriteDirection = characterDecal.getSpriteDirection();
+		Direction dirSeenFromCamera = CharacterUtils.calculateDirectionSeenFromCamera(camera, facingDirection);
+		if (dirSeenFromCamera != spriteDirection) {
+			HashMap<Direction, TextureAtlas.AtlasRegion> hashMap = assetsManager.get(FRAMES_KEY_PLAYER);
+			characterDecal.getDecal().setTextureRegion(hashMap.get(dirSeenFromCamera));
+		}
+		renderDecal(characterDecal.getDecal());
+	}
+
+	private void renderDecal(final Decal decal) {
+		decal.lookAt(auxVector1.set(decal.getPosition()).sub(camera.direction), camera.up);
+		decalBatch.add(decal);
 	}
 
 	private void renderModels() {
@@ -244,6 +270,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void renderCursor() {
+		if (cursorModelInstance == null) return;
 		modelBatch.render(cursorModelInstance);
 	}
 
@@ -294,6 +321,8 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	@Override
 	public void onTileSelected(final Assets.FloorsTextures texture) {
 		selectedTile = texture;
+		cursorModelInstance = cursorTileModelInstance;
+		actionsHandler.setSelectedTile(selectedTile);
 	}
 
 	@Override
@@ -357,7 +386,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void updateCursorCharacter(final int x, final int z) {
 		if (mode == EditorModes.CHARACTERS) {
-			cursorCharacterDecal.setPosition(x + 0.5f, BILLBOARD_Y, z + 0.5f);
+			cursorCharacterDecal.getDecal().setPosition(x + 0.5f, BILLBOARD_Y, z + 0.5f);
 		}
 	}
 
