@@ -1,17 +1,24 @@
 package com.necromine.editor;
 
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
+import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+import static com.gadarts.necromine.model.characters.Direction.SOUTH;
+
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class CharacterDecal {
 
 	private final Decal decal;
 
 	@Setter
-	private Direction spriteDirection = Direction.SOUTH;
+	private CharacterDefinition characterDefinition;
+
+	@Setter
+	private Direction spriteDirection;
+
 }

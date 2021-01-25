@@ -140,7 +140,7 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 	private EditorTree createResourcesTree(final String rootHeader) {
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode(rootHeader);
 		EditorTree tree = new EditorTree(top);
-		Arrays.stream(EditorModes.CHARACTERS.getModeSections()).forEach(modeSection -> {
+		Arrays.stream(EditorModes.CHARACTERS.getTreeSections()).forEach(modeSection -> {
 			top.add(createSectionNodeForTree(modeSection.getHeader(), modeSection.getDefinitions()));
 			tree.setCellRenderer(new ResourcesTreeCellRenderer(ICON_CHARACTER));
 			tree.addMouseListener(new MouseAdapter() {

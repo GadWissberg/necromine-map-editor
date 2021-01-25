@@ -1,22 +1,22 @@
 package com.necromine.editor;
 
-import com.gadarts.necromine.model.characters.Enemies;
+import com.gadarts.necromine.model.characters.CharacterTypes;
 import lombok.Getter;
 
 @Getter
 public enum EditorModes {
 	TILES,
 	CHARACTERS(
-			new ModeSection("Player", new PlayerDefinition[]{new PlayerDefinition()}),
-			new ModeSection("Enemies", Enemies.values()));
+			new TreeSection("Player", CharacterTypes.PLAYER.getDefinitions()),
+			new TreeSection("Enemies", CharacterTypes.ENEMY.getDefinitions()));
 
-	private final ModeSection[] modeSections;
+	private final TreeSection[] treeSections;
 
 	EditorModes() {
-		this((ModeSection[]) null);
+		this((TreeSection[]) null);
 	}
 
-	EditorModes(final ModeSection... modeSections) {
-		this.modeSections = modeSections;
+	EditorModes(final TreeSection... treeSections) {
+		this.treeSections = treeSections;
 	}
 }

@@ -27,10 +27,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.Assets.AssetsTypes;
-import com.gadarts.necromine.assets.Assets.Atlases;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
-import com.gadarts.necromine.model.characters.CharacterUtils;
+import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.characters.SpriteType;
 import com.necromine.editor.actions.ActionsHandler;
@@ -56,7 +55,6 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static final Plane auxPlane = new Plane();
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
 	private static final float CURSOR_CHARACTER_OPACITY = 0.5f;
-	private static final String FRAMES_KEY_PLAYER = "frames/player";
 
 	@Getter
 	private static EditorModes mode = EditorModes.TILES;
@@ -134,13 +132,20 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void initializeGameFiles() {
 		assetsManager.loadGameFiles(AssetsTypes.FONT, AssetsTypes.MELODY, AssetsTypes.SOUND, AssetsTypes.SHADER);
-		TextureAtlas playerAtlas = assetsManager.getAtlas(Atlases.PLAYER_AXE_PICK);
+		Arrays.stream(CharacterTypes.values()).forEach(type ->
+				Arrays.stream(type.getDefinitions()).forEach(this::generateFramesMapForCharacter));
+	}
+
+	private void generateFramesMapForCharacter(final CharacterDefinition characterDefinition) {
+		if (characterDefinition.getAtlasDefinition() == null) return;
+		TextureAtlas atlas = assetsManager.getAtlas(characterDefinition.getAtlasDefinition());
 		HashMap<Direction, TextureAtlas.AtlasRegion> playerFrames = new HashMap<>();
 		Arrays.stream(Direction.values()).forEach(direction -> {
 			String name = SpriteType.IDLE.name() + "_" + direction.name();
-			playerFrames.put(direction, playerAtlas.findRegion(name.toLowerCase()));
+			playerFrames.put(direction, atlas.findRegion(name.toLowerCase()));
 		});
-		assetsManager.addAsset(FRAMES_KEY_PLAYER, Map.class, playerFrames);
+		String format = String.format(Utils.FRAMES_KEY_CHARACTER, characterDefinition.getCharacterType().name());
+		assetsManager.addAsset(format, Map.class, playerFrames);
 	}
 
 	private void createBatches() {
@@ -161,7 +166,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void createCursorCharacterModelInstance() {
-		cursorCharacterDecal = Utils.createCharacterDecal(assetsManager, Atlases.PLAYER_AXE_PICK, 0, 0);
+		cursorCharacterDecal = Utils.createCharacterDecal(assetsManager, CharacterTypes.PLAYER.getDefinitions()[0], 0, 0);
 		Color color = cursorCharacterDecal.getDecal().getColor();
 		cursorCharacterDecal.getDecal().setColor(color.r, color.g, color.b, CURSOR_CHARACTER_OPACITY);
 	}
@@ -245,14 +250,10 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void renderCharacter(final CharacterDecal characterDecal, final Direction facingDirection) {
-		Direction spriteDirection = characterDecal.getSpriteDirection();
-		Direction dirSeenFromCamera = CharacterUtils.calculateDirectionSeenFromCamera(camera, facingDirection);
-		if (dirSeenFromCamera != spriteDirection) {
-			HashMap<Direction, TextureAtlas.AtlasRegion> hashMap = assetsManager.get(FRAMES_KEY_PLAYER);
-			characterDecal.getDecal().setTextureRegion(hashMap.get(dirSeenFromCamera));
-		}
+		Utils.applyFrameSeenFromCameraForCharacterDecal(characterDecal, facingDirection, camera, assetsManager);
 		renderDecal(characterDecal.getDecal());
 	}
+
 
 	private void renderDecal(final Decal decal) {
 		decal.lookAt(auxVector1.set(decal.getPosition()).sub(camera.direction), camera.up);
@@ -334,6 +335,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	public void onTreeCharacterSelected(final CharacterDefinition definition) {
 		selectedCharacter = definition;
 		actionsHandler.setSelectedCharacter(selectedCharacter);
+		cursorCharacterDecal.setCharacterDefinition(definition);
 	}
 
 	@Override
