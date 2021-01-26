@@ -17,7 +17,7 @@ public class Utils {
 	public static CharacterDecal createCharacterDecal(final GameAssetsManager assetsManager,
 													  final CharacterDefinition definition,
 													  final int row,
-													  final int col) {
+													  final int col, Direction selectedCharacterDirection) {
 		String idle = SpriteType.IDLE.name() + "_" + Direction.SOUTH;
 		TextureAtlas atlas = assetsManager.getAtlas(definition.getAtlasDefinition());
 		TextureAtlas.AtlasRegion region = atlas.findRegion(idle.toLowerCase());

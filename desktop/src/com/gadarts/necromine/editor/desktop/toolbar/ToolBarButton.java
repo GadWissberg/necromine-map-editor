@@ -1,9 +1,11 @@
 package com.gadarts.necromine.editor.desktop.toolbar;
 
 import com.gadarts.necromine.editor.desktop.ModesHandler;
+import com.gadarts.necromine.editor.desktop.menuitems.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.menuitems.MenuItemProperties;
 
 import javax.swing.*;
+import java.util.Optional;
 
 public class ToolBarButton extends JButton {
 
@@ -11,11 +13,14 @@ public class ToolBarButton extends JButton {
 						 final ToolbarButtonOfMenuItem buttonDefinition,
 						 final ModesHandler modesHandler) {
 		super(imageIcon);
-		MenuItemProperties menuItemProperties = buttonDefinition.getMenuItemDefinition().getMenuItemProperties();
-		setEnabled(!menuItemProperties.isDisabledOnStart());
-		MapperActionListener action = (MapperActionListener) menuItemProperties.getAction();
-		action.setModesHandler(modesHandler);
-		addActionListener(action);
+		MenuItemDefinition menuItemDefinition = buttonDefinition.getMenuItemDefinition();
+		Optional.ofNullable(menuItemDefinition).ifPresentOrElse(menuItem -> {
+			MenuItemProperties menuItemProperties = menuItem.getMenuItemProperties();
+			setEnabled(!menuItemProperties.isDisabledOnStart());
+			MapperCommand action = (MapperCommand) menuItemProperties.getAction();
+			action.setModesHandler(modesHandler);
+			addActionListener(action);
+		}, () -> addActionListener(buttonDefinition.getMapperCommand()));
 	}
 
 

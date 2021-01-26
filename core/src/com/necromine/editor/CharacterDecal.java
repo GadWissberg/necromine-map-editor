@@ -7,8 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.gadarts.necromine.model.characters.Direction.SOUTH;
-
 @Getter
 @AllArgsConstructor
 public class CharacterDecal {

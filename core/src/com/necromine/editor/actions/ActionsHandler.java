@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
+import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.EditorModes;
 import com.necromine.editor.NecromineMapEditor;
 import com.necromine.editor.PlacedCharacter;
@@ -29,6 +30,9 @@ public class ActionsHandler {
 
 	@Setter
 	private CharacterDefinition selectedCharacter;
+
+	@Setter
+	private Direction selectedCharacterDirection;
 
 	@Getter
 	private MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess;
@@ -70,7 +74,14 @@ public class ActionsHandler {
 		Vector3 position = modelInstance.transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
-		PlaceCharacterAction action = new PlaceCharacterAction(map, placedCharacters, row, col, selectedCharacter, am);
+		PlaceCharacterAction action = new PlaceCharacterAction(
+				map,
+				placedCharacters,
+				row,
+				col,
+				selectedCharacter,
+				am,
+				selectedCharacterDirection);
 		executeAction(action);
 	}
 

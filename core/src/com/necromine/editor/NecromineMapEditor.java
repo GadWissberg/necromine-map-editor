@@ -166,7 +166,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void createCursorCharacterModelInstance() {
-		cursorCharacterDecal = Utils.createCharacterDecal(assetsManager, CharacterTypes.PLAYER.getDefinitions()[0], 0, 0);
+		cursorCharacterDecal = Utils.createCharacterDecal(assetsManager, CharacterTypes.PLAYER.getDefinitions()[0], 0, 0, Direction.SOUTH);
 		Color color = cursorCharacterDecal.getDecal().getColor();
 		cursorCharacterDecal.getDecal().setColor(color.r, color.g, color.b, CURSOR_CHARACTER_OPACITY);
 	}
@@ -237,7 +237,9 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void renderDecals() {
 		Gdx.gl.glDepthMask(false);
-		renderCharacter(cursorCharacterDecal, Direction.SOUTH);
+		if (cursorModelInstance != null) {
+			renderCharacter(cursorCharacterDecal, cursorCharacterDecal.getSpriteDirection());
+		}
 		for (PlacedCharacter character : placedCharacters) {
 			renderCharacter(character);
 		}
@@ -336,6 +338,16 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		selectedCharacter = definition;
 		actionsHandler.setSelectedCharacter(selectedCharacter);
 		cursorCharacterDecal.setCharacterDefinition(definition);
+	}
+
+	@Override
+	public void onSelectedCharacterRotate(final int direction) {
+		if (selectedCharacter != null) {
+			int ordinal = cursorCharacterDecal.getSpriteDirection().ordinal() + direction;
+			int length = Direction.values().length;
+			cursorCharacterDecal.setSpriteDirection(Direction.values()[(ordinal < 0 ? ordinal + length : ordinal) % length]);
+			actionsHandler.setSelectedCharacterDirection(cursorCharacterDecal.getSpriteDirection());
+		}
 	}
 
 	@Override

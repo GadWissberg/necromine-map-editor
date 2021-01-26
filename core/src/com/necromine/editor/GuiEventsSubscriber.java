@@ -10,4 +10,6 @@ public interface GuiEventsSubscriber {
 	void onModeChanged(EditorModes mode);
 
 	void onTreeCharacterSelected(CharacterDefinition definition);
+
+	void onSelectedCharacterRotate(int direction);
 }

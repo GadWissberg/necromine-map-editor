@@ -10,7 +10,7 @@ public abstract class MappingProcess<T extends MappingProcess.FinishProcessParam
 	}
 
 	@Override
-	abstract void execute();
+	protected abstract void execute();
 
 	abstract void finish(T params);
 

@@ -2,10 +2,7 @@ package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.gadarts.necromine.assets.Assets;
-import com.gadarts.necromine.editor.desktop.toolbar.RadioToolBarButton;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolBarButton;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonOfMenuItem;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonsDefinitions;
+import com.gadarts.necromine.editor.desktop.toolbar.*;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.necromine.editor.EditorModes;
@@ -54,11 +51,11 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 		} catch (final Exception e1) {
 			e1.printStackTrace();
 		}
-		addToolBar(ToolbarButtonsDefinitions.values()).add(Box.createHorizontalGlue());
+		addToolBar(ToolbarButtonsDefinitions.values(), this).add(Box.createHorizontalGlue());
 		defineMapperWindow(lwjgl.getCanvas());
 	}
 
-	protected JToolBar addToolBar(final ToolbarButtonsDefinitions[] toolbarOptions) {
+	protected JToolBar addToolBar(final ToolbarButtonDefinition[] toolbarOptions, final Container container) {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		Arrays.stream(toolbarOptions).forEach(option -> {
@@ -70,12 +67,11 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 				e.printStackTrace();
 			}
 		});
-		Container contentPane = getContentPane();
-		contentPane.add(toolBar, BorderLayout.PAGE_START);
+		container.add(toolBar, BorderLayout.PAGE_START);
 		return toolBar;
 	}
 
-	private AbstractButton createToolbarButtonOfMenuItem(final ToolbarButtonsDefinitions button) throws IOException {
+	private AbstractButton createToolbarButtonOfMenuItem(final ToolbarButtonDefinition button) throws IOException {
 		ToolbarButtonOfMenuItem buttonProperties = button.getButtonProperties();
 		ImageIcon imageIcon = getButtonIcon(buttonProperties);
 		AbstractButton toolBarButton;
@@ -85,22 +81,27 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 			toolBarButton = createToolbarRadioButtonOfMenuItem(button, buttonProperties, imageIcon);
 		}
 		toolBarButton.addPropertyChangeListener(modesHandler);
+		toolBarButton.addPropertyChangeListener(this);
 		modesHandler.addPropertyChangeListener(this);
 		return toolBarButton;
 	}
 
-	private AbstractButton createToolbarRadioButtonOfMenuItem(final ToolbarButtonsDefinitions button,
+	private AbstractButton createToolbarRadioButtonOfMenuItem(final ToolbarButtonDefinition button,
 															  final ToolbarButtonOfMenuItem buttonProperties,
 															  final ImageIcon imageIcon) {
 		AbstractButton toolBarButton;
 		String groupName = button.getButtonProperties().getButtonGroup();
-		if (!buttonGroups.containsKey(groupName)) {
+		boolean isNew = !buttonGroups.containsKey(groupName);
+		if (isNew) {
 			ButtonGroup buttonGroup = new ButtonGroup();
 			buttonGroups.put(groupName, buttonGroup);
 		}
 		toolBarButton = new RadioToolBarButton(imageIcon, buttonProperties);
 		ButtonGroup buttonGroup = buttonGroups.get(groupName);
 		buttonGroup.add(toolBarButton);
+		if (isNew) {
+			toolBarButton.setSelected(true);
+		}
 		return toolBarButton;
 	}
 
@@ -112,11 +113,21 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 	private void defineMapperWindow(final Canvas canvas) {
 		defineMapperWindowAttributes();
 		JPanel mainPanel = new JPanel(new BorderLayout());
+		addSubToolbars(mainPanel);
 		entitiesPanel = createEntitiesPanel();
 		addEntitiesDataSelectors(entitiesPanel);
 		JSplitPane splitPane = createSplitPane(canvas, entitiesPanel);
 		mainPanel.add(splitPane);
 		getContentPane().add(mainPanel);
+	}
+
+	private void addSubToolbars(final JPanel mainPanel) {
+		CardLayout subToolbarsCardLayout = new CardLayout();
+		JPanel panel = new JPanel(subToolbarsCardLayout);
+		mainPanel.add(panel, BorderLayout.PAGE_START);
+		Arrays.stream(EditorModes.values()).filter(mode -> SubToolbarsDefinitions.getButtonsOfMode(mode) != null)
+				.forEach(mode ->
+						addToolBar(SubToolbarsDefinitions.getButtonsOfMode(mode), panel).add(Box.createHorizontalGlue()));
 	}
 
 	private JSplitPane createSplitPane(final Canvas canvas, final JPanel entitiesPanel) {
@@ -249,6 +260,10 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 			}
 		} else if (propertyName.equals(Events.TREE_CHARACTER_SELECTED.name())) {
 			guiEventsSubscriber.onTreeCharacterSelected((CharacterDefinition) evt.getNewValue());
+		} else if (propertyName.equals(Events.REQUEST_TO_ROTATE_SELECTED_CHARACTER.name())) {
+			if (ModesHandler.getMode() == EditorModes.CHARACTERS) {
+				guiEventsSubscriber.onSelectedCharacterRotate((Integer) evt.getNewValue());
+			}
 		}
 	}
 

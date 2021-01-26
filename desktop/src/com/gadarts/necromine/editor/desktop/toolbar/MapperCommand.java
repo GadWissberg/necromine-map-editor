@@ -5,6 +5,6 @@ import lombok.Setter;
 
 import java.awt.event.ActionListener;
 @Setter
-public abstract class MapperActionListener implements ActionListener {
+public abstract class MapperCommand implements ActionListener {
 	protected ModesHandler modesHandler;
 }

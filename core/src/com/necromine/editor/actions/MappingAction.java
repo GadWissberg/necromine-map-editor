@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 public abstract class MappingAction {
 	final Tile[][] map;
 
-	abstract void execute();
+	protected abstract void execute();
 
 	public abstract boolean isProcess();
 }

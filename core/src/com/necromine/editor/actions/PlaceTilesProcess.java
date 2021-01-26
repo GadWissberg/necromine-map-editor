@@ -48,7 +48,7 @@ public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessPar
 	}
 
 	@Override
-	void execute() {
+	protected void execute() {
 
 	}
 
