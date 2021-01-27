@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.EditorModes;
@@ -29,7 +30,7 @@ public class ActionsHandler {
 	private Assets.FloorsTextures selectedTile;
 
 	@Setter
-	private CharacterDefinition selectedCharacter;
+	private ElementDefinition selectedElement;
 
 	@Setter
 	private Direction selectedCharacterDirection;
@@ -61,7 +62,7 @@ public class ActionsHandler {
 		if (mode == EditorModes.TILES && currentProcess == null && selectedTile != null) {
 			beginTilePlacingProcess(cursorTileModelInstance, assetsManager, initializedTiles);
 			return true;
-		} else if (mode == EditorModes.CHARACTERS && selectedCharacter != null) {
+		} else if (mode == EditorModes.CHARACTERS && selectedElement != null) {
 			placeCharacter(cursorTileModelInstance, map, assetsManager);
 			return true;
 		}
@@ -79,7 +80,7 @@ public class ActionsHandler {
 				placedCharacters,
 				row,
 				col,
-				selectedCharacter,
+				(CharacterDefinition) selectedElement,
 				am,
 				selectedCharacterDirection);
 		executeAction(action);

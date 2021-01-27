@@ -28,6 +28,8 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.Assets.AssetsTypes;
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.ElementDefinition;
+import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
@@ -50,7 +52,7 @@ import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsSubscriber, InputProcessor {
 	public static final float FAR = 100f;
 	public static final float FLICKER_RATE = 0.05f;
-	public static final String TEMP_ASSETS_FOLDER = "C:\\Users\\gad.wissberg\\temp\\isometric-game\\core\\assets";
+	public static final String TEMP_ASSETS_FOLDER = "C:\\Users\\gadw1\\StudioProjects\\isometric-game\\core\\assets";
 	private static final int DECALS_POOL_SIZE = 200;
 	private static final float NEAR = 0.01f;
 	private static final Vector3 auxVector1 = new Vector3();
@@ -87,7 +89,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private Model cursorTileModel;
 	private ModelInstance cursorModelInstance;
 	private float flicker;
-	private CharacterDefinition selectedCharacter;
+	private ElementDefinition selectedElement;
 	private CharacterDecal cursorCharacterDecal;
 	private DecalBatch decalBatch;
 
@@ -236,7 +238,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void renderWorld() {
 		renderModels();
-		if (mode == EditorModes.CHARACTERS && selectedCharacter != null) {
+		if (mode == EditorModes.CHARACTERS && selectedElement != null) {
 			renderDecals();
 		}
 	}
@@ -307,7 +309,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void updateCursorFlicker() {
-		if (cursorModelInstance != null) {
+		if (cursorModelInstance != null && mode == EditorModes.TILES) {
 			Material material = cursorModelInstance.materials.get(0);
 			BlendingAttribute blend = (BlendingAttribute) material.get(BlendingAttribute.Type);
 			blend.opacity = Math.abs(MathUtils.sin(flicker += FLICKER_RATE));
@@ -341,19 +343,26 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	@Override
 	public void onTreeCharacterSelected(final CharacterDefinition definition) {
-		selectedCharacter = definition;
-		actionsHandler.setSelectedCharacter(selectedCharacter);
+		selectedElement = definition;
+		actionsHandler.setSelectedElement(selectedElement);
 		cursorCharacterDecal.setCharacterDefinition(definition);
 	}
 
 	@Override
 	public void onSelectedCharacterRotate(final int direction) {
-		if (selectedCharacter != null) {
+		if (selectedElement != null) {
 			int ordinal = cursorCharacterDecal.getSpriteDirection().ordinal() + direction;
 			int length = Direction.values().length;
 			cursorCharacterDecal.setSpriteDirection(Direction.values()[(ordinal < 0 ? ordinal + length : ordinal) % length]);
 			actionsHandler.setSelectedCharacterDirection(cursorCharacterDecal.getSpriteDirection());
 		}
+	}
+
+	@Override
+	public void onTreeEnvSelected(final EnvironmentDefinitions env) {
+		selectedElement = env;
+		actionsHandler.setSelectedElement(selectedElement);
+		cursorModelInstance = new ModelInstance(assetsManager.getModel(env.getModel()));
 	}
 
 	@Override

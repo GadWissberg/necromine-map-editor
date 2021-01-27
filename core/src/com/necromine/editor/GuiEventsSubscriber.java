@@ -2,6 +2,7 @@ package com.necromine.editor;
 
 
 import com.gadarts.necromine.assets.Assets;
+import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 
 public interface GuiEventsSubscriber {
@@ -12,4 +13,6 @@ public interface GuiEventsSubscriber {
 	void onTreeCharacterSelected(CharacterDefinition definition);
 
 	void onSelectedCharacterRotate(int direction);
+
+	void onTreeEnvSelected(EnvironmentDefinitions env);
 }

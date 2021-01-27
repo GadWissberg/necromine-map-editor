@@ -4,6 +4,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.toolbar.*;
 import com.gadarts.necromine.model.ElementDefinition;
+import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.necromine.editor.EditorModes;
 import com.necromine.editor.GuiEventsSubscriber;
@@ -28,7 +29,6 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 	private static final String ICON_FORMAT = ".png";
 	private static final String FOLDER_ASSETS = "core" + File.separator + "assets";
 	public static final String UI_ASSETS_FOLDER_PATH = FOLDER_ASSETS + File.separator + "%s" + File.separator + "%s" + ICON_FORMAT;
-	private static final String ICON_CHARACTER = "character";
 
 	private final LwjglAWTCanvas lwjgl;
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
@@ -148,12 +148,12 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 		return sectionNode;
 	}
 
-	private EditorTree createResourcesTree(final String rootHeader) {
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode(rootHeader);
+	private EditorTree createResourcesTree(final EditorModes mode) {
+		DefaultMutableTreeNode top = new DefaultMutableTreeNode(mode.getDisplayName());
 		EditorTree tree = new EditorTree(top);
-		Arrays.stream(EditorModes.CHARACTERS.getTreeSections()).forEach(modeSection -> {
+		Arrays.stream(mode.getTreeSections()).forEach(modeSection -> {
 			top.add(createSectionNodeForTree(modeSection.getHeader(), modeSection.getDefinitions()));
-			tree.setCellRenderer(new ResourcesTreeCellRenderer(ICON_CHARACTER));
+			tree.setCellRenderer(new ResourcesTreeCellRenderer(modeSection.getEntryIcon()));
 			tree.addMouseListener(new MouseAdapter() {
 
 				@Override
@@ -165,7 +165,7 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 						DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
 						if (node.isLeaf()) {
 							ElementDefinition definition = (ElementDefinition) node.getUserObject();
-							tree.firePropertyChange(Events.TREE_CHARACTER_SELECTED.name(), null, definition);
+							tree.firePropertyChange(Events.TREE_ENTRY_SELECTED.name(), null, definition);
 						}
 					}
 				}
@@ -177,12 +177,14 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 
 	private void addEntitiesDataSelectors(final JPanel entitiesPanel) {
 		try {
-			EditorTree resourcesTree = createResourcesTree("Characters");
-			resourcesTree.addPropertyChangeListener(this);
-			entitiesPanel.add(resourcesTree, EntitiesPanelCards.TREE.name());
-			entitiesPanel.add(createEntitiesGallery(), EntitiesPanelCards.GALLERY.name());
 			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
-			entitiesLayout.next(entitiesPanel);
+			Arrays.stream(EditorModes.values()).filter(EditorModes::isDisplayedByTree).forEach(mode -> {
+				EditorTree resourcesTree = createResourcesTree(mode);
+				resourcesTree.addPropertyChangeListener(this);
+				entitiesPanel.add(resourcesTree, mode.name());
+			});
+			entitiesPanel.add(createEntitiesGallery(), EditorModes.TILES.name());
+			entitiesLayout.show(entitiesPanel, ModesHandler.getMode().name());
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
@@ -248,24 +250,24 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 	@Override
 	public void propertyChange(final PropertyChangeEvent evt) {
 		String propertyName = evt.getPropertyName();
+		EditorModes mode = ModesHandler.getMode();
 		if (propertyName.equals(Events.MODE_CHANGED.name())) {
 			int newModeIndex = (int) evt.getNewValue();
-			EditorModes mode = EditorModes.values()[newModeIndex];
+			mode = EditorModes.values()[newModeIndex];
 			guiEventsSubscriber.onModeChanged(mode);
 			CardLayout cardLayout = (CardLayout) entitiesPanel.getLayout();
-			if (mode == EditorModes.TILES) {
-				cardLayout.show(entitiesPanel, EntitiesPanelCards.GALLERY.name());
-			} else {
-				cardLayout.show(entitiesPanel, EntitiesPanelCards.TREE.name());
+			cardLayout.show(entitiesPanel, mode.name());
+		} else if (propertyName.equals(Events.TREE_ENTRY_SELECTED.name())) {
+			if (mode == EditorModes.CHARACTERS) {
+				guiEventsSubscriber.onTreeCharacterSelected((CharacterDefinition) evt.getNewValue());
+			} else if (mode == EditorModes.ENVIRONMENT) {
+				guiEventsSubscriber.onTreeEnvSelected((EnvironmentDefinitions) evt.getNewValue());
 			}
-		} else if (propertyName.equals(Events.TREE_CHARACTER_SELECTED.name())) {
-			guiEventsSubscriber.onTreeCharacterSelected((CharacterDefinition) evt.getNewValue());
 		} else if (propertyName.equals(Events.REQUEST_TO_ROTATE_SELECTED_CHARACTER.name())) {
-			if (ModesHandler.getMode() == EditorModes.CHARACTERS) {
+			if (mode == EditorModes.CHARACTERS) {
 				guiEventsSubscriber.onSelectedCharacterRotate((Integer) evt.getNewValue());
 			}
 		}
 	}
 
-	private enum EntitiesPanelCards {TREE, GALLERY}
 }
