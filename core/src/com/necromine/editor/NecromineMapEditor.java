@@ -37,14 +37,20 @@ import com.necromine.editor.actions.MappingProcess;
 import com.necromine.editor.actions.PlaceTilesProcess;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 
 public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsSubscriber, InputProcessor {
 	public static final float FAR = 100f;
 	public static final float FLICKER_RATE = 0.05f;
-	public static final String TEMP_ASSETS_FOLDER = "C:\\Users\\gadw1\\StudioProjects\\isometric-game\\core\\assets";
+	public static final String TEMP_ASSETS_FOLDER = "C:\\Users\\gad.wissberg\\temp\\isometric-game\\core\\assets";
 	private static final int DECALS_POOL_SIZE = 200;
 	private static final float NEAR = 0.01f;
 	private static final Vector3 auxVector1 = new Vector3();
