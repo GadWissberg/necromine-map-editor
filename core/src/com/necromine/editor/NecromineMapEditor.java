@@ -9,10 +9,7 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g3d.Material;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
@@ -25,6 +22,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Plane;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
+import com.badlogic.gdx.utils.Array;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.Assets.AssetsTypes;
 import com.gadarts.necromine.assets.GameAssetsManager;
@@ -57,12 +55,14 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static final float NEAR = 0.01f;
 	private static final Vector3 auxVector1 = new Vector3();
 	private static final Vector3 auxVector2 = new Vector3();
+	private static final Vector3 auxVector3 = new Vector3();
 	private static final int LEVEL_SIZE = 20;
 	private static final Color GRID_COLOR = Color.GRAY;
 	private static final float CAMERA_HEIGHT = 6;
 	private static final Plane auxPlane = new Plane();
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
-	private static final float CURSOR_CHARACTER_OPACITY = 0.5f;
+	private static final float CURSOR_OPACITY = 0.5f;
+	public static final float CURSOR_Y = 0.01f;
 
 	@Getter
 	private static EditorModes mode = EditorModes.TILES;
@@ -142,6 +142,9 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		assetsManager.loadGameFiles(AssetsTypes.FONT, AssetsTypes.MELODY, AssetsTypes.SOUND, AssetsTypes.SHADER);
 		Arrays.stream(CharacterTypes.values()).forEach(type ->
 				Arrays.stream(type.getDefinitions()).forEach(this::generateFramesMapForCharacter));
+		Array<Model> models = new Array<>();
+		assetsManager.getAll(Model.class, models);
+		models.forEach(model -> model.materials.get(0).set(new BlendingAttribute()));
 	}
 
 	private void generateFramesMapForCharacter(final CharacterDefinition characterDefinition) {
@@ -176,7 +179,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private void createCursorCharacterModelInstance() {
 		cursorCharacterDecal = Utils.createCharacterDecal(assetsManager, CharacterTypes.PLAYER.getDefinitions()[0], 0, 0, Direction.SOUTH);
 		Color color = cursorCharacterDecal.getDecal().getColor();
-		cursorCharacterDecal.getDecal().setColor(color.r, color.g, color.b, CURSOR_CHARACTER_OPACITY);
+		cursorCharacterDecal.getDecal().setColor(color.r, color.g, color.b, CURSOR_OPACITY);
 	}
 
 	private Model createRectModel() {
@@ -283,6 +286,25 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private void renderCursor() {
 		if (cursorModelInstance == null) return;
 		modelBatch.render(cursorModelInstance);
+		if (mode == EditorModes.ENVIRONMENT) {
+			renderModelCursorFloorGrid();
+		}
+	}
+
+	private void renderModelCursorFloorGrid() {
+		Vector3 originalPosition = cursorTileModelInstance.transform.getTranslation(auxVector1);
+		Vector3 cursorPosition = cursorModelInstance.transform.getTranslation(auxVector3);
+		cursorPosition.y = CURSOR_Y;
+		EnvironmentDefinitions def = (EnvironmentDefinitions) selectedElement;
+		int halfHeight = def.getHeight() / 2;
+		int halfWidth = def.getWidth() / 2;
+		for (int row = -halfHeight; row < Math.max(halfHeight, 1); row++) {
+			for (int col = -halfWidth; col < Math.max(halfWidth, 1); col++) {
+				cursorTileModelInstance.transform.setTranslation(cursorPosition).translate(col, 0, row);
+				modelBatch.render(cursorTileModelInstance);
+			}
+		}
+		cursorTileModelInstance.transform.setTranslation(originalPosition);
 	}
 
 
@@ -305,16 +327,21 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 			cameraInputController.update();
 		}
 		camera.update();
-		updateCursorFlicker();
+		if (cursorModelInstance != null) {
+			updateCursorFlicker();
+		}
 	}
 
 	private void updateCursorFlicker() {
-		if (cursorModelInstance != null && mode == EditorModes.TILES) {
-			Material material = cursorModelInstance.materials.get(0);
-			BlendingAttribute blend = (BlendingAttribute) material.get(BlendingAttribute.Type);
-			blend.opacity = Math.abs(MathUtils.sin(flicker += FLICKER_RATE));
-			material.set(blend);
+		Material material;
+		if ((mode == EditorModes.TILES || mode == EditorModes.CHARACTERS)) {
+			material = cursorModelInstance.materials.get(0);
+		} else {
+			material = cursorTileModelInstance.materials.get(0);
 		}
+		BlendingAttribute blend = (BlendingAttribute) material.get(BlendingAttribute.Type);
+		blend.opacity = Math.abs(MathUtils.sin(flicker += FLICKER_RATE));
+		material.set(blend);
 	}
 
 	@Override
@@ -363,6 +390,12 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		selectedElement = env;
 		actionsHandler.setSelectedElement(selectedElement);
 		cursorModelInstance = new ModelInstance(assetsManager.getModel(env.getModel()));
+		if (env.isOriginMinusHalf()) {
+			cursorModelInstance.nodes.forEach(node -> node.translation.add(0.5f, 0, 0.5f));
+			cursorModelInstance.calculateTransforms();
+		}
+		BlendingAttribute blend = (BlendingAttribute) cursorModelInstance.materials.get(0).get(BlendingAttribute.Type);
+		blend.opacity = CURSOR_OPACITY;
 	}
 
 	@Override
