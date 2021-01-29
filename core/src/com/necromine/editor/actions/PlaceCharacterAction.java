@@ -4,7 +4,7 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.PlacedCharacter;
-import com.necromine.editor.Tile;
+import com.necromine.editor.MapNode;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ public class PlaceCharacterAction extends MappingAction {
 	private final GameAssetsManager assetsManager;
 	private final Direction selectedCharacterDirection;
 
-	public PlaceCharacterAction(final Tile[][] map,
+	public PlaceCharacterAction(final MapNode[][] map,
 								final List<PlacedCharacter> placedCharacters,
 								final int selectedRow,
 								final int selectedCol,
@@ -35,7 +35,7 @@ public class PlaceCharacterAction extends MappingAction {
 
 	@Override
 	protected void execute() {
-		Tile tile = map[selectedRow][selectedCol];
+		MapNode tile = map[selectedRow][selectedCol];
 		if (tile != null) {
 			PlacedCharacter character = new PlacedCharacter(selectedCharacter, selectedRow, selectedCol, assetsManager, selectedCharacterDirection);
 			placedCharacters.add(character);

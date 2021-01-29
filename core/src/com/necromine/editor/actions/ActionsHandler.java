@@ -6,12 +6,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
+import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
-import com.necromine.editor.EditorModes;
-import com.necromine.editor.NecromineMapEditor;
-import com.necromine.editor.PlacedCharacter;
-import com.necromine.editor.Tile;
+import com.necromine.editor.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -22,9 +20,14 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ActionsHandler {
 	private static final Vector3 auxVector = new Vector3();
+
 	private final ModelInstance cursorTileModelInstance;
-	private final Tile[][] map;
+	private final MapNode[][] map;
 	private final List<PlacedCharacter> placedCharacters;
+	private final List<PlacedEnvObject> placedEnvObjects;
+
+	@Setter
+	private ModelInstance cursorModelInstance;
 
 	@Setter
 	private Assets.FloorsTextures selectedTile;
@@ -47,7 +50,7 @@ public class ActionsHandler {
 
 	private void beginTilePlacingProcess(final ModelInstance cursorTileModelInstance,
 										 final GameAssetsManager assetsManager,
-										 final Set<Tile> initializedTiles) {
+										 final Set<MapNode> initializedTiles) {
 		Vector3 position = cursorTileModelInstance.transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
@@ -57,7 +60,7 @@ public class ActionsHandler {
 	}
 
 	public boolean onTouchDown(final GameAssetsManager assetsManager,
-							   final Set<Tile> initializedTiles) {
+							   final Set<MapNode> initializedTiles) {
 		EditorModes mode = NecromineMapEditor.getMode();
 		if (mode == EditorModes.TILES && currentProcess == null && selectedTile != null) {
 			beginTilePlacingProcess(cursorTileModelInstance, assetsManager, initializedTiles);
@@ -65,12 +68,31 @@ public class ActionsHandler {
 		} else if (mode == EditorModes.CHARACTERS && selectedElement != null) {
 			placeCharacter(cursorTileModelInstance, map, assetsManager);
 			return true;
+		} else if (mode == EditorModes.ENVIRONMENT && selectedElement != null) {
+			placeEnvObject(cursorModelInstance, map, assetsManager);
 		}
 		return false;
 	}
 
+	private void placeEnvObject(final ModelInstance modelInstance,
+								final MapNode[][] map,
+								final GameAssetsManager am) {
+		Vector3 position = modelInstance.transform.getTranslation(auxVector);
+		int row = (int) position.z;
+		int col = (int) position.x;
+		PlaceEnvObjectAction action = new PlaceEnvObjectAction(
+				map,
+				placedEnvObjects,
+				row,
+				col,
+				(EnvironmentDefinitions) selectedElement,
+				am,
+				selectedCharacterDirection);
+		executeAction(action);
+	}
+
 	private void placeCharacter(final ModelInstance modelInstance,
-								final Tile[][] map,
+								final MapNode[][] map,
 								final GameAssetsManager am) {
 		Vector3 position = modelInstance.transform.getTranslation(auxVector);
 		int row = (int) position.z;

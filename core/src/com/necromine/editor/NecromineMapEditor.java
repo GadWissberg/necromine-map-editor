@@ -69,10 +69,11 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	public final int VIEWPORT_WIDTH;
 	public final int VIEWPORT_HEIGHT;
-	private final Tile[][] map;
+	private final MapNode[][] map;
 	private final GameAssetsManager assetsManager;
-	private final Set<Tile> initializedTiles = new HashSet<>();
+	private final Set<MapNode> initializedTiles = new HashSet<>();
 	private final List<PlacedCharacter> placedCharacters = new ArrayList<>();
+	private final List<PlacedEnvObject> placedEnvObjects = new ArrayList<>();
 	private ActionsHandler actionsHandler;
 	private ModelBatch modelBatch;
 	private Model axisModelX;
@@ -96,7 +97,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	public NecromineMapEditor(final int width, final int height) {
 		VIEWPORT_WIDTH = width / 50;
 		VIEWPORT_HEIGHT = height / 50;
-		map = new Tile[LEVEL_SIZE][LEVEL_SIZE];
+		map = new MapNode[LEVEL_SIZE][LEVEL_SIZE];
 		assetsManager = new GameAssetsManager(TEMP_ASSETS_FOLDER.replace('\\', '/') + '/');
 	}
 
@@ -134,7 +135,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		createAxis();
 		createGrid();
 		createCursors();
-		actionsHandler = new ActionsHandler(cursorTileModelInstance, map, placedCharacters);
+		actionsHandler = new ActionsHandler(cursorTileModelInstance, map, placedCharacters, placedEnvObjects);
 		initializeInput();
 	}
 
@@ -280,13 +281,14 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		renderCursor();
 		renderExistingProcess();
 		renderTiles();
+		renderEnvObjects();
 		modelBatch.end();
 	}
 
 	private void renderCursor() {
 		if (cursorModelInstance == null) return;
 		modelBatch.render(cursorModelInstance);
-		if (mode == EditorModes.ENVIRONMENT) {
+		if (mode == EditorModes.ENVIRONMENT && selectedElement != null) {
 			renderModelCursorFloorGrid();
 		}
 	}
@@ -309,8 +311,16 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 
 	private void renderTiles() {
-		for (Tile tile : initializedTiles) {
-			modelBatch.render(tile.getModelInstance());
+		for (MapNode tile : initializedTiles) {
+			if (tile.getModelInstance() != null) {
+				modelBatch.render(tile.getModelInstance());
+			}
+		}
+	}
+
+	private void renderEnvObjects() {
+		for (PlacedEnvObject placedEnvObject : placedEnvObjects) {
+			modelBatch.render(placedEnvObject.getModelInstance());
 		}
 	}
 
@@ -390,12 +400,15 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		selectedElement = env;
 		actionsHandler.setSelectedElement(selectedElement);
 		cursorModelInstance = new ModelInstance(assetsManager.getModel(env.getModel()));
-		if (env.isOriginMinusHalf()) {
-			cursorModelInstance.nodes.forEach(node -> node.translation.add(0.5f, 0, 0.5f));
-			cursorModelInstance.calculateTransforms();
-		}
+		applyOffset(env);
+		actionsHandler.setCursorModelInstance(cursorModelInstance);
 		BlendingAttribute blend = (BlendingAttribute) cursorModelInstance.materials.get(0).get(BlendingAttribute.Type);
 		blend.opacity = CURSOR_OPACITY;
+	}
+
+	private void applyOffset(final EnvironmentDefinitions env) {
+		cursorModelInstance.nodes.forEach(node -> node.translation.add(env.getOffset(auxVector1)));
+		cursorModelInstance.calculateTransforms();
 	}
 
 	@Override

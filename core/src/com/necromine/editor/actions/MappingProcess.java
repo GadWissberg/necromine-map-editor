@@ -1,11 +1,11 @@
 package com.necromine.editor.actions;
 
 
-import com.necromine.editor.Tile;
+import com.necromine.editor.MapNode;
 
 public abstract class MappingProcess<T extends MappingProcess.FinishProcessParameters> extends MappingAction {
 
-	public MappingProcess(final Tile[][] map) {
+	public MappingProcess(final MapNode[][] map) {
 		super(map);
 	}
 
