@@ -12,7 +12,7 @@ public interface GuiEventsSubscriber {
 
 	void onTreeCharacterSelected(CharacterDefinition definition);
 
-	void onSelectedCharacterRotate(int direction);
+	void onSelectedObjectRotate(int direction);
 
 	void onTreeEnvSelected(EnvironmentDefinitions env);
 }

@@ -125,9 +125,8 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 		CardLayout subToolbarsCardLayout = new CardLayout();
 		JPanel panel = new JPanel(subToolbarsCardLayout);
 		mainPanel.add(panel, BorderLayout.PAGE_START);
-		Arrays.stream(EditorModes.values()).filter(mode -> SubToolbarsDefinitions.getButtonsOfMode(mode) != null)
-				.forEach(mode ->
-						addToolBar(SubToolbarsDefinitions.getButtonsOfMode(mode), panel).add(Box.createHorizontalGlue()));
+		Arrays.stream(SubToolbarsDefinitions.values()).forEach(subToolbarDefinition ->
+				addToolBar(subToolbarDefinition.getButtons(), panel).add(Box.createHorizontalGlue()));
 	}
 
 	private JSplitPane createSplitPane(final Canvas canvas, final JPanel entitiesPanel) {
@@ -263,10 +262,8 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 			} else if (mode == EditorModes.ENVIRONMENT) {
 				guiEventsSubscriber.onTreeEnvSelected((EnvironmentDefinitions) evt.getNewValue());
 			}
-		} else if (propertyName.equals(Events.REQUEST_TO_ROTATE_SELECTED_CHARACTER.name())) {
-			if (mode == EditorModes.CHARACTERS) {
-				guiEventsSubscriber.onSelectedCharacterRotate((Integer) evt.getNewValue());
-			}
+		} else if (propertyName.equals(Events.REQUEST_TO_ROTATE_SELECTED_OBJECT.name())) {
+			guiEventsSubscriber.onSelectedObjectRotate((Integer) evt.getNewValue());
 		}
 	}
 

@@ -8,7 +8,6 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
-import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,10 @@ public class ActionsHandler {
 	private ElementDefinition selectedElement;
 
 	@Setter
-	private Direction selectedCharacterDirection;
+	private CharacterDecal cursorCharacterDecal;
+
+	@Setter
+	private CursorSelectionModel cursorSelectionModel;
 
 	@Getter
 	private MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess;
@@ -69,7 +71,7 @@ public class ActionsHandler {
 			placeCharacter(cursorTileModelInstance, map, assetsManager);
 			return true;
 		} else if (mode == EditorModes.ENVIRONMENT && selectedElement != null) {
-			placeEnvObject(cursorModelInstance, map, assetsManager);
+			placeEnvObject(cursorSelectionModel.getModelInstance(), map, assetsManager);
 		}
 		return false;
 	}
@@ -87,7 +89,7 @@ public class ActionsHandler {
 				col,
 				(EnvironmentDefinitions) selectedElement,
 				am,
-				selectedCharacterDirection);
+				cursorSelectionModel.getFacingDirection());
 		executeAction(action);
 	}
 
@@ -104,7 +106,7 @@ public class ActionsHandler {
 				col,
 				(CharacterDefinition) selectedElement,
 				am,
-				selectedCharacterDirection);
+				cursorSelectionModel.getFacingDirection());
 		executeAction(action);
 	}
 

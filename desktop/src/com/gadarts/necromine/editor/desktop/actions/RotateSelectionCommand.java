@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 
 @RequiredArgsConstructor
-public class RotateCharacterCommand extends MapperCommand {
+public class RotateSelectionCommand extends MapperCommand {
 
 	public static final int CLOCKWISE = -1;
 	public static final int COUNTER_CLOCKWISE = 1;
@@ -17,6 +17,6 @@ public class RotateCharacterCommand extends MapperCommand {
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 		JComponent source = (JComponent) e.getSource();
-		source.firePropertyChange(Events.REQUEST_TO_ROTATE_SELECTED_CHARACTER.name(), 0, direction);
+		source.firePropertyChange(Events.REQUEST_TO_ROTATE_SELECTED_OBJECT.name(), 0, direction);
 	}
 }

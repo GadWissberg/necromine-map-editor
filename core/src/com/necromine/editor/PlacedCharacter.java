@@ -15,7 +15,7 @@ public class PlacedCharacter extends PlacedElement {
 						   final int col,
 						   final GameAssetsManager assetsManager,
 						   final Direction selectedCharacterDirection) {
-		super(row, col, selectedCharacterDirection);
+		super(row, col, definition);
 		this.characterDecal = Utils.createCharacterDecal(assetsManager, definition, row, col, selectedCharacterDirection);
 	}
 }

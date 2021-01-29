@@ -20,8 +20,8 @@ public class PlaceEnvObjectAction extends PlaceElementAction {
 								final int selectedCol,
 								final EnvironmentDefinitions definition,
 								final GameAssetsManager assetsManager,
-								final Direction selectedCharacterDirection) {
-		super(map, selectedRow, selectedCol, assetsManager, selectedCharacterDirection);
+								final Direction selectedObjectDirection) {
+		super(map, selectedRow, selectedCol, assetsManager, selectedObjectDirection);
 		this.selectedEnvObject = definition;
 		this.placedEnvObjects = placedEnvObjects;
 	}

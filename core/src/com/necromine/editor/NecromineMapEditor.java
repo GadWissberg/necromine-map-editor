@@ -46,6 +46,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
+import static com.gadarts.necromine.model.characters.Direction.*;
 
 public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsSubscriber, InputProcessor {
 	public static final float FAR = 100f;
@@ -88,7 +89,8 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private Assets.FloorsTextures selectedTile;
 	private ModelInstance cursorTileModelInstance;
 	private Model cursorTileModel;
-	private ModelInstance cursorModelInstance;
+	private ModelInstance highlighter;
+	private final CursorSelectionModel cursorSelectionModel;
 	private float flicker;
 	private ElementDefinition selectedElement;
 	private CharacterDecal cursorCharacterDecal;
@@ -99,6 +101,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		VIEWPORT_HEIGHT = height / 50;
 		map = new MapNode[LEVEL_SIZE][LEVEL_SIZE];
 		assetsManager = new GameAssetsManager(TEMP_ASSETS_FOLDER.replace('\\', '/') + '/');
+		cursorSelectionModel = new CursorSelectionModel(assetsManager);
 	}
 
 	private void createAxis() {
@@ -135,8 +138,14 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		createAxis();
 		createGrid();
 		createCursors();
-		actionsHandler = new ActionsHandler(cursorTileModelInstance, map, placedCharacters, placedEnvObjects);
+		createActionsHandler();
 		initializeInput();
+	}
+
+	private void createActionsHandler() {
+		actionsHandler = new ActionsHandler(cursorTileModelInstance, map, placedCharacters, placedEnvObjects);
+		actionsHandler.setCursorCharacterDecal(cursorCharacterDecal);
+		actionsHandler.setCursorSelectionModel(cursorSelectionModel);
 	}
 
 	private void initializeGameFiles() {
@@ -178,7 +187,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void createCursorCharacterModelInstance() {
-		cursorCharacterDecal = Utils.createCharacterDecal(assetsManager, CharacterTypes.PLAYER.getDefinitions()[0], 0, 0, Direction.SOUTH);
+		cursorCharacterDecal = Utils.createCharacterDecal(assetsManager, CharacterTypes.PLAYER.getDefinitions()[0], 0, 0, SOUTH);
 		Color color = cursorCharacterDecal.getDecal().getColor();
 		cursorCharacterDecal.getDecal().setColor(color.r, color.g, color.b, CURSOR_OPACITY);
 	}
@@ -249,7 +258,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void renderDecals() {
 		Gdx.gl.glDepthMask(false);
-		if (cursorModelInstance != null) {
+		if (highlighter != null) {
 			renderCharacter(cursorCharacterDecal, cursorCharacterDecal.getSpriteDirection());
 		}
 		for (PlacedCharacter character : placedCharacters) {
@@ -260,7 +269,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void renderCharacter(final PlacedCharacter character) {
-		renderCharacter(character.getCharacterDecal(), character.getFacingDirection());
+		renderCharacter(character.getCharacterDecal(), character.getCharacterDecal().getSpriteDirection());
 	}
 
 	private void renderCharacter(final CharacterDecal characterDecal, final Direction facingDirection) {
@@ -286,20 +295,30 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void renderCursor() {
-		if (cursorModelInstance == null) return;
-		modelBatch.render(cursorModelInstance);
+		if (highlighter == null) return;
+		if (mode != EditorModes.ENVIRONMENT) {
+			modelBatch.render(highlighter);
+		}
 		if (mode == EditorModes.ENVIRONMENT && selectedElement != null) {
 			renderModelCursorFloorGrid();
+			renderEnvObject(cursorSelectionModel.getSelectedElement(), cursorSelectionModel.getModelInstance());
 		}
 	}
 
+	@SuppressWarnings("SuspiciousNameCombination")
 	private void renderModelCursorFloorGrid() {
 		Vector3 originalPosition = cursorTileModelInstance.transform.getTranslation(auxVector1);
-		Vector3 cursorPosition = cursorModelInstance.transform.getTranslation(auxVector3);
+		Vector3 cursorPosition = highlighter.transform.getTranslation(auxVector3);
 		cursorPosition.y = CURSOR_Y;
 		EnvironmentDefinitions def = (EnvironmentDefinitions) selectedElement;
-		int halfHeight = def.getHeight() / 2;
+		Direction facingDirection = cursorSelectionModel.getFacingDirection();
 		int halfWidth = def.getWidth() / 2;
+		int halfHeight = def.getHeight() / 2;
+		if (facingDirection == SOUTH || facingDirection == NORTH) {
+			int swap = halfWidth;
+			halfWidth = halfHeight;
+			halfHeight = swap;
+		}
 		for (int row = -halfHeight; row < Math.max(halfHeight, 1); row++) {
 			for (int col = -halfWidth; col < Math.max(halfWidth, 1); col++) {
 				cursorTileModelInstance.transform.setTranslation(cursorPosition).translate(col, 0, row);
@@ -320,8 +339,17 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void renderEnvObjects() {
 		for (PlacedEnvObject placedEnvObject : placedEnvObjects) {
-			modelBatch.render(placedEnvObject.getModelInstance());
+			renderEnvObject(placedEnvObject.getDefinition(), placedEnvObject.getModelInstance());
 		}
+	}
+
+	private void renderEnvObject(final ElementDefinition definition, final ModelInstance modelInstance) {
+		Vector3 offset = ((EnvironmentDefinitions) definition).getOffset(auxVector3);
+		if (!offset.isZero()) {
+			modelInstance.transform.translate(offset);
+		}
+		modelBatch.render(modelInstance);
+		modelInstance.transform.translate(offset.scl(-1));
 	}
 
 	private void renderAxis() {
@@ -337,7 +365,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 			cameraInputController.update();
 		}
 		camera.update();
-		if (cursorModelInstance != null) {
+		if (highlighter != null) {
 			updateCursorFlicker();
 		}
 	}
@@ -345,7 +373,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private void updateCursorFlicker() {
 		Material material;
 		if ((mode == EditorModes.TILES || mode == EditorModes.CHARACTERS)) {
-			material = cursorModelInstance.materials.get(0);
+			material = highlighter.materials.get(0);
 		} else {
 			material = cursorTileModelInstance.materials.get(0);
 		}
@@ -369,7 +397,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	@Override
 	public void onTileSelected(final Assets.FloorsTextures texture) {
 		selectedTile = texture;
-		cursorModelInstance = cursorTileModelInstance;
+		highlighter = cursorTileModelInstance;
 		actionsHandler.setSelectedTile(selectedTile);
 	}
 
@@ -386,30 +414,38 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	@Override
-	public void onSelectedCharacterRotate(final int direction) {
+	public void onSelectedObjectRotate(final int direction) {
 		if (selectedElement != null) {
-			int ordinal = cursorCharacterDecal.getSpriteDirection().ordinal() + direction;
-			int length = Direction.values().length;
-			cursorCharacterDecal.setSpriteDirection(Direction.values()[(ordinal < 0 ? ordinal + length : ordinal) % length]);
-			actionsHandler.setSelectedCharacterDirection(cursorCharacterDecal.getSpriteDirection());
+			if (mode == EditorModes.CHARACTERS) {
+				int ordinal = cursorCharacterDecal.getSpriteDirection().ordinal() + direction;
+				int length = Direction.values().length;
+				int index = (ordinal < 0 ? ordinal + length : ordinal) % length;
+				cursorCharacterDecal.setSpriteDirection(Direction.values()[index]);
+			} else {
+				int ordinal = cursorSelectionModel.getFacingDirection().ordinal() + direction * 2;
+				int length = Direction.values().length;
+				int index = (ordinal < 0 ? ordinal + length : ordinal) % length;
+				cursorSelectionModel.setDirection(Direction.values()[index]);
+			}
 		}
 	}
 
 	@Override
 	public void onTreeEnvSelected(final EnvironmentDefinitions env) {
 		selectedElement = env;
+		highlighter = cursorTileModelInstance;
 		actionsHandler.setSelectedElement(selectedElement);
-		cursorModelInstance = new ModelInstance(assetsManager.getModel(env.getModel()));
-		applyOffset(env);
-		actionsHandler.setCursorModelInstance(cursorModelInstance);
-		BlendingAttribute blend = (BlendingAttribute) cursorModelInstance.materials.get(0).get(BlendingAttribute.Type);
+		cursorSelectionModel.setSelection((EnvironmentDefinitions) selectedElement);
+		actionsHandler.setCursorModelInstance(highlighter);
+		applyOpacity();
+	}
+
+	private void applyOpacity() {
+		ModelInstance modelInstance = cursorSelectionModel.getModelInstance();
+		BlendingAttribute blend = (BlendingAttribute) modelInstance.materials.get(0).get(BlendingAttribute.Type);
 		blend.opacity = CURSOR_OPACITY;
 	}
 
-	private void applyOffset(final EnvironmentDefinitions env) {
-		cursorModelInstance.nodes.forEach(node -> node.translation.add(env.getOffset(auxVector1)));
-		cursorModelInstance.calculateTransforms();
-	}
 
 	@Override
 	public boolean keyDown(final int keycode) {
@@ -448,15 +484,20 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private boolean updateCursorByScreenCoords(final int screenX, final int screenY) {
-		if (cursorModelInstance != null) {
+		if (highlighter != null) {
 			Vector3 collisionPoint = castRayTowardsPlane(screenX, screenY);
 			int x = MathUtils.clamp((int) collisionPoint.x, 0, LEVEL_SIZE);
 			int z = MathUtils.clamp((int) collisionPoint.z, 0, LEVEL_SIZE);
-			cursorModelInstance.transform.setTranslation(x, 0.01f, z);
-			updateCursorCharacter(x, z);
+			highlighter.transform.setTranslation(x, 0.01f, z);
+			updateCursorAdditionals(x, z);
 			return true;
 		}
 		return false;
+	}
+
+	private void updateCursorAdditionals(final int x, final int z) {
+		cursorSelectionModel.getModelInstance().transform.setTranslation(x, 0.01f, z);
+		updateCursorCharacter(x, z);
 	}
 
 	private void updateCursorCharacter(final int x, final int z) {
@@ -464,6 +505,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 			cursorCharacterDecal.getDecal().setPosition(x + 0.5f, BILLBOARD_Y, z + 0.5f);
 		}
 	}
+
 
 	private void renderExistingProcess() {
 		MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess = actionsHandler.getCurrentProcess();
@@ -476,14 +518,14 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void renderRectangleMarking(final int srcRow, final int srcCol) {
-		Vector3 initialTilePos = cursorModelInstance.transform.getTranslation(auxVector1);
+		Vector3 initialTilePos = highlighter.transform.getTranslation(auxVector1);
 		for (int i = Math.min((int) initialTilePos.x, srcCol); i <= Math.max((int) initialTilePos.x, srcCol); i++) {
 			for (int j = Math.min((int) initialTilePos.z, srcRow); j <= Math.max((int) initialTilePos.z, srcRow); j++) {
-				cursorModelInstance.transform.setTranslation(i, initialTilePos.y, j);
-				modelBatch.render(cursorModelInstance);
+				highlighter.transform.setTranslation(i, initialTilePos.y, j);
+				modelBatch.render(highlighter);
 			}
 		}
-		cursorModelInstance.transform.setTranslation(initialTilePos);
+		highlighter.transform.setTranslation(initialTilePos);
 	}
 
 	Vector3 castRayTowardsPlane(final float screenX, final float screenY) {
