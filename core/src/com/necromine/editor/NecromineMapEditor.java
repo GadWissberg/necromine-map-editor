@@ -17,10 +17,7 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.graphics.g3d.decals.DecalBatch;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Plane;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
 import com.gadarts.necromine.assets.Assets;
@@ -52,22 +49,22 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	public static final float FAR = 100f;
 	public static final float FLICKER_RATE = 0.05f;
 	public static final String TEMP_ASSETS_FOLDER = "C:\\Users\\gadw1\\StudioProjects\\isometric-game\\core\\assets";
+	public static final float CURSOR_Y = 0.01f;
+	public static final int LEVEL_SIZE = 20;
 	private static final int DECALS_POOL_SIZE = 200;
 	private static final float NEAR = 0.01f;
-	private static final Vector3 auxVector1 = new Vector3();
-	private static final Vector3 auxVector2 = new Vector3();
-	private static final Vector3 auxVector3 = new Vector3();
-	private static final int LEVEL_SIZE = 20;
+	private static final Vector3 auxVector3_1 = new Vector3();
+	private static final Vector3 auxVector3_2 = new Vector3();
+	private static final Vector3 auxVector3_3 = new Vector3();
+	private static final Vector2 auxVector2_1 = new Vector2();
 	private static final Color GRID_COLOR = Color.GRAY;
 	private static final float CAMERA_HEIGHT = 6;
 	private static final Plane auxPlane = new Plane();
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
 	private static final float CURSOR_OPACITY = 0.5f;
-	public static final float CURSOR_Y = 0.01f;
-
+	private static final Matrix4 auxMatrix = new Matrix4();
 	@Getter
 	private static EditorModes mode = EditorModes.TILES;
-
 	public final int VIEWPORT_WIDTH;
 	public final int VIEWPORT_HEIGHT;
 	private final MapNode[][] map;
@@ -75,6 +72,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private final Set<MapNode> initializedTiles = new HashSet<>();
 	private final List<PlacedCharacter> placedCharacters = new ArrayList<>();
 	private final List<PlacedEnvObject> placedEnvObjects = new ArrayList<>();
+	private final CursorSelectionModel cursorSelectionModel;
 	private ActionsHandler actionsHandler;
 	private ModelBatch modelBatch;
 	private Model axisModelX;
@@ -90,7 +88,6 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private ModelInstance cursorTileModelInstance;
 	private Model cursorTileModel;
 	private ModelInstance highlighter;
-	private final CursorSelectionModel cursorSelectionModel;
 	private float flicker;
 	private ElementDefinition selectedElement;
 	private CharacterDecal cursorCharacterDecal;
@@ -106,11 +103,11 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void createAxis() {
 		ModelBuilder modelBuilder = new ModelBuilder();
-		axisModelX = createAxisModel(modelBuilder, auxVector2.set(1, 0, 0), Color.RED);
+		axisModelX = createAxisModel(modelBuilder, auxVector3_2.set(1, 0, 0), Color.RED);
 		axisModelInstanceX = new ModelInstance(axisModelX);
-		axisModelY = createAxisModel(modelBuilder, auxVector2.set(0, 1, 0), Color.GREEN);
+		axisModelY = createAxisModel(modelBuilder, auxVector3_2.set(0, 1, 0), Color.GREEN);
 		axisModelInstanceY = new ModelInstance(axisModelY);
-		axisModelZ = createAxisModel(modelBuilder, auxVector2.set(0, 0, 1), Color.BLUE);
+		axisModelZ = createAxisModel(modelBuilder, auxVector3_2.set(0, 0, 1), Color.BLUE);
 		axisModelInstanceZ = new ModelInstance(axisModelZ);
 		scaleAxis();
 	}
@@ -123,7 +120,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private Model createAxisModel(final ModelBuilder modelBuilder, final Vector3 dir, final Color color) {
 		return modelBuilder.createArrow(
-				auxVector1.setZero(),
+				auxVector3_1.setZero(),
 				dir,
 				new Material(ColorAttribute.createDiffuse(color)),
 				Usage.Position | Usage.Normal
@@ -232,7 +229,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		cam.far = FAR;
 		cam.update();
 		cam.position.set(4, CAMERA_HEIGHT, 4);
-		cam.lookAt(auxVector1.setZero());
+		cam.lookAt(auxVector3_1.setZero());
 		return cam;
 	}
 
@@ -279,7 +276,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 
 	private void renderDecal(final Decal decal) {
-		decal.lookAt(auxVector1.set(decal.getPosition()).sub(camera.direction), camera.up);
+		decal.lookAt(auxVector3_1.set(decal.getPosition()).sub(camera.direction), camera.up);
 		decalBatch.add(decal);
 	}
 
@@ -299,16 +296,22 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		if (mode != EditorModes.ENVIRONMENT) {
 			modelBatch.render(highlighter);
 		}
+		renderCursorObjectModel();
+	}
+
+	private void renderCursorObjectModel() {
 		if (mode == EditorModes.ENVIRONMENT && selectedElement != null) {
 			renderModelCursorFloorGrid();
-			renderEnvObject(cursorSelectionModel.getSelectedElement(), cursorSelectionModel.getModelInstance());
+			EnvironmentDefinitions selectedElement = cursorSelectionModel.getSelectedElement();
+			ModelInstance modelInstance = cursorSelectionModel.getModelInstance();
+			renderEnvObject(selectedElement, modelInstance, cursorSelectionModel.getFacingDirection());
 		}
 	}
 
 	@SuppressWarnings("SuspiciousNameCombination")
 	private void renderModelCursorFloorGrid() {
-		Vector3 originalPosition = cursorTileModelInstance.transform.getTranslation(auxVector1);
-		Vector3 cursorPosition = highlighter.transform.getTranslation(auxVector3);
+		Vector3 originalPosition = cursorTileModelInstance.transform.getTranslation(auxVector3_1);
+		Vector3 cursorPosition = highlighter.transform.getTranslation(auxVector3_3);
 		cursorPosition.y = CURSOR_Y;
 		EnvironmentDefinitions def = (EnvironmentDefinitions) selectedElement;
 		Direction facingDirection = cursorSelectionModel.getFacingDirection();
@@ -339,17 +342,24 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void renderEnvObjects() {
 		for (PlacedEnvObject placedEnvObject : placedEnvObjects) {
-			renderEnvObject(placedEnvObject.getDefinition(), placedEnvObject.getModelInstance());
+			renderEnvObject(
+					placedEnvObject.getDefinition(),
+					placedEnvObject.getModelInstance(),
+					placedEnvObject.getFacingDirection());
 		}
 	}
 
-	private void renderEnvObject(final ElementDefinition definition, final ModelInstance modelInstance) {
-		Vector3 offset = ((EnvironmentDefinitions) definition).getOffset(auxVector3);
-		if (!offset.isZero()) {
-			modelInstance.transform.translate(offset);
-		}
+	private void renderEnvObject(final ElementDefinition definition,
+								 final ModelInstance modelInstance,
+								 final Direction facingDirection) {
+		Matrix4 originalTransform = auxMatrix.set(modelInstance.transform);
+		modelInstance.transform.translate(0.5f, 0, 0.5f);
+		float degrees = facingDirection.getDirection(auxVector2_1).angleDeg();
+		modelInstance.transform.rotate(Vector3.Y, degrees);
+		Vector3 offset = ((EnvironmentDefinitions) definition).getOffset(auxVector3_1);
+		modelInstance.transform.translate(offset);
 		modelBatch.render(modelInstance);
-		modelInstance.transform.translate(offset.scl(-1));
+		modelInstance.transform.set(originalTransform);
 	}
 
 	private void renderAxis() {
@@ -425,7 +435,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 				int ordinal = cursorSelectionModel.getFacingDirection().ordinal() + direction * 2;
 				int length = Direction.values().length;
 				int index = (ordinal < 0 ? ordinal + length : ordinal) % length;
-				cursorSelectionModel.setDirection(Direction.values()[index]);
+				cursorSelectionModel.setFacingDirection(Direction.values()[index]);
 			}
 		}
 	}
@@ -518,7 +528,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void renderRectangleMarking(final int srcRow, final int srcCol) {
-		Vector3 initialTilePos = highlighter.transform.getTranslation(auxVector1);
+		Vector3 initialTilePos = highlighter.transform.getTranslation(auxVector3_1);
 		for (int i = Math.min((int) initialTilePos.x, srcCol); i <= Math.max((int) initialTilePos.x, srcCol); i++) {
 			for (int j = Math.min((int) initialTilePos.z, srcRow); j <= Math.max((int) initialTilePos.z, srcRow); j++) {
 				highlighter.transform.setTranslation(i, initialTilePos.y, j);
@@ -530,9 +540,9 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	Vector3 castRayTowardsPlane(final float screenX, final float screenY) {
 		Ray ray = camera.getPickRay(screenX, screenY);
-		auxPlane.set(Vector3.Zero, auxVector1.set(0, 1, 0));
-		Intersector.intersectRayPlane(ray, auxPlane, auxVector2);
-		return auxVector2;
+		auxPlane.set(Vector3.Zero, auxVector3_1.set(0, 1, 0));
+		Intersector.intersectRayPlane(ray, auxPlane, auxVector3_2);
+		return auxVector3_2;
 	}
 
 	@Override

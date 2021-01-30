@@ -4,6 +4,7 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.MapNodesTypes;
 import com.gadarts.necromine.model.characters.Direction;
+import com.necromine.editor.NecromineMapEditor;
 import com.necromine.editor.PlacedEnvObject;
 import com.necromine.editor.MapNode;
 
@@ -49,8 +50,8 @@ public class PlaceEnvObjectAction extends PlaceElementAction {
 	}
 
 	private void applyOnNode(final int row, final int col) {
-		int currentRow = this.selectedRow + row;
-		int currentCol = this.selectedCol + col;
+		int currentRow = Math.min(Math.max(this.selectedRow + row, 0), NecromineMapEditor.LEVEL_SIZE);
+		int currentCol = Math.min(Math.max(this.selectedCol + col, 0), NecromineMapEditor.LEVEL_SIZE);
 		MapNode mapNode = map[currentRow][currentCol];
 		if (mapNode == null) {
 			map[currentRow][currentCol] = new MapNode(currentRow, currentCol, selectedEnvObject.getNodeType());
