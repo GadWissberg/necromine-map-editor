@@ -22,7 +22,6 @@ public class PlacedEnvObject extends PlacedElement {
 						   final Direction selectedDirection) {
 		super(row, col, definition, selectedDirection);
 		this.modelInstance = new ModelInstance(assetsManager.getModel(definition.getModel()));
-		modelInstance.transform.setToRotation(Vector3.Y, selectedDirection.getDirection(auxVector2_1).angleDeg());
 		modelInstance.transform.setTranslation(col, 0, row);
 	}
 }

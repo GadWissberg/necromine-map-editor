@@ -317,7 +317,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		Direction facingDirection = cursorSelectionModel.getFacingDirection();
 		int halfWidth = def.getWidth() / 2;
 		int halfHeight = def.getHeight() / 2;
-		if (facingDirection == SOUTH || facingDirection == NORTH) {
+		if (facingDirection == NORTH || facingDirection == SOUTH) {
 			int swap = halfWidth;
 			halfWidth = halfHeight;
 			halfHeight = swap;
@@ -343,23 +343,34 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private void renderEnvObjects() {
 		for (PlacedEnvObject placedEnvObject : placedEnvObjects) {
 			renderEnvObject(
-					placedEnvObject.getDefinition(),
+					(EnvironmentDefinitions) placedEnvObject.getDefinition(),
 					placedEnvObject.getModelInstance(),
 					placedEnvObject.getFacingDirection());
 		}
 	}
 
-	private void renderEnvObject(final ElementDefinition definition,
+	private void renderEnvObject(final EnvironmentDefinitions definition,
 								 final ModelInstance modelInstance,
 								 final Direction facingDirection) {
 		Matrix4 originalTransform = auxMatrix.set(modelInstance.transform);
 		modelInstance.transform.translate(0.5f, 0, 0.5f);
-		float degrees = facingDirection.getDirection(auxVector2_1).angleDeg();
-		modelInstance.transform.rotate(Vector3.Y, degrees);
-		Vector3 offset = ((EnvironmentDefinitions) definition).getOffset(auxVector3_1);
-		modelInstance.transform.translate(offset);
+		modelInstance.transform.rotate(Vector3.Y, -1 * facingDirection.getDirection(auxVector2_1).angleDeg());
+		modelInstance.transform.translate(definition.getOffset(auxVector3_1));
+		handleEvenSize(definition, modelInstance, facingDirection);
 		modelBatch.render(modelInstance);
 		modelInstance.transform.set(originalTransform);
+	}
+
+	private void handleEvenSize(final EnvironmentDefinitions definition,
+								final ModelInstance modelInstance,
+								final Direction facingDirection) {
+		boolean handleEvenSize = facingDirection == EAST || facingDirection == NORTH;
+		if (definition.getWidth() % 2 == 0) {
+			modelInstance.transform.translate(0.5f * (handleEvenSize ? -1 : 1), 0, 0);
+		}
+		if (definition.getHeight() % 2 == 0) {
+			modelInstance.transform.translate(0, 0, 0.5f * (handleEvenSize ? -1 : 1));
+		}
 	}
 
 	private void renderAxis() {
