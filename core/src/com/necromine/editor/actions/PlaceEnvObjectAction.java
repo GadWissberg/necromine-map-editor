@@ -56,7 +56,6 @@ public class PlaceEnvObjectAction extends PlaceElementAction {
 		if (mapNode == null) {
 			map[currentRow][currentCol] = new MapNode(currentRow, currentCol, selectedEnvObject.getNodeType());
 		} else {
-			mapNode.setModelInstance(null);
 			mapNode.setMapNodeType(selectedEnvObject.getNodeType());
 		}
 	}

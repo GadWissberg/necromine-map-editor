@@ -517,7 +517,10 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void updateCursorAdditionals(final int x, final int z) {
-		cursorSelectionModel.getModelInstance().transform.setTranslation(x, 0.01f, z);
+		ModelInstance modelInstance = cursorSelectionModel.getModelInstance();
+		if (modelInstance != null) {
+			modelInstance.transform.setTranslation(x, 0.01f, z);
+		}
 		updateCursorCharacter(x, z);
 	}
 

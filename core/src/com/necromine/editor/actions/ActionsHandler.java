@@ -106,7 +106,7 @@ public class ActionsHandler {
 				col,
 				(CharacterDefinition) selectedElement,
 				am,
-				cursorSelectionModel.getFacingDirection());
+				cursorCharacterDecal.getSpriteDirection());
 		executeAction(action);
 	}
 

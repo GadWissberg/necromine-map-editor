@@ -17,14 +17,15 @@ public class Utils {
 	public static CharacterDecal createCharacterDecal(final GameAssetsManager assetsManager,
 													  final CharacterDefinition definition,
 													  final int row,
-													  final int col, Direction selectedCharacterDirection) {
-		String idle = SpriteType.IDLE.name() + "_" + Direction.SOUTH;
+													  final int col,
+													  final Direction selectedCharacterDirection) {
+		String idle = SpriteType.IDLE.name() + "_" + selectedCharacterDirection.name().toLowerCase();
 		TextureAtlas atlas = assetsManager.getAtlas(definition.getAtlasDefinition());
 		TextureAtlas.AtlasRegion region = atlas.findRegion(idle.toLowerCase());
 		Decal decal = Decal.newDecal(region, true);
 		decal.setPosition(col + 0.5f, BILLBOARD_Y, row + 0.5f);
 		decal.setScale(BILLBOARD_SCALE);
-		return new CharacterDecal(decal, definition, Direction.SOUTH);
+		return new CharacterDecal(decal, definition, selectedCharacterDirection);
 	}
 
 	public static void applyFrameSeenFromCameraForCharacterDecal(final CharacterDecal characterDecal,
