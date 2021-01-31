@@ -4,7 +4,8 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.EnvironmentDefinitions;
+import com.gadarts.necromine.assets.definitions.ModelDefinition;
+import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +25,12 @@ public class CursorSelectionModel {
 	private static final Vector3 auxVector3_2 = new Vector3();
 	private final GameAssetsManager assetsManager;
 	private ModelInstance modelInstance;
-	private EnvironmentDefinitions selectedElement;
+	private ElementDefinition selectedElement;
 
 
-	public void setSelection(final EnvironmentDefinitions selectedElement) {
+	public void setSelection(final ElementDefinition selectedElement, final ModelDefinition model) {
 		this.selectedElement = selectedElement;
-		modelInstance = new ModelInstance(assetsManager.getModel(selectedElement.getModel()));
+		modelInstance = new ModelInstance(assetsManager.getModel(model));
 		facingDirection = EAST;
 	}
 }

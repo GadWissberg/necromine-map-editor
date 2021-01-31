@@ -1,8 +1,10 @@
-package com.necromine.editor;
+package com.necromine.editor.model;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
+import com.necromine.editor.CharacterDecal;
+import com.necromine.editor.Utils;
 import lombok.Getter;
 
 @Getter

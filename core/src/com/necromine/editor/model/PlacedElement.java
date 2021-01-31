@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.model;
 
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;

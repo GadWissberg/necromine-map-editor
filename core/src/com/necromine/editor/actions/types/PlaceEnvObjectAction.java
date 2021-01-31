@@ -1,16 +1,16 @@
-package com.necromine.editor.actions;
+package com.necromine.editor.actions.types;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
-import com.gadarts.necromine.model.MapNodesTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.NecromineMapEditor;
-import com.necromine.editor.PlacedEnvObject;
+import com.necromine.editor.model.PlacedEnvObject;
 import com.necromine.editor.MapNode;
+import com.necromine.editor.actions.PlaceElementAction;
 
 import java.util.List;
 
-public class PlaceEnvObjectAction extends PlaceElementAction {
+public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, EnvironmentDefinitions> {
 
 	private final EnvironmentDefinitions selectedEnvObject;
 	private final List<PlacedEnvObject> placedEnvObjects;
@@ -22,7 +22,7 @@ public class PlaceEnvObjectAction extends PlaceElementAction {
 								final EnvironmentDefinitions definition,
 								final GameAssetsManager assetsManager,
 								final Direction selectedObjectDirection) {
-		super(map, selectedRow, selectedCol, assetsManager, selectedObjectDirection);
+		super(map, selectedRow, selectedCol, assetsManager, selectedObjectDirection, definition, placedEnvObjects);
 		this.selectedEnvObject = definition;
 		this.placedEnvObjects = placedEnvObjects;
 	}
@@ -34,7 +34,7 @@ public class PlaceEnvObjectAction extends PlaceElementAction {
 				selectedRow,
 				selectedCol,
 				assetsManager,
-				selectedCharacterDirection);
+				elementDirection);
 		placedEnvObjects.add(character);
 		applyOnMap();
 	}

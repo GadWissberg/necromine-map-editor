@@ -6,6 +6,7 @@ import com.gadarts.necromine.editor.desktop.toolbar.*;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
+import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.EditorModes;
 import com.necromine.editor.GuiEventsSubscriber;
 import com.necromine.editor.NecromineMapEditor;
@@ -261,6 +262,8 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 				guiEventsSubscriber.onTreeCharacterSelected((CharacterDefinition) evt.getNewValue());
 			} else if (mode == EditorModes.ENVIRONMENT) {
 				guiEventsSubscriber.onTreeEnvSelected((EnvironmentDefinitions) evt.getNewValue());
+			} else if (mode == EditorModes.PICKUPS) {
+				guiEventsSubscriber.onTreePickupSelected((ItemDefinition) evt.getNewValue());
 			}
 		} else if (propertyName.equals(Events.REQUEST_TO_ROTATE_SELECTED_OBJECT.name())) {
 			guiEventsSubscriber.onSelectedObjectRotate((Integer) evt.getNewValue());

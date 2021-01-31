@@ -1,4 +1,4 @@
-package com.necromine.editor.actions;
+package com.necromine.editor.actions.processes;
 
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -49,12 +49,12 @@ public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessPar
 	}
 
 	@Override
-	protected void execute() {
+	public void execute() {
 
 	}
 
 	@Override
-	void finish(PlaceTilesFinishProcessParameters params) {
+	public void finish(PlaceTilesFinishProcessParameters params) {
 		int dstRow = params.getDstRow();
 		int dstCol = params.getDstCol();
 		for (int col = Math.min(dstCol, srcCol); col <= Math.max(dstCol, srcCol); col++) {

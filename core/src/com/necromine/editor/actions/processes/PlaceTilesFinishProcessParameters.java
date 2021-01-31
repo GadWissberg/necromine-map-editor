@@ -1,4 +1,4 @@
-package com.necromine.editor.actions;
+package com.necromine.editor.actions.processes;
 
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.gadarts.necromine.assets.Assets;

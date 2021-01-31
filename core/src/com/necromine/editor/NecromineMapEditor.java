@@ -9,7 +9,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.CameraGroupStrategy;
@@ -29,18 +32,17 @@ import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.characters.SpriteType;
+import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.actions.ActionsHandler;
-import com.necromine.editor.actions.MappingProcess;
-import com.necromine.editor.actions.PlaceTilesProcess;
+import com.necromine.editor.actions.processes.MappingProcess;
+import com.necromine.editor.actions.processes.PlaceTilesProcess;
+import com.necromine.editor.model.PlacedCharacter;
+import com.necromine.editor.model.PlacedElement;
+import com.necromine.editor.model.PlacedEnvObject;
+import com.necromine.editor.model.PlacedPickup;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 import static com.gadarts.necromine.model.characters.Direction.*;
@@ -70,8 +72,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private final MapNode[][] map;
 	private final GameAssetsManager assetsManager;
 	private final Set<MapNode> initializedTiles = new HashSet<>();
-	private final List<PlacedCharacter> placedCharacters = new ArrayList<>();
-	private final List<PlacedEnvObject> placedEnvObjects = new ArrayList<>();
+	private final Map<EditorModes, List<? extends PlacedElement>> placedElements = new HashMap<>();
 	private final CursorSelectionModel cursorSelectionModel;
 	private ActionsHandler actionsHandler;
 	private ModelBatch modelBatch;
@@ -99,6 +100,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		map = new MapNode[LEVEL_SIZE][LEVEL_SIZE];
 		assetsManager = new GameAssetsManager(TEMP_ASSETS_FOLDER.replace('\\', '/') + '/');
 		cursorSelectionModel = new CursorSelectionModel(assetsManager);
+		Arrays.stream(EditorModes.values()).forEach(mode -> placedElements.put(mode, new ArrayList<>()));
 	}
 
 	private void createAxis() {
@@ -140,7 +142,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void createActionsHandler() {
-		actionsHandler = new ActionsHandler(cursorTileModelInstance, map, placedCharacters, placedEnvObjects);
+		actionsHandler = new ActionsHandler(cursorTileModelInstance, map, placedElements);
 		actionsHandler.setCursorCharacterDecal(cursorCharacterDecal);
 		actionsHandler.setCursorSelectionModel(cursorSelectionModel);
 	}
@@ -248,16 +250,15 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void renderWorld() {
 		renderModels();
-		if (mode == EditorModes.CHARACTERS && selectedElement != null) {
-			renderDecals();
-		}
+		renderDecals();
 	}
 
 	private void renderDecals() {
 		Gdx.gl.glDepthMask(false);
-		if (highlighter != null) {
+		if (highlighter != null && mode == EditorModes.CHARACTERS) {
 			renderCharacter(cursorCharacterDecal, cursorCharacterDecal.getSpriteDirection());
 		}
+		List<PlacedCharacter> placedCharacters = (List<PlacedCharacter>) placedElements.get(EditorModes.CHARACTERS);
 		for (PlacedCharacter character : placedCharacters) {
 			renderCharacter(character);
 		}
@@ -286,9 +287,14 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		renderAxis();
 		renderCursor();
 		renderExistingProcess();
+		renderPlacedElements();
+		modelBatch.end();
+	}
+
+	private void renderPlacedElements() {
 		renderTiles();
 		renderEnvObjects();
-		modelBatch.end();
+		renderPickups();
 	}
 
 	private void renderCursor() {
@@ -300,11 +306,15 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void renderCursorObjectModel() {
-		if (mode == EditorModes.ENVIRONMENT && selectedElement != null) {
-			renderModelCursorFloorGrid();
-			EnvironmentDefinitions selectedElement = cursorSelectionModel.getSelectedElement();
-			ModelInstance modelInstance = cursorSelectionModel.getModelInstance();
-			renderEnvObject(selectedElement, modelInstance, cursorSelectionModel.getFacingDirection());
+		if (selectedElement != null) {
+			if (mode == EditorModes.ENVIRONMENT) {
+				renderModelCursorFloorGrid();
+				EnvironmentDefinitions selectedElement = (EnvironmentDefinitions) cursorSelectionModel.getSelectedElement();
+				ModelInstance modelInstance = cursorSelectionModel.getModelInstance();
+				renderEnvObject(selectedElement, modelInstance, cursorSelectionModel.getFacingDirection());
+			} else if (mode == EditorModes.PICKUPS) {
+				renderPickup(cursorSelectionModel.getModelInstance());
+			}
 		}
 	}
 
@@ -341,12 +351,27 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void renderEnvObjects() {
+		List<PlacedEnvObject> placedEnvObjects = (List<PlacedEnvObject>) placedElements.get(EditorModes.ENVIRONMENT);
 		for (PlacedEnvObject placedEnvObject : placedEnvObjects) {
 			renderEnvObject(
 					(EnvironmentDefinitions) placedEnvObject.getDefinition(),
 					placedEnvObject.getModelInstance(),
 					placedEnvObject.getFacingDirection());
 		}
+	}
+
+	private void renderPickups() {
+		List<PlacedPickup> placedElements = (List<PlacedPickup>) this.placedElements.get(EditorModes.PICKUPS);
+		for (PlacedPickup pickup : placedElements) {
+			renderPickup(pickup.getModelInstance());
+		}
+	}
+
+	private void renderPickup(final ModelInstance modelInstance) {
+		Matrix4 originalTransform = auxMatrix.set(modelInstance.transform);
+		modelInstance.transform.translate(0.5f, 0, 0.5f);
+		modelBatch.render(modelInstance);
+		modelInstance.transform.set(originalTransform);
 	}
 
 	private void renderEnvObject(final EnvironmentDefinitions definition,
@@ -424,6 +449,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	@Override
 	public void onModeChanged(final EditorModes mode) {
+		selectedElement = null;
 		NecromineMapEditor.mode = mode;
 	}
 
@@ -456,8 +482,16 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		selectedElement = env;
 		highlighter = cursorTileModelInstance;
 		actionsHandler.setSelectedElement(selectedElement);
-		cursorSelectionModel.setSelection((EnvironmentDefinitions) selectedElement);
-		actionsHandler.setCursorModelInstance(highlighter);
+		cursorSelectionModel.setSelection(selectedElement, ((EnvironmentDefinitions) selectedElement).getModelDefinition());
+		applyOpacity();
+	}
+
+	@Override
+	public void onTreePickupSelected(final ItemDefinition definition) {
+		selectedElement = definition;
+		highlighter = cursorTileModelInstance;
+		actionsHandler.setSelectedElement(selectedElement);
+		cursorSelectionModel.setSelection(selectedElement, definition.getModelDefinition());
 		applyOpacity();
 	}
 
