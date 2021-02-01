@@ -6,19 +6,27 @@ import lombok.Getter;
 
 @Getter
 public enum SubToolbarsDefinitions {
-	MODE_OBJECTS(new SubToolbarButtonDefinition(new ToolbarButtonOfMenuItem(
-					"rotate_clockwise",
-					"Rotate Character Clock-Wise",
-					new RotateSelectionCommand(RotateSelectionCommand.CLOCKWISE))),
-			new SubToolbarButtonDefinition(new ToolbarButtonOfMenuItem(
-					"rotate_counter_clockwise",
-					"Rotate Character Counter Clock-Wise",
-					new RotateSelectionCommand(RotateSelectionCommand.COUNTER_CLOCKWISE))));
+    ROTATABLE_MODE(new SubToolbarButtonDefinition(new ToolbarButtonOfMenuItem(
+            "rotate_clockwise",
+            "Rotate Character Clock-Wise",
+            new RotateSelectionCommand(RotateSelectionCommand.CLOCKWISE))),
+            new SubToolbarButtonDefinition(new ToolbarButtonOfMenuItem(
+                    "rotate_counter_clockwise",
+                    "Rotate Character Counter Clock-Wise",
+                    new RotateSelectionCommand(RotateSelectionCommand.COUNTER_CLOCKWISE)))),
+    MODE_LIGHTS(new SubToolbarButtonDefinition(new ToolbarButtonOfMenuItem(
+            "rotate_clockwise",
+            "Rotate Character Clock-Wise",
+            new RotateSelectionCommand(RotateSelectionCommand.CLOCKWISE))),
+            new SubToolbarButtonDefinition(new ToolbarButtonOfMenuItem(
+                    "rotate_counter_clockwise",
+                    "Rotate Character Counter Clock-Wise",
+                    new RotateSelectionCommand(RotateSelectionCommand.COUNTER_CLOCKWISE))));
 
-	private final SubToolbarButtonDefinition[] buttons;
+    private final SubToolbarButtonDefinition[] buttons;
 
-	SubToolbarsDefinitions(final SubToolbarButtonDefinition... buttons) {
-		this.buttons = buttons;
-	}
+    SubToolbarsDefinitions(final SubToolbarButtonDefinition... buttons) {
+        this.buttons = buttons;
+    }
 
 }
