@@ -13,39 +13,45 @@ import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
 @Getter
 public enum EditorModes {
-    TILES("Tiles", EntriesDisplayTypes.GALLERY),
+	TILES("Tiles", EntriesDisplayTypes.GALLERY),
 
-    CHARACTERS("Characters", EntriesDisplayTypes.TREE,
-            new TreeSection("Player", CharacterTypes.PLAYER.getDefinitions(), "character"),
-            new TreeSection("Enemies", CharacterTypes.ENEMY.getDefinitions(), "character")),
+	CHARACTERS("Characters", EntriesDisplayTypes.TREE, true,
+			new TreeSection("Player", CharacterTypes.PLAYER.getDefinitions(), "character"),
+			new TreeSection("Enemies", CharacterTypes.ENEMY.getDefinitions(), "character")),
 
-    ENVIRONMENT("Environment Objects", EntriesDisplayTypes.TREE,
-            new TreeSection("Environment", EnvironmentDefinitions.values(), "env")),
+	ENVIRONMENT("Environment Objects", EntriesDisplayTypes.TREE,
+			new TreeSection("Environment", EnvironmentDefinitions.values(), "env")),
 
-    PICKUPS("Pick-Ups", EntriesDisplayTypes.TREE,
-            new TreeSection(
-                    "Weapons",
-                    Arrays.stream(WeaponsDefinitions.values()).filter(def -> def.getModelDefinition() != null).collect(Collectors.toList()).toArray(new ElementDefinition[0]),
-                    "pickup")),
+	PICKUPS("Pick-Ups", EntriesDisplayTypes.TREE,
+			new TreeSection(
+					"Weapons",
+					Arrays.stream(WeaponsDefinitions.values()).filter(def -> def.getModelDefinition() != null).collect(Collectors.toList()).toArray(new ElementDefinition[0]),
+					"pickup")),
 
-    LIGHTS("Lights");
+	LIGHTS("Lights", true);
 
 
-    private final TreeSection[] treeSections;
-    private final EntriesDisplayTypes entriesDisplayTypes;
-    private final String displayName;
+	private final TreeSection[] treeSections;
+	private final EntriesDisplayTypes entriesDisplayTypes;
+	private final String displayName;
+	private final boolean decalCursor;
 
-    EditorModes(final String displayName) {
-        this(displayName, NONE, (TreeSection[]) null);
-    }
+	EditorModes(final String displayName, final boolean decalCursor) {
+		this(displayName, NONE, decalCursor, (TreeSection[]) null);
+	}
 
-    EditorModes(final String displayName, final EntriesDisplayTypes type) {
-        this(displayName, type, (TreeSection[]) null);
-    }
+	EditorModes(final String displayName, final EntriesDisplayTypes type) {
+		this(displayName, type, (TreeSection[]) null);
+	}
 
-    EditorModes(final String displayName, final EntriesDisplayTypes entriesDisplay, final TreeSection... treeSections) {
-        this.entriesDisplayTypes = entriesDisplay;
-        this.treeSections = treeSections;
-        this.displayName = displayName;
-    }
+	EditorModes(final String displayName, final EntriesDisplayTypes entriesDisplay, final TreeSection... treeSections) {
+		this(displayName, entriesDisplay, false, treeSections);
+	}
+
+	EditorModes(final String displayName, final EntriesDisplayTypes entriesDisplay, final boolean decalCursor, final TreeSection... treeSections) {
+		this.entriesDisplayTypes = entriesDisplay;
+		this.treeSections = treeSections;
+		this.displayName = displayName;
+		this.decalCursor = decalCursor;
+	}
 }

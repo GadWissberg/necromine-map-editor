@@ -1,7 +1,9 @@
 package com.necromine.editor;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.*;
@@ -40,5 +42,11 @@ public class Utils {
 			HashMap<Direction, TextureAtlas.AtlasRegion> hashMap = assetsManager.get(name);
 			characterDecal.getDecal().setTextureRegion(hashMap.get(dirSeenFromCamera));
 		}
+	}
+
+	public static Decal createSimpleDecal(Texture texture) {
+		Decal decal = Decal.newDecal(new TextureRegion(texture), true);
+		decal.setScale(BILLBOARD_SCALE);
+		return decal;
 	}
 }

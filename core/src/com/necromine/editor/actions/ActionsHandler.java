@@ -15,11 +15,9 @@ import com.necromine.editor.actions.processes.PlaceTilesFinishProcessParameters;
 import com.necromine.editor.actions.processes.PlaceTilesProcess;
 import com.necromine.editor.actions.types.PlaceCharacterAction;
 import com.necromine.editor.actions.types.PlaceEnvObjectAction;
+import com.necromine.editor.actions.types.PlaceLightAction;
 import com.necromine.editor.actions.types.PlacePickupAction;
-import com.necromine.editor.model.PlacedCharacter;
-import com.necromine.editor.model.PlacedElement;
-import com.necromine.editor.model.PlacedEnvObject;
-import com.necromine.editor.model.PlacedPickup;
+import com.necromine.editor.model.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -75,14 +73,19 @@ public class ActionsHandler {
 		if (mode == EditorModes.TILES && currentProcess == null && selectedTile != null) {
 			beginTilePlacingProcess(cursorTileModelInstance, assetsManager, initializedTiles);
 			return true;
-		} else if (mode == EditorModes.CHARACTERS && selectedElement != null) {
-			placeCharacter(cursorTileModelInstance, map, assetsManager);
+		} else if (mode == EditorModes.LIGHTS) {
+			placeLight(cursorTileModelInstance, map, assetsManager);
 			return true;
-		} else if (mode == EditorModes.ENVIRONMENT && selectedElement != null) {
-			placeEnvObject(cursorSelectionModel.getModelInstance(), map, assetsManager);
-		} else if (mode == EditorModes.PICKUPS && selectedElement != null) {
-			placePickup(cursorSelectionModel.getModelInstance(), map, assetsManager);
-			return true;
+		} else if (selectedElement != null) {
+			if (mode == EditorModes.CHARACTERS) {
+				placeCharacter(cursorTileModelInstance, map, assetsManager);
+				return true;
+			} else if (mode == EditorModes.ENVIRONMENT) {
+				placeEnvObject(cursorSelectionModel.getModelInstance(), map, assetsManager);
+			} else if (mode == EditorModes.PICKUPS) {
+				placePickup(cursorSelectionModel.getModelInstance(), map, assetsManager);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -104,10 +107,10 @@ public class ActionsHandler {
 		executeAction(action);
 	}
 
-	private void placePickup(final ModelInstance modelInstance,
+	private void placePickup(final ModelInstance cursor,
 							 final MapNode[][] map,
 							 final GameAssetsManager am) {
-		Vector3 position = modelInstance.transform.getTranslation(auxVector);
+		Vector3 position = cursor.transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		PlacePickupAction action = new PlacePickupAction(
@@ -118,6 +121,22 @@ public class ActionsHandler {
 				(ItemDefinition) selectedElement,
 				am,
 				cursorSelectionModel.getFacingDirection());
+		executeAction(action);
+	}
+
+	private void placeLight(final ModelInstance cursor,
+							final MapNode[][] map,
+							final GameAssetsManager am) {
+		Vector3 position = cursor.transform.getTranslation(auxVector);
+		int row = (int) position.z;
+		int col = (int) position.x;
+		PlaceLightAction action = new PlaceLightAction(
+				map,
+				(List<PlacedLight>) placedElements.get(EditorModes.LIGHTS),
+				row,
+				col,
+				selectedElement,
+				am);
 		executeAction(action);
 	}
 

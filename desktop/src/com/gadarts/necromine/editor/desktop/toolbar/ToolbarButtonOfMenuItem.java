@@ -12,12 +12,6 @@ public class ToolbarButtonOfMenuItem {
 	private MapperCommand mapperCommand;
 
 	public ToolbarButtonOfMenuItem(final String icon,
-								   final String toolTip) {
-		this(icon, toolTip, null, null);
-	}
-
-
-	public ToolbarButtonOfMenuItem(final String icon,
 								   final String toolTip,
 								   final MenuItemDefinition mapperMenuItemDefinition,
 								   final String buttonGroup) {
