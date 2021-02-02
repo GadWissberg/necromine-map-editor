@@ -9,7 +9,7 @@ import com.gadarts.necromine.model.pickups.ItemDefinition;
 public interface GuiEventsSubscriber {
 	void onTileSelected(Assets.FloorsTextures texture);
 
-	void onModeChanged(EditorModes mode);
+	void onEditModeSet(EditModes mode);
 
 	void onTreeCharacterSelected(CharacterDefinition definition);
 
@@ -18,4 +18,6 @@ public interface GuiEventsSubscriber {
 	void onTreeEnvSelected(EnvironmentDefinitions env);
 
 	void onTreePickupSelected(ItemDefinition definition);
+
+	void onCameraModeSet(CameraModes mode);
 }

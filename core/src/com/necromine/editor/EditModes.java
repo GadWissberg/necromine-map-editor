@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
 @Getter
-public enum EditorModes {
+public enum EditModes implements EditorMode {
 	TILES("Tiles", EntriesDisplayTypes.GALLERY),
 
 	CHARACTERS("Characters", EntriesDisplayTypes.TREE, true,
@@ -36,22 +36,23 @@ public enum EditorModes {
 	private final String displayName;
 	private final boolean decalCursor;
 
-	EditorModes(final String displayName, final boolean decalCursor) {
+	EditModes(final String displayName, final boolean decalCursor) {
 		this(displayName, NONE, decalCursor, (TreeSection[]) null);
 	}
 
-	EditorModes(final String displayName, final EntriesDisplayTypes type) {
+	EditModes(final String displayName, final EntriesDisplayTypes type) {
 		this(displayName, type, (TreeSection[]) null);
 	}
 
-	EditorModes(final String displayName, final EntriesDisplayTypes entriesDisplay, final TreeSection... treeSections) {
+	EditModes(final String displayName, final EntriesDisplayTypes entriesDisplay, final TreeSection... treeSections) {
 		this(displayName, entriesDisplay, false, treeSections);
 	}
 
-	EditorModes(final String displayName, final EntriesDisplayTypes entriesDisplay, final boolean decalCursor, final TreeSection... treeSections) {
+	EditModes(final String displayName, final EntriesDisplayTypes entriesDisplay, final boolean decalCursor, final TreeSection... treeSections) {
 		this.entriesDisplayTypes = entriesDisplay;
 		this.treeSections = treeSections;
 		this.displayName = displayName;
 		this.decalCursor = decalCursor;
 	}
+
 }

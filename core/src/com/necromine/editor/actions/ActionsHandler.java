@@ -32,7 +32,7 @@ public class ActionsHandler {
 
 	private final ModelInstance cursorTileModelInstance;
 	private final MapNode[][] map;
-	private final Map<EditorModes, List<? extends PlacedElement>> placedElements;
+	private final Map<EditModes, List<? extends PlacedElement>> placedElements;
 
 	@Setter
 	private Assets.FloorsTextures selectedTile;
@@ -69,22 +69,25 @@ public class ActionsHandler {
 
 	public boolean onTouchDown(final GameAssetsManager assetsManager,
 							   final Set<MapNode> initializedTiles) {
-		EditorModes mode = NecromineMapEditor.getMode();
-		if (mode == EditorModes.TILES && currentProcess == null && selectedTile != null) {
-			beginTilePlacingProcess(cursorTileModelInstance, assetsManager, initializedTiles);
-			return true;
-		} else if (mode == EditorModes.LIGHTS) {
-			placeLight(cursorTileModelInstance, map, assetsManager);
-			return true;
-		} else if (selectedElement != null) {
-			if (mode == EditorModes.CHARACTERS) {
-				placeCharacter(cursorTileModelInstance, map, assetsManager);
+		EditorMode mode = NecromineMapEditor.getMode();
+		Class<? extends EditorMode> modeClass = mode.getClass();
+		if (modeClass.equals(EditModes.class)) {
+			if (mode == EditModes.TILES && currentProcess == null && selectedTile != null) {
+				beginTilePlacingProcess(cursorTileModelInstance, assetsManager, initializedTiles);
 				return true;
-			} else if (mode == EditorModes.ENVIRONMENT) {
-				placeEnvObject(cursorSelectionModel.getModelInstance(), map, assetsManager);
-			} else if (mode == EditorModes.PICKUPS) {
-				placePickup(cursorSelectionModel.getModelInstance(), map, assetsManager);
+			} else if (mode == EditModes.LIGHTS) {
+				placeLight(cursorTileModelInstance, map, assetsManager);
 				return true;
+			} else if (selectedElement != null) {
+				if (mode == EditModes.CHARACTERS) {
+					placeCharacter(cursorTileModelInstance, map, assetsManager);
+					return true;
+				} else if (mode == EditModes.ENVIRONMENT) {
+					placeEnvObject(cursorSelectionModel.getModelInstance(), map, assetsManager);
+				} else if (mode == EditModes.PICKUPS) {
+					placePickup(cursorSelectionModel.getModelInstance(), map, assetsManager);
+					return true;
+				}
 			}
 		}
 		return false;
@@ -98,7 +101,7 @@ public class ActionsHandler {
 		int col = (int) position.x;
 		PlaceEnvObjectAction action = new PlaceEnvObjectAction(
 				map,
-				(List<PlacedEnvObject>) placedElements.get(EditorModes.ENVIRONMENT),
+				(List<PlacedEnvObject>) placedElements.get(EditModes.ENVIRONMENT),
 				row,
 				col,
 				(EnvironmentDefinitions) selectedElement,
@@ -115,7 +118,7 @@ public class ActionsHandler {
 		int col = (int) position.x;
 		PlacePickupAction action = new PlacePickupAction(
 				map,
-				(List<PlacedPickup>) placedElements.get(EditorModes.PICKUPS),
+				(List<PlacedPickup>) placedElements.get(EditModes.PICKUPS),
 				row,
 				col,
 				(ItemDefinition) selectedElement,
@@ -132,7 +135,7 @@ public class ActionsHandler {
 		int col = (int) position.x;
 		PlaceLightAction action = new PlaceLightAction(
 				map,
-				(List<PlacedLight>) placedElements.get(EditorModes.LIGHTS),
+				(List<PlacedLight>) placedElements.get(EditModes.LIGHTS),
 				row,
 				col,
 				selectedElement,
@@ -148,7 +151,7 @@ public class ActionsHandler {
 		int col = (int) position.x;
 		PlaceCharacterAction action = new PlaceCharacterAction(
 				map,
-				(List<PlacedCharacter>) placedElements.get(EditorModes.CHARACTERS),
+				(List<PlacedCharacter>) placedElements.get(EditModes.CHARACTERS),
 				row,
 				col,
 				(CharacterDefinition) selectedElement,
