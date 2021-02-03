@@ -42,14 +42,14 @@ import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 import static com.gadarts.necromine.model.characters.Direction.*;
 
 public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsSubscriber, InputProcessor {
-	public static final float FAR = 100f;
+	public static final float FAR = 200f;
 	public static final float FLICKER_RATE = 0.05f;
 	public static final String TEMP_ASSETS_FOLDER = "C:\\Users\\gadw1\\StudioProjects\\isometric-game\\core\\assets";
 	public static final float CURSOR_Y = 0.01f;
 	public static final int LEVEL_SIZE = 20;
 	private static final int DECALS_POOL_SIZE = 200;
 	private static final float NEAR = 0.01f;
-	private static final Vector3 auxVector3_1 = new Vector3();
+	static final Vector3 auxVector3_1 = new Vector3();
 	private static final Vector3 auxVector3_2 = new Vector3();
 	private static final Vector3 auxVector3_3 = new Vector3();
 	private static final Vector2 auxVector2_1 = new Vector2();
@@ -59,7 +59,6 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
 	private static final float CURSOR_OPACITY = 0.5f;
 	private static final Matrix4 auxMatrix = new Matrix4();
-	private static final float PAN_VELOCITY_SCALE = 0.01f;
 	@Getter
 	private static EditorMode mode = EditModes.TILES;
 	public final int VIEWPORT_WIDTH;
@@ -78,7 +77,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private ModelInstance axisModelInstanceY;
 	private Model axisModelZ;
 	private ModelInstance axisModelInstanceZ;
-	private Camera camera;
+	private OrthographicCamera camera;
 	private Model gridModel;
 	private ModelInstance gridModelInstance;
 	private Assets.FloorsTextures selectedTile;
@@ -113,8 +112,11 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void scaleAxis() {
 		axisModelInstanceX.transform.scale(2, 2, 2);
+		axisModelInstanceX.transform.translate(0,0.2f,0);
 		axisModelInstanceY.transform.scale(2, 2, 2);
+		axisModelInstanceY.transform.translate(0,0.2f,0);
 		axisModelInstanceZ.transform.scale(2, 2, 2);
+		axisModelInstanceZ.transform.translate(0,0.2f,0);
 	}
 
 	private Model createAxisModel(final ModelBuilder modelBuilder, final Vector3 dir, final Color color) {
@@ -232,10 +234,10 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		int attributes = Usage.Position | Usage.Normal;
 		gridModel = builder.createLineGrid(LEVEL_SIZE, LEVEL_SIZE, 1, 1, material, attributes);
 		gridModelInstance = new ModelInstance(gridModel);
-		gridModelInstance.transform.translate(LEVEL_SIZE / 2f, 0, LEVEL_SIZE / 2f);
+		gridModelInstance.transform.translate(LEVEL_SIZE / 2f, 0.01f, LEVEL_SIZE / 2f);
 	}
 
-	private Camera createCamera() {
+	private OrthographicCamera createCamera() {
 		OrthographicCamera cam = new OrthographicCamera(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 		cam.near = NEAR;
 		cam.far = FAR;
@@ -476,13 +478,12 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	@Override
 	public void onEditModeSet(final EditModes mode) {
 		onModeSet(mode);
-		if (mode.getEntriesDisplayTypes() == EntriesDisplayTypes.NONE) {
-			highlighter = cursorTileModelInstance;
-		}
+		highlighter = cursorTileModelInstance;
 	}
 
 	private void onModeSet(final EditorMode mode) {
 		selectedElement = null;
+		highlighter = null;
 		NecromineMapEditor.mode = mode;
 	}
 
@@ -571,18 +572,14 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	public boolean touchDragged(final int screenX, final int screenY, final int pointer) {
 		boolean result;
 		if (mode.getClass().equals(CameraModes.class)) {
-			panCamera(screenX, screenY);
+			CameraModes cameraMode = (CameraModes) mode;
+			cameraMode.getManipulation().run(lastMouseTouchPosition, camera, screenX, screenY);
 			result = true;
 		} else {
 			result = updateCursorByScreenCoords(screenX, screenY);
 		}
 		lastMouseTouchPosition.set(screenX, screenY);
 		return result;
-	}
-
-	private void panCamera(final int screenX, final int screenY) {
-		Vector2 velocity = lastMouseTouchPosition.sub(screenX, screenY).scl(PAN_VELOCITY_SCALE);
-		camera.translate(velocity.x, 0, velocity.y);
 	}
 
 	@Override

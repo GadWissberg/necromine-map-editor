@@ -33,8 +33,6 @@ public enum ToolbarDefinition implements ToolbarButtonDefinition {
 			MenuItemsDefinitions.MODE_LIGHTS,
 			Constants.BUTTON_GROUP_MODES)),
 
-	SEPARATOR_1(),
-
 	CAMERA_PAN(new ToolbarButtonOfMenuItem(
 			"camera_pan",
 			"Pan Camera",
@@ -51,7 +49,9 @@ public enum ToolbarDefinition implements ToolbarButtonDefinition {
 			"camera_zoom",
 			"Zoom Camera",
 			MenuItemsDefinitions.CAMERA_ZOOM,
-			Constants.BUTTON_GROUP_MODES));
+			Constants.BUTTON_GROUP_MODES)),
+
+	SEPARATOR_1();
 
 	private final ToolbarButtonOfMenuItem toolbarButtonOfMenuItem;
 
