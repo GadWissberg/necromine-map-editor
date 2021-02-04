@@ -20,4 +20,6 @@ public interface GuiEventsSubscriber {
 	void onTreePickupSelected(ItemDefinition definition);
 
 	void onCameraModeSet(CameraModes mode);
+
+	void onSaveMapRequested();
 }

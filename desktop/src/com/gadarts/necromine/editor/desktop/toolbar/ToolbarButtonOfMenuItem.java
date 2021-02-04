@@ -11,6 +11,18 @@ public class ToolbarButtonOfMenuItem {
 	private final String buttonGroup;
 	private MapperCommand mapperCommand;
 
+
+	public ToolbarButtonOfMenuItem(final String icon, final String toolTip, final MapperCommand mapperCommand) {
+		this(icon, toolTip, null, null);
+		this.mapperCommand = mapperCommand;
+	}
+
+	public ToolbarButtonOfMenuItem(final String icon,
+								   final String toolTip,
+								   final MenuItemDefinition mapperMenuItemDefinition) {
+		this(icon, toolTip, mapperMenuItemDefinition, null);
+	}
+
 	public ToolbarButtonOfMenuItem(final String icon,
 								   final String toolTip,
 								   final MenuItemDefinition mapperMenuItemDefinition,
@@ -19,11 +31,5 @@ public class ToolbarButtonOfMenuItem {
 		this.toolTip = toolTip;
 		this.menuItemDefinition = mapperMenuItemDefinition;
 		this.buttonGroup = buttonGroup;
-	}
-
-
-	public ToolbarButtonOfMenuItem(final String icon, final String toolTip, final MapperCommand mapperCommand) {
-		this(icon, toolTip, null, null);
-		this.mapperCommand = mapperCommand;
 	}
 }

@@ -1,7 +1,6 @@
 package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
-import com.bulenkov.darcula.DarculaLaf;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.toolbar.*;
 import com.gadarts.necromine.model.ElementDefinition;
@@ -287,6 +286,8 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 			}
 		} else if (propertyName.equals(Events.REQUEST_TO_ROTATE_SELECTED_OBJECT.name())) {
 			guiEventsSubscriber.onSelectedObjectRotate((Integer) evt.getNewValue());
+		} else if (propertyName.equals(Events.REQUEST_TO_SAVE.name())) {
+			guiEventsSubscriber.onSaveMapRequested();
 		}
 	}
 

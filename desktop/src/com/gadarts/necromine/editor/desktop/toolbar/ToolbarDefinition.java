@@ -3,6 +3,13 @@ package com.gadarts.necromine.editor.desktop.toolbar;
 import com.gadarts.necromine.editor.desktop.MenuItemsDefinitions;
 
 public enum ToolbarDefinition implements ToolbarButtonDefinition {
+	SAVE(new ToolbarButtonOfMenuItem(
+			"save",
+			"Save Map",
+			MenuItemsDefinitions.SAVE)),
+
+	SEPARATOR_1(),
+
 	MODE_TILE(new ToolbarButtonOfMenuItem(
 			"mode_tile",
 			"Tiles Mode",
@@ -33,6 +40,8 @@ public enum ToolbarDefinition implements ToolbarButtonDefinition {
 			MenuItemsDefinitions.MODE_LIGHTS,
 			Constants.BUTTON_GROUP_MODES)),
 
+	SEPARATOR_2(),
+
 	CAMERA_PAN(new ToolbarButtonOfMenuItem(
 			"camera_pan",
 			"Pan Camera",
@@ -51,7 +60,7 @@ public enum ToolbarDefinition implements ToolbarButtonDefinition {
 			MenuItemsDefinitions.CAMERA_ZOOM,
 			Constants.BUTTON_GROUP_MODES)),
 
-	SEPARATOR_1();
+	SEPARATOR_3();
 
 	private final ToolbarButtonOfMenuItem toolbarButtonOfMenuItem;
 

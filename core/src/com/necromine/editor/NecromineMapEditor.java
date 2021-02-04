@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntSet;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.Assets.AssetsTypes;
 import com.gadarts.necromine.assets.GameAssetsManager;
@@ -30,15 +31,24 @@ import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.characters.SpriteType;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.necromine.editor.actions.ActionsHandler;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.actions.processes.PlaceTilesProcess;
 import com.necromine.editor.model.*;
 import lombok.Getter;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
+import static com.gadarts.necromine.model.characters.CharacterTypes.PLAYER;
 import static com.gadarts.necromine.model.characters.Direction.*;
 
 public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsSubscriber, InputProcessor {
@@ -47,9 +57,9 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	public static final String TEMP_ASSETS_FOLDER = "C:\\Users\\gadw1\\StudioProjects\\isometric-game\\core\\assets";
 	public static final float CURSOR_Y = 0.01f;
 	public static final int LEVEL_SIZE = 20;
+	static final Vector3 auxVector3_1 = new Vector3();
 	private static final int DECALS_POOL_SIZE = 200;
 	private static final float NEAR = 0.01f;
-	static final Vector3 auxVector3_1 = new Vector3();
 	private static final Vector3 auxVector3_2 = new Vector3();
 	private static final Vector3 auxVector3_3 = new Vector3();
 	private static final Vector2 auxVector2_1 = new Vector2();
@@ -59,6 +69,16 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
 	private static final float CURSOR_OPACITY = 0.5f;
 	private static final Matrix4 auxMatrix = new Matrix4();
+	private static final String KEY_TARGET = "target";
+	private static final int TARGET_VERSION = 5;
+	private static final String KEY_TILES = "tiles";
+	private static final String KEY_WIDTH = "width";
+	private static final String KEY_DEPTH = "depth";
+	private static final String KEY_MATRIX = "matrix";
+	private static final String KEY_ROW = "row";
+	private static final String KEY_COL = "col";
+	private static final String KEY_DIRECTION = "direction";
+	private static final String KEY_PLAYER = "player";
 	@Getter
 	private static EditorMode mode = EditModes.TILES;
 	public final int VIEWPORT_WIDTH;
@@ -89,6 +109,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private CharacterDecal cursorCharacterDecal;
 	private DecalBatch decalBatch;
 	private Decal cursorSimpleDecal;
+	private Gson gson = new Gson();
 
 	public NecromineMapEditor(final int width, final int height) {
 		VIEWPORT_WIDTH = width / 50;
@@ -112,11 +133,11 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private void scaleAxis() {
 		axisModelInstanceX.transform.scale(2, 2, 2);
-		axisModelInstanceX.transform.translate(0,0.2f,0);
+		axisModelInstanceX.transform.translate(0, 0.2f, 0);
 		axisModelInstanceY.transform.scale(2, 2, 2);
-		axisModelInstanceY.transform.translate(0,0.2f,0);
+		axisModelInstanceY.transform.translate(0, 0.2f, 0);
 		axisModelInstanceZ.transform.scale(2, 2, 2);
-		axisModelInstanceZ.transform.translate(0,0.2f,0);
+		axisModelInstanceZ.transform.translate(0, 0.2f, 0);
 	}
 
 	private Model createAxisModel(final ModelBuilder modelBuilder, final Vector3 dir, final Color color) {
@@ -532,6 +553,49 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	@Override
 	public void onCameraModeSet(final CameraModes mode) {
 		onModeSet(mode);
+	}
+
+	@Override
+	public void onSaveMapRequested() {
+		JsonObject output = new JsonObject();
+		output.addProperty(KEY_TARGET, TARGET_VERSION);
+		JsonObject tiles = createTilesData();
+		output.add(KEY_TILES, tiles);
+		List<? extends PlacedElement> placedCharacters = this.placedElements.get(EditModes.CHARACTERS);
+		placedCharacters.stream().filter(character ->
+				((CharacterDefinition) character.getDefinition()).getCharacterType().equals(PLAYER))
+				.findFirst()
+				.ifPresent(player -> {
+					JsonObject playerJsonObject = new JsonObject();
+					playerJsonObject.addProperty(KEY_ROW, player.getRow());
+					playerJsonObject.addProperty(KEY_COL, player.getCol());
+					playerJsonObject.addProperty(KEY_DIRECTION, player.getFacingDirection().ordinal());
+					output.add(KEY_PLAYER, playerJsonObject);
+				});
+		try (Writer writer = new FileWriter("test_map.json")) {
+			gson.toJson(output, writer);
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private JsonObject createTilesData() {
+		JsonObject tiles = new JsonObject();
+		tiles.addProperty(KEY_WIDTH, LEVEL_SIZE);
+		tiles.addProperty(KEY_DEPTH, LEVEL_SIZE);
+		StringBuilder builder = new StringBuilder();
+		IntStream.range(0, LEVEL_SIZE).forEach(row ->
+				IntStream.range(0, LEVEL_SIZE).forEach(col -> {
+					MapNode mapNode = map[row][col];
+					if (mapNode != null) {
+						builder.append(mapNode.getTextureDefinition().ordinal() + 1);
+					} else {
+						builder.append(0);
+					}
+				})
+		);
+		tiles.addProperty(KEY_MATRIX, builder.toString());
+		return tiles;
 	}
 
 	private void applyOpacity() {
