@@ -3,7 +3,10 @@ package com.necromine.editor;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -20,7 +23,6 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.math.collision.Ray;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.IntSet;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.Assets.AssetsTypes;
 import com.gadarts.necromine.assets.GameAssetsManager;
@@ -32,7 +34,7 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.characters.SpriteType;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.necromine.editor.actions.ActionsHandler;
 import com.necromine.editor.actions.processes.MappingProcess;
@@ -42,13 +44,11 @@ import lombok.Getter;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.*;
 import java.util.stream.IntStream;
 
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
-import static com.gadarts.necromine.model.characters.CharacterTypes.PLAYER;
 import static com.gadarts.necromine.model.characters.Direction.*;
 
 public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsSubscriber, InputProcessor {
@@ -78,7 +78,8 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static final String KEY_ROW = "row";
 	private static final String KEY_COL = "col";
 	private static final String KEY_DIRECTION = "direction";
-	private static final String KEY_PLAYER = "player";
+	private static final String KEY_CHARACTERS = "characters";
+	private static final String KEY_TYPE = "type";
 	@Getter
 	private static EditorMode mode = EditModes.TILES;
 	public final int VIEWPORT_WIDTH;
@@ -89,6 +90,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private final Map<EditModes, List<? extends PlacedElement>> placedElements = new HashMap<>();
 	private final CursorSelectionModel cursorSelectionModel;
 	private final Vector2 lastMouseTouchPosition = new Vector2();
+	private final Gson gson = new Gson();
 	private ActionsHandler actionsHandler;
 	private ModelBatch modelBatch;
 	private Model axisModelX;
@@ -109,7 +111,6 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private CharacterDecal cursorCharacterDecal;
 	private DecalBatch decalBatch;
 	private Decal cursorSimpleDecal;
-	private Gson gson = new Gson();
 
 	public NecromineMapEditor(final int width, final int height) {
 		VIEWPORT_WIDTH = width / 50;
@@ -561,22 +562,46 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		output.addProperty(KEY_TARGET, TARGET_VERSION);
 		JsonObject tiles = createTilesData();
 		output.add(KEY_TILES, tiles);
-		List<? extends PlacedElement> placedCharacters = this.placedElements.get(EditModes.CHARACTERS);
-		placedCharacters.stream().filter(character ->
-				((CharacterDefinition) character.getDefinition()).getCharacterType().equals(PLAYER))
-				.findFirst()
-				.ifPresent(player -> {
-					JsonObject playerJsonObject = new JsonObject();
-					playerJsonObject.addProperty(KEY_ROW, player.getRow());
-					playerJsonObject.addProperty(KEY_COL, player.getCol());
-					playerJsonObject.addProperty(KEY_DIRECTION, player.getFacingDirection().ordinal());
-					output.add(KEY_PLAYER, playerJsonObject);
-				});
+		addCharacters(output);
+		addElementsGroup(output, EditModes.ENVIRONMENT, true);
+		addElementsGroup(output, EditModes.PICKUPS, false);
+		addElementsGroup(output, EditModes.LIGHTS, false);
 		try (Writer writer = new FileWriter("test_map.json")) {
 			gson.toJson(output, writer);
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void addElementsGroup(final JsonObject output,
+								  final EditModes mode,
+								  final boolean addFacingDirection) {
+		JsonArray jsonArray = new JsonArray();
+		placedElements.get(mode).forEach(element -> jsonArray.add(createElementJsonObject(element, addFacingDirection)));
+		output.add(mode.name().toLowerCase(), jsonArray);
+	}
+
+	private void addCharacters(final JsonObject output) {
+		JsonObject charactersJsonObject = new JsonObject();
+		Arrays.stream(CharacterTypes.values()).forEach(type -> {
+			JsonArray charactersJsonArray = new JsonArray();
+			charactersJsonObject.add(type.name().toLowerCase(), charactersJsonArray);
+			this.placedElements.get(EditModes.CHARACTERS).stream()
+					.filter(character -> ((CharacterDefinition) character.getDefinition()).getCharacterType() == type)
+					.forEach(character -> charactersJsonArray.add(createElementJsonObject(character, true)));
+		});
+		output.add(KEY_CHARACTERS, charactersJsonObject);
+	}
+
+	private JsonObject createElementJsonObject(final PlacedElement element, final boolean addFacingDirection) {
+		JsonObject characterJsonObject = new JsonObject();
+		characterJsonObject.addProperty(KEY_ROW, element.getRow());
+		characterJsonObject.addProperty(KEY_COL, element.getCol());
+		if (addFacingDirection) {
+			characterJsonObject.addProperty(KEY_DIRECTION, element.getFacingDirection().ordinal());
+		}
+		characterJsonObject.addProperty(KEY_TYPE, element.getDefinition().ordinal());
+		return characterJsonObject;
 	}
 
 	private JsonObject createTilesData() {
@@ -587,7 +612,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		IntStream.range(0, LEVEL_SIZE).forEach(row ->
 				IntStream.range(0, LEVEL_SIZE).forEach(col -> {
 					MapNode mapNode = map[row][col];
-					if (mapNode != null) {
+					if (mapNode != null && mapNode.getTextureDefinition() != null) {
 						builder.append(mapNode.getTextureDefinition().ordinal() + 1);
 					} else {
 						builder.append(0);

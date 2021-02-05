@@ -118,3 +118,4 @@ Thumbs.db
 /gradlew
 *.bat
 /desktop/out/
+*.json
