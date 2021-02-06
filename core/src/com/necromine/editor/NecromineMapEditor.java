@@ -581,26 +581,61 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void inflateMap(final JsonObject input) {
+		inflateCharacters(input);
+		Arrays.stream(EditModes.values()).forEach(mode -> {
+			if (mode.getCreationProcess() != null) {
+				inflateElements(input, mode);
+			}
+		});
+		JsonObject tilesJsonObject = input.getAsJsonObject(KEY_TILES);
+		map.setTiles(inflateTiles(tilesJsonObject));
+	}
+
+	private void inflateElements(final JsonObject input,
+								 final EditModes mode) {
+		List<? extends PlacedElement> placedElementsList = placedElements.get(mode);
+		placedElementsList.clear();
+		inflateElements(
+				(List<PlacedElement>) placedElementsList,
+				mode.getDefinitions(),
+				input.get(mode.name().toLowerCase()).getAsJsonArray(),
+				mode.getCreationProcess());
+	}
+
+	private void inflateCharacters(final JsonObject input) {
 		JsonObject charactersJsonObject = input.get(KEY_CHARACTERS).getAsJsonObject();
-		List<PlacedCharacter> placedCharacters = (List<PlacedCharacter>) this.placedElements.get(EditModes.CHARACTERS);
+		List<? extends PlacedElement> placedCharacters = this.placedElements.get(EditModes.CHARACTERS);
 		placedCharacters.clear();
 		Arrays.stream(CharacterTypes.values()).forEach(type -> {
 			String typeName = type.name().toLowerCase();
 			if (charactersJsonObject.has(typeName)) {
 				JsonArray charactersArray = charactersJsonObject.get(typeName).getAsJsonArray();
-				charactersArray.forEach(characterJsonObject -> {
-					JsonObject asJsonObject = characterJsonObject.getAsJsonObject();
-					int row = asJsonObject.get(KEY_ROW).getAsInt();
-					int col = asJsonObject.get(KEY_COL).getAsInt();
-					Direction direction = Direction.values()[asJsonObject.get(KEY_DIRECTION).getAsInt()];
-					CharacterDefinition characterType = type.getDefinitions()[asJsonObject.get(KEY_TYPE).getAsInt()];
-					PlacedCharacter placedCharacter = new PlacedCharacter(characterType, new Node(row, col), assetsManager, direction);
-					placedCharacters.add(placedCharacter);
-				});
+				inflateElements(
+						(List<PlacedElement>) placedCharacters,
+						type.getDefinitions(),
+						charactersArray,
+						(def, node, dir, am) -> new PlacedCharacter((CharacterDefinition) def, node, assetsManager, dir));
 			}
 		});
-		JsonObject tilesJsonObject = input.getAsJsonObject(KEY_TILES);
-		map.setTiles(inflateTiles(tilesJsonObject));
+	}
+
+	private void inflateElements(final List<PlacedElement> placedElements,
+								 final ElementDefinition[] definitions,
+								 final JsonArray elementsJsonArray,
+								 final PlacedElementCreation creation) {
+		elementsJsonArray.forEach(characterJsonObject -> {
+			JsonObject json = characterJsonObject.getAsJsonObject();
+			Direction direction = SOUTH;
+			if (json.has(KEY_DIRECTION)) {
+				direction = Direction.values()[json.get(KEY_DIRECTION).getAsInt()];
+			}
+			Node node = new Node(json.get(KEY_ROW).getAsInt(), json.get(KEY_COL).getAsInt());
+			ElementDefinition definition = null;
+			if (definitions != null) {
+				definition = definitions[json.get(KEY_TYPE).getAsInt()];
+			}
+			placedElements.add(creation.create(definition, node, direction, assetsManager));
+		});
 	}
 
 	private MapNode[][] inflateTiles(final JsonObject tilesJsonObject) {

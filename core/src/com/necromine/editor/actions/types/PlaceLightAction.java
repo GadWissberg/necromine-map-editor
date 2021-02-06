@@ -1,7 +1,5 @@
 package com.necromine.editor.actions.types;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;
@@ -27,8 +25,7 @@ public class PlaceLightAction extends PlaceElementAction<PlacedLight, ElementDef
 	protected void execute() {
 		MapNode tile = map.getTiles()[node.getRow()][node.getCol()];
 		if (tile != null) {
-			Texture texture = assetsManager.getTexture(Assets.UiTextures.BULB);
-			placedElements.add(new PlacedLight(node.getRow(), node.getCol(), elementDefinition, texture));
+			placedElements.add(new PlacedLight(node.getRow(), node.getCol(), elementDefinition, assetsManager));
 		}
 	}
 
