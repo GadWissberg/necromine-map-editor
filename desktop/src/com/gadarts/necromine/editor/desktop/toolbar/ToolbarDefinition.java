@@ -4,9 +4,14 @@ import com.gadarts.necromine.editor.desktop.MenuItemsDefinitions;
 
 public enum ToolbarDefinition implements ToolbarButtonDefinition {
 	SAVE(new ToolbarButtonOfMenuItem(
-			"save",
+			"file_save",
 			"Save Map",
 			MenuItemsDefinitions.SAVE)),
+
+	LOAD(new ToolbarButtonOfMenuItem(
+			"file_load",
+			"Load Map",
+			MenuItemsDefinitions.LOAD)),
 
 	SEPARATOR_1(),
 

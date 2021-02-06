@@ -11,7 +11,7 @@ public interface GuiEventsSubscriber {
 
 	void onEditModeSet(EditModes mode);
 
-	void onTreeCharacterSelected(CharacterDefinition definition);
+	void onTreeCharacterSelected(CharacterDefinition<?> definition);
 
 	void onSelectedObjectRotate(int direction);
 
@@ -22,4 +22,6 @@ public interface GuiEventsSubscriber {
 	void onCameraModeSet(CameraModes mode);
 
 	void onSaveMapRequested();
+
+	void onLoadMapRequested();
 }

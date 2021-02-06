@@ -4,8 +4,13 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
+import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.MapNodesTypes;
 import com.gadarts.necromine.model.characters.*;
 
 import java.util.HashMap;
@@ -44,9 +49,26 @@ public class Utils {
 		}
 	}
 
-	public static Decal createSimpleDecal(Texture texture) {
+	public static Decal createSimpleDecal(final Texture texture) {
 		Decal decal = Decal.newDecal(new TextureRegion(texture), true);
 		decal.setScale(BILLBOARD_SCALE);
 		return decal;
+	}
+
+	public static MapNode createAndAddTileIfNotExists(final MapNode[][] map,
+													  final int row,
+													  final int col,
+													  final Model tileModel,
+													  final Assets.FloorsTextures selectedTile,
+													  final GameAssetsManager assetsManager) {
+		if (map[row][col] == null) {
+			map[row][col] = new MapNode(tileModel, row, col, MapNodesTypes.PASSABLE_NODE);
+		}
+		MapNode tile = map[row][col];
+		tile.setTextureDefinition(selectedTile);
+		Material material = tile.getModelInstance().materials.get(0);
+		TextureAttribute textureAttribute = (TextureAttribute) material.get(TextureAttribute.Diffuse);
+		textureAttribute.textureDescription.texture = assetsManager.getTexture(selectedTile);
+		return tile;
 	}
 }

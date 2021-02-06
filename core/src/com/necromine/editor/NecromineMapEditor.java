@@ -28,6 +28,7 @@ import com.gadarts.necromine.assets.Assets.AssetsTypes;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
+import com.gadarts.necromine.model.MapNodesTypes;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
@@ -42,9 +43,7 @@ import com.necromine.editor.actions.processes.PlaceTilesProcess;
 import com.necromine.editor.model.*;
 import lombok.Getter;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.util.*;
 import java.util.stream.IntStream;
 
@@ -84,7 +83,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static EditorMode mode = EditModes.TILES;
 	public final int VIEWPORT_WIDTH;
 	public final int VIEWPORT_HEIGHT;
-	private final MapNode[][] map;
+	private MapNode[][] map;
 	private final GameAssetsManager assetsManager;
 	private final Set<MapNode> initializedTiles = new HashSet<>();
 	private final Map<EditModes, List<? extends PlacedElement>> placedElements = new HashMap<>();
@@ -570,6 +569,47 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 			gson.toJson(output, writer);
 		} catch (final IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void onLoadMapRequested() {
+		try (Reader reader = new FileReader("test_map.json")) {
+			JsonObject input = gson.fromJson(reader, JsonObject.class);
+			inflateMap(input);
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void inflateMap(final JsonObject input) {
+		JsonObject tilesJsonObject = input.getAsJsonObject(KEY_TILES);
+		int width = tilesJsonObject.get(KEY_WIDTH).getAsInt();
+		int depth = tilesJsonObject.get(KEY_DEPTH).getAsInt();
+		String matrix = tilesJsonObject.get(KEY_MATRIX).getAsString();
+		MapNode[][] inputMap = new MapNode[depth][width];
+		initializedTiles.clear();
+		IntStream.range(0, depth)
+				.forEach(row -> IntStream.range(0, width)
+						.forEach(col -> inflateTile(width, matrix, inputMap, row, col)));
+		map = inputMap;
+	}
+
+	private void inflateTile(final int mapWidth,
+							 final String matrix,
+							 final MapNode[][] inputMap,
+							 final int row,
+							 final int col) {
+		char tileId = matrix.charAt(row * mapWidth + col % mapWidth);
+		if (tileId != '0') {
+			MapNode tile = Utils.createAndAddTileIfNotExists(
+					inputMap,
+					row,
+					col,
+					cursorTileModel,
+					Assets.FloorsTextures.values()[tileId - '1'],
+					assetsManager);
+			initializedTiles.add(tile);
 		}
 	}
 

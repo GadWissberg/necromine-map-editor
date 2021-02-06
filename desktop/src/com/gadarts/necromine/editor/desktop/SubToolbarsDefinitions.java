@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop;
 
-import com.gadarts.necromine.editor.desktop.actions.RotateSelectionCommand;
+import com.gadarts.necromine.editor.desktop.commands.RotateSelectionCommand;
 import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonOfMenuItem;
 import lombok.Getter;
 

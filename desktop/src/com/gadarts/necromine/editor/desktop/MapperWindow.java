@@ -288,6 +288,8 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 			guiEventsSubscriber.onSelectedObjectRotate((Integer) evt.getNewValue());
 		} else if (propertyName.equals(Events.REQUEST_TO_SAVE.name())) {
 			guiEventsSubscriber.onSaveMapRequested();
+		} else if (propertyName.equals(Events.REQUEST_TO_LOAD.name())) {
+			guiEventsSubscriber.onLoadMapRequested();
 		}
 	}
 

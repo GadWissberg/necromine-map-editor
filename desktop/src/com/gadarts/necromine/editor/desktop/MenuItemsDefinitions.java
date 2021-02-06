@@ -1,14 +1,16 @@
 package com.gadarts.necromine.editor.desktop;
 
-import com.gadarts.necromine.editor.desktop.actions.SaveMapCommand;
-import com.gadarts.necromine.editor.desktop.actions.SetModeCommand;
+import com.gadarts.necromine.editor.desktop.commands.LoadMapCommand;
+import com.gadarts.necromine.editor.desktop.commands.SaveMapCommand;
+import com.gadarts.necromine.editor.desktop.commands.SetModeCommand;
 import com.gadarts.necromine.editor.desktop.menuitems.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.menuitems.MenuItemProperties;
 import com.necromine.editor.CameraModes;
 import com.necromine.editor.EditModes;
 
 public enum MenuItemsDefinitions implements MenuItemDefinition {
-	SAVE(new MenuItemProperties("Save", new SaveMapCommand(), "save")),
+	SAVE(new MenuItemProperties("Save", new SaveMapCommand(), "file_save")),
+	LOAD(new MenuItemProperties("Load", new LoadMapCommand(), "file_load")),
 	MODE_TILE(new MenuItemProperties("Tiles Mode", new SetModeCommand(EditModes.TILES), "mode_tile")),
 	MODE_CHARACTER(new MenuItemProperties("Characters Mode", new SetModeCommand(EditModes.CHARACTERS), "mode_character")),
 	MODE_ENV(new MenuItemProperties("Environment Mode", new SetModeCommand(EditModes.ENVIRONMENT), "mode_env")),

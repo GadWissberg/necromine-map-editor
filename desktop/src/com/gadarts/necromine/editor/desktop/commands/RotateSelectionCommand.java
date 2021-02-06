@@ -1,4 +1,4 @@
-package com.gadarts.necromine.editor.desktop.actions;
+package com.gadarts.necromine.editor.desktop.commands;
 
 import com.gadarts.necromine.editor.desktop.Events;
 import com.gadarts.necromine.editor.desktop.toolbar.MapperCommand;

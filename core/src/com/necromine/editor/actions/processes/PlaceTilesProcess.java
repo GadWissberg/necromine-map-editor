@@ -1,12 +1,10 @@
 package com.necromine.editor.actions.processes;
 
-import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.MapNodesTypes;
 import com.necromine.editor.MapNode;
+import com.necromine.editor.Utils;
 import lombok.Getter;
 
 import java.util.Set;
@@ -32,15 +30,7 @@ public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessPar
 
 
 	private MapNode placeTile(final Assets.FloorsTextures selectedTile, final Model tileModel, final int col, final int row) {
-		if (map[row][col] == null) {
-			map[row][col] = new MapNode(tileModel, row, col, MapNodesTypes.PASSABLE_NODE);
-		}
-		MapNode tile = map[row][col];
-		tile.setTextureDefinition(selectedTile);
-		Material material = tile.getModelInstance().materials.get(0);
-		TextureAttribute textureAttribute = (TextureAttribute) material.get(TextureAttribute.Diffuse);
-		textureAttribute.textureDescription.texture = assetsManager.getTexture(selectedTile);
-		return tile;
+		return Utils.createAndAddTileIfNotExists(map, row, col, tileModel, selectedTile, assetsManager);
 	}
 
 	@Override
@@ -54,7 +44,7 @@ public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessPar
 	}
 
 	@Override
-	public void finish(PlaceTilesFinishProcessParameters params) {
+	public void finish(final PlaceTilesFinishProcessParameters params) {
 		int dstRow = params.getDstRow();
 		int dstCol = params.getDstCol();
 		for (int col = Math.min(dstCol, srcCol); col <= Math.max(dstCol, srcCol); col++) {

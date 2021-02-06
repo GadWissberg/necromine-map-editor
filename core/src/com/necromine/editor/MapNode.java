@@ -17,23 +17,32 @@ import lombok.Setter;
 public class MapNode {
 
 	@Setter(AccessLevel.NONE)
-	private final int col;
+	private int col;
 
 	@Setter(AccessLevel.NONE)
-	private final int row;
+	private int row;
 
 	private ModelInstance modelInstance;
 	private MapNodesTypes mapNodeType;
 	private Assets.FloorsTextures textureDefinition;
 
 	public MapNode(final int row, final int col, final MapNodesTypes type) {
-		this(null, row, col, type);
+		this((Model) null, row, col, type);
 	}
 
 	public MapNode(final Model tileModel, final int row, final int col, final MapNodesTypes type) {
 		if (tileModel != null) {
 			initializeModelInstance(tileModel, row, col);
 		}
+		initializeFields(row, col, type);
+	}
+
+	public MapNode(final ModelInstance tileModelInstance, final int row, final int col, final MapNodesTypes type) {
+		this.modelInstance = tileModelInstance;
+		initializeFields(row, col, type);
+	}
+
+	private void initializeFields(final int row, final int col, final MapNodesTypes type) {
 		this.mapNodeType = type;
 		this.row = row;
 		this.col = col;
