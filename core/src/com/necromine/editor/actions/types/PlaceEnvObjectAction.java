@@ -3,7 +3,9 @@ package com.necromine.editor.actions.types;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.Direction;
+import com.necromine.editor.GameMap;
 import com.necromine.editor.NecromineMapEditor;
+import com.necromine.editor.Node;
 import com.necromine.editor.model.PlacedEnvObject;
 import com.necromine.editor.MapNode;
 import com.necromine.editor.actions.PlaceElementAction;
@@ -15,14 +17,13 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 	private final EnvironmentDefinitions selectedEnvObject;
 	private final List<PlacedEnvObject> placedEnvObjects;
 
-	public PlaceEnvObjectAction(final MapNode[][] map,
+	public PlaceEnvObjectAction(final GameMap map,
 								final List<PlacedEnvObject> placedEnvObjects,
-								final int selectedRow,
-								final int selectedCol,
+								final Node node,
 								final EnvironmentDefinitions definition,
 								final GameAssetsManager assetsManager,
 								final Direction selectedObjectDirection) {
-		super(map, selectedRow, selectedCol, assetsManager, selectedObjectDirection, definition, placedEnvObjects);
+		super(map, node, assetsManager, selectedObjectDirection, definition, placedEnvObjects);
 		this.selectedEnvObject = definition;
 		this.placedEnvObjects = placedEnvObjects;
 	}
@@ -31,8 +32,7 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 	protected void execute() {
 		PlacedEnvObject character = new PlacedEnvObject(
 				selectedEnvObject,
-				selectedRow,
-				selectedCol,
+				node,
 				assetsManager,
 				elementDirection);
 		placedEnvObjects.add(character);
@@ -50,11 +50,12 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 	}
 
 	private void applyOnNode(final int row, final int col) {
-		int currentRow = Math.min(Math.max(this.selectedRow + row, 0), NecromineMapEditor.LEVEL_SIZE);
-		int currentCol = Math.min(Math.max(this.selectedCol + col, 0), NecromineMapEditor.LEVEL_SIZE);
-		MapNode mapNode = map[currentRow][currentCol];
+		int currentRow = Math.min(Math.max(node.getRow() + row, 0), NecromineMapEditor.LEVEL_SIZE);
+		int currentCol = Math.min(Math.max(node.getCol() + col, 0), NecromineMapEditor.LEVEL_SIZE);
+		MapNode[][] tiles = map.getTiles();
+		MapNode mapNode = tiles[currentRow][currentCol];
 		if (mapNode == null) {
-			map[currentRow][currentCol] = new MapNode(currentRow, currentCol, selectedEnvObject.getNodeType());
+			tiles[currentRow][currentCol] = new MapNode(currentRow, currentCol, selectedEnvObject.getNodeType());
 		} else {
 			mapNode.setMapNodeType(selectedEnvObject.getNodeType());
 		}

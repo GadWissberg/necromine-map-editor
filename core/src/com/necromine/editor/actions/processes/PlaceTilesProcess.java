@@ -1,9 +1,10 @@
 package com.necromine.editor.actions.processes;
 
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.MapNodesTypes;
+import com.necromine.editor.GameMap;
 import com.necromine.editor.MapNode;
+import com.necromine.editor.Node;
 import com.necromine.editor.Utils;
 import lombok.Getter;
 
@@ -11,27 +12,20 @@ import java.util.Set;
 
 @Getter
 public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessParameters> {
-	private final int srcRow;
-	private final int srcCol;
 	private final GameAssetsManager assetsManager;
 	private final Set<MapNode> initializedTiles;
+	private final Node srcNode;
 
-	public PlaceTilesProcess(final int srcRow,
-							 final int srcCol,
+	public PlaceTilesProcess(final Node srcNode,
 							 final GameAssetsManager assetsManager,
 							 final Set<MapNode> initializedTiles,
-							 final MapNode[][] map) {
+							 final GameMap map) {
 		super(map);
-		this.srcRow = srcRow;
-		this.srcCol = srcCol;
+		this.srcNode = srcNode;
 		this.assetsManager = assetsManager;
 		this.initializedTiles = initializedTiles;
 	}
 
-
-	private MapNode placeTile(final Assets.FloorsTextures selectedTile, final Model tileModel, final int col, final int row) {
-		return Utils.createAndAddTileIfNotExists(map, row, col, tileModel, selectedTile, assetsManager);
-	}
 
 	@Override
 	public boolean isProcess() {
@@ -47,13 +41,24 @@ public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessPar
 	public void finish(final PlaceTilesFinishProcessParameters params) {
 		int dstRow = params.getDstRow();
 		int dstCol = params.getDstCol();
+		int srcCol = srcNode.getCol();
+		int srcRow = srcNode.getRow();
 		for (int col = Math.min(dstCol, srcCol); col <= Math.max(dstCol, srcCol); col++) {
 			for (int row = Math.min(dstRow, srcRow); row <= Math.max(dstRow, srcRow); row++) {
-				MapNode tile = placeTile(params.getSelectedTile(), params.getTileModel(), col, row);
-				initializedTiles.add(tile);
+				defineTile(params, col, row);
 			}
 		}
+	}
 
+	private void defineTile(final PlaceTilesFinishProcessParameters params, final int col, final int row) {
+		MapNode[][] tiles = map.getTiles();
+		MapNode tile = tiles[row][col];
+		if (tile == null) {
+			tile = new MapNode(params.getTileModel(), row, col, MapNodesTypes.PASSABLE_NODE);
+			tiles[row][col] = tile;
+		}
+		Utils.initializeTile(tile, params.getSelectedTile(), assetsManager);
+		initializedTiles.add(tile);
 	}
 
 

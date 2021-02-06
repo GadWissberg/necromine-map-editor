@@ -31,7 +31,7 @@ public class ActionsHandler {
 	private static final Vector3 auxVector = new Vector3();
 
 	private final ModelInstance cursorTileModelInstance;
-	private final MapNode[][] map;
+	private final GameMap map;
 	private final Map<EditModes, List<? extends PlacedElement>> placedElements;
 
 	@Setter
@@ -62,7 +62,7 @@ public class ActionsHandler {
 		Vector3 position = cursorTileModelInstance.transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
-		PlaceTilesProcess placeTilesProcess = new PlaceTilesProcess(row, col, assetsManager, initializedTiles, map);
+		PlaceTilesProcess placeTilesProcess = new PlaceTilesProcess(new Node(row, col), assetsManager, initializedTiles, map);
 		currentProcess = placeTilesProcess;
 		placeTilesProcess.execute();
 	}
@@ -94,7 +94,7 @@ public class ActionsHandler {
 	}
 
 	private void placeEnvObject(final ModelInstance modelInstance,
-								final MapNode[][] map,
+								final GameMap map,
 								final GameAssetsManager am) {
 		Vector3 position = modelInstance.transform.getTranslation(auxVector);
 		int row = (int) position.z;
@@ -102,8 +102,7 @@ public class ActionsHandler {
 		PlaceEnvObjectAction action = new PlaceEnvObjectAction(
 				map,
 				(List<PlacedEnvObject>) placedElements.get(EditModes.ENVIRONMENT),
-				row,
-				col,
+				new Node(row,col),
 				(EnvironmentDefinitions) selectedElement,
 				am,
 				cursorSelectionModel.getFacingDirection());
@@ -111,7 +110,7 @@ public class ActionsHandler {
 	}
 
 	private void placePickup(final ModelInstance cursor,
-							 final MapNode[][] map,
+							 final GameMap map,
 							 final GameAssetsManager am) {
 		Vector3 position = cursor.transform.getTranslation(auxVector);
 		int row = (int) position.z;
@@ -119,8 +118,7 @@ public class ActionsHandler {
 		PlacePickupAction action = new PlacePickupAction(
 				map,
 				(List<PlacedPickup>) placedElements.get(EditModes.PICKUPS),
-				row,
-				col,
+				new Node(row, col),
 				(ItemDefinition) selectedElement,
 				am,
 				cursorSelectionModel.getFacingDirection());
@@ -128,7 +126,7 @@ public class ActionsHandler {
 	}
 
 	private void placeLight(final ModelInstance cursor,
-							final MapNode[][] map,
+							final GameMap map,
 							final GameAssetsManager am) {
 		Vector3 position = cursor.transform.getTranslation(auxVector);
 		int row = (int) position.z;
@@ -136,15 +134,14 @@ public class ActionsHandler {
 		PlaceLightAction action = new PlaceLightAction(
 				map,
 				(List<PlacedLight>) placedElements.get(EditModes.LIGHTS),
-				row,
-				col,
+				new Node(row,col),
 				selectedElement,
 				am);
 		executeAction(action);
 	}
 
 	private void placeCharacter(final ModelInstance modelInstance,
-								final MapNode[][] map,
+								final GameMap map,
 								final GameAssetsManager am) {
 		Vector3 position = modelInstance.transform.getTranslation(auxVector);
 		int row = (int) position.z;
@@ -152,8 +149,7 @@ public class ActionsHandler {
 		PlaceCharacterAction action = new PlaceCharacterAction(
 				map,
 				(List<PlacedCharacter>) placedElements.get(EditModes.CHARACTERS),
-				row,
-				col,
+				new Node(row, col),
 				(CharacterDefinition) selectedElement,
 				am,
 				cursorCharacterDecal.getSpriteDirection());

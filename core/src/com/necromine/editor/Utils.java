@@ -23,14 +23,13 @@ public class Utils {
 
 	public static CharacterDecal createCharacterDecal(final GameAssetsManager assetsManager,
 													  final CharacterDefinition definition,
-													  final int row,
-													  final int col,
+													  final Node node,
 													  final Direction selectedCharacterDirection) {
 		String idle = SpriteType.IDLE.name() + "_" + selectedCharacterDirection.name().toLowerCase();
 		TextureAtlas atlas = assetsManager.getAtlas(definition.getAtlasDefinition());
 		TextureAtlas.AtlasRegion region = atlas.findRegion(idle.toLowerCase());
 		Decal decal = Decal.newDecal(region, true);
-		decal.setPosition(col + 0.5f, BILLBOARD_Y, row + 0.5f);
+		decal.setPosition(node.getCol() + 0.5f, BILLBOARD_Y, node.getRow() + 0.5f);
 		decal.setScale(BILLBOARD_SCALE);
 		return new CharacterDecal(decal, definition, selectedCharacterDirection);
 	}
@@ -55,16 +54,9 @@ public class Utils {
 		return decal;
 	}
 
-	public static MapNode createAndAddTileIfNotExists(final MapNode[][] map,
-													  final int row,
-													  final int col,
-													  final Model tileModel,
-													  final Assets.FloorsTextures selectedTile,
-													  final GameAssetsManager assetsManager) {
-		if (map[row][col] == null) {
-			map[row][col] = new MapNode(tileModel, row, col, MapNodesTypes.PASSABLE_NODE);
-		}
-		MapNode tile = map[row][col];
+	public static MapNode initializeTile(final MapNode tile,
+										 final Assets.FloorsTextures selectedTile,
+										 final GameAssetsManager assetsManager) {
 		tile.setTextureDefinition(selectedTile);
 		Material material = tile.getModelInstance().materials.get(0);
 		TextureAttribute textureAttribute = (TextureAttribute) material.get(TextureAttribute.Diffuse);

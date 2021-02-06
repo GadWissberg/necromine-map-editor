@@ -11,7 +11,7 @@ public interface GuiEventsSubscriber {
 
 	void onEditModeSet(EditModes mode);
 
-	void onTreeCharacterSelected(CharacterDefinition<?> definition);
+	void onTreeCharacterSelected(CharacterDefinition definition);
 
 	void onSelectedObjectRotate(int direction);
 

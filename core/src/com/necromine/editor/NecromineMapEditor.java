@@ -83,13 +83,13 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static EditorMode mode = EditModes.TILES;
 	public final int VIEWPORT_WIDTH;
 	public final int VIEWPORT_HEIGHT;
-	private MapNode[][] map;
 	private final GameAssetsManager assetsManager;
 	private final Set<MapNode> initializedTiles = new HashSet<>();
 	private final Map<EditModes, List<? extends PlacedElement>> placedElements = new HashMap<>();
 	private final CursorSelectionModel cursorSelectionModel;
 	private final Vector2 lastMouseTouchPosition = new Vector2();
 	private final Gson gson = new Gson();
+	private final GameMap map = new GameMap();
 	private ActionsHandler actionsHandler;
 	private ModelBatch modelBatch;
 	private Model axisModelX;
@@ -114,7 +114,6 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	public NecromineMapEditor(final int width, final int height) {
 		VIEWPORT_WIDTH = width / 50;
 		VIEWPORT_HEIGHT = height / 50;
-		map = new MapNode[LEVEL_SIZE][LEVEL_SIZE];
 		assetsManager = new GameAssetsManager(TEMP_ASSETS_FOLDER.replace('\\', '/') + '/');
 		cursorSelectionModel = new CursorSelectionModel(assetsManager);
 		Arrays.stream(EditModes.values()).forEach(mode -> placedElements.put(mode, new ArrayList<>()));
@@ -210,8 +209,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		cursorCharacterDecal = Utils.createCharacterDecal(
 				assetsManager,
 				CharacterTypes.PLAYER.getDefinitions()[0],
-				0,
-				0,
+				new Node(0, 0),
 				SOUTH);
 		Color color = cursorCharacterDecal.getDecal().getColor();
 		cursorCharacterDecal.getDecal().setColor(color.r, color.g, color.b, CURSOR_OPACITY);
@@ -583,7 +581,29 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void inflateMap(final JsonObject input) {
+		JsonObject charactersJsonObject = input.get(KEY_CHARACTERS).getAsJsonObject();
+		List<PlacedCharacter> placedCharacters = (List<PlacedCharacter>) this.placedElements.get(EditModes.CHARACTERS);
+		placedCharacters.clear();
+		Arrays.stream(CharacterTypes.values()).forEach(type -> {
+			String typeName = type.name().toLowerCase();
+			if (charactersJsonObject.has(typeName)) {
+				JsonArray charactersArray = charactersJsonObject.get(typeName).getAsJsonArray();
+				charactersArray.forEach(characterJsonObject -> {
+					JsonObject asJsonObject = characterJsonObject.getAsJsonObject();
+					int row = asJsonObject.get(KEY_ROW).getAsInt();
+					int col = asJsonObject.get(KEY_COL).getAsInt();
+					Direction direction = Direction.values()[asJsonObject.get(KEY_DIRECTION).getAsInt()];
+					CharacterDefinition characterType = type.getDefinitions()[asJsonObject.get(KEY_TYPE).getAsInt()];
+					PlacedCharacter placedCharacter = new PlacedCharacter(characterType, new Node(row, col), assetsManager, direction);
+					placedCharacters.add(placedCharacter);
+				});
+			}
+		});
 		JsonObject tilesJsonObject = input.getAsJsonObject(KEY_TILES);
+		map.setTiles(inflateTiles(tilesJsonObject));
+	}
+
+	private MapNode[][] inflateTiles(final JsonObject tilesJsonObject) {
 		int width = tilesJsonObject.get(KEY_WIDTH).getAsInt();
 		int depth = tilesJsonObject.get(KEY_DEPTH).getAsInt();
 		String matrix = tilesJsonObject.get(KEY_MATRIX).getAsString();
@@ -591,24 +611,22 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		initializedTiles.clear();
 		IntStream.range(0, depth)
 				.forEach(row -> IntStream.range(0, width)
-						.forEach(col -> inflateTile(width, matrix, inputMap, row, col)));
-		map = inputMap;
+						.forEach(col -> inflateTile(width, matrix, inputMap, new Node(row, col))));
+		return inputMap;
 	}
 
 	private void inflateTile(final int mapWidth,
 							 final String matrix,
 							 final MapNode[][] inputMap,
-							 final int row,
-							 final int col) {
+							 final Node node) {
+		int row = node.getRow();
+		int col = node.getCol();
 		char tileId = matrix.charAt(row * mapWidth + col % mapWidth);
 		if (tileId != '0') {
-			MapNode tile = Utils.createAndAddTileIfNotExists(
-					inputMap,
-					row,
-					col,
-					cursorTileModel,
-					Assets.FloorsTextures.values()[tileId - '1'],
-					assetsManager);
+			Assets.FloorsTextures textureDefinition = Assets.FloorsTextures.values()[tileId - '1'];
+			MapNode tile = new MapNode(cursorTileModel, node.getRow(), node.getCol(), MapNodesTypes.PASSABLE_NODE);
+			Utils.initializeTile(tile, textureDefinition, assetsManager);
+			inputMap[row][col] = tile;
 			initializedTiles.add(tile);
 		}
 	}
@@ -635,8 +653,9 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 
 	private JsonObject createElementJsonObject(final PlacedElement element, final boolean addFacingDirection) {
 		JsonObject characterJsonObject = new JsonObject();
-		characterJsonObject.addProperty(KEY_ROW, element.getRow());
-		characterJsonObject.addProperty(KEY_COL, element.getCol());
+		Node elementNode = element.getNode();
+		characterJsonObject.addProperty(KEY_ROW, elementNode.getRow());
+		characterJsonObject.addProperty(KEY_COL, elementNode.getCol());
 		if (addFacingDirection) {
 			characterJsonObject.addProperty(KEY_DIRECTION, element.getFacingDirection().ordinal());
 		}
@@ -651,7 +670,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		StringBuilder builder = new StringBuilder();
 		IntStream.range(0, LEVEL_SIZE).forEach(row ->
 				IntStream.range(0, LEVEL_SIZE).forEach(col -> {
-					MapNode mapNode = map[row][col];
+					MapNode mapNode = map.getTiles()[row][col];
 					if (mapNode != null && mapNode.getTextureDefinition() != null) {
 						builder.append(mapNode.getTextureDefinition().ordinal() + 1);
 					} else {
@@ -750,7 +769,8 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		if (currentProcess != null) {
 			if (currentProcess instanceof PlaceTilesProcess) {
 				PlaceTilesProcess process = (PlaceTilesProcess) currentProcess;
-				renderRectangleMarking(process.getSrcRow(), process.getSrcCol());
+				Node srcNode = process.getSrcNode();
+				renderRectangleMarking(srcNode.getRow(), srcNode.getCol());
 			}
 		}
 	}

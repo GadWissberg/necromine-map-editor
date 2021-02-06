@@ -2,22 +2,20 @@ package com.necromine.editor.model;
 
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;
+import com.necromine.editor.Node;
 import lombok.Getter;
 
 @Getter
-public class PlacedElement  {
-	protected final int row;
-	protected final int col;
+public class PlacedElement {
 	protected final ElementDefinition definition;
 	private final Direction facingDirection;
+	private final Node node;
 
-	public PlacedElement(final int row,
-						 final int col,
+	public PlacedElement(final Node node,
 						 final ElementDefinition definition,
 						 final Direction selectedDirection) {
-		this.row = row;
-		this.col = col;
+		this.node = node;
 		this.definition = definition;
-		this.facingDirection =selectedDirection;
+		this.facingDirection = selectedDirection;
 	}
 }

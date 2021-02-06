@@ -1,11 +1,11 @@
 package com.necromine.editor.actions;
 
-import com.necromine.editor.MapNode;
+import com.necromine.editor.GameMap;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public abstract class MappingAction {
-	protected final MapNode[][] map;
+	protected final GameMap map;
 
 	protected abstract void execute();
 

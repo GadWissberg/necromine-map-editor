@@ -1,10 +1,10 @@
 package com.necromine.editor.model;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;
+import com.necromine.editor.Node;
 import com.necromine.editor.Utils;
 import lombok.Getter;
 
@@ -17,7 +17,7 @@ public class PlacedLight extends PlacedElement {
 					   final int col,
 					   final ElementDefinition definition,
 					   final Texture texture) {
-		super(row, col, definition, Direction.SOUTH);
+		super(new Node(row, col), definition, Direction.SOUTH);
 		decal = Utils.createSimpleDecal(texture);
 		decal.setPosition(col, BULB_Y, row);
 	}
