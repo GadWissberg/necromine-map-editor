@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop.toolbar;
 
-import com.gadarts.necromine.editor.desktop.menuitems.MenuItemProperties;
+import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
 
 import javax.swing.*;
 

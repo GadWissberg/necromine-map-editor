@@ -1,91 +1,80 @@
 package com.gadarts.necromine.editor.desktop.toolbar;
 
-import com.gadarts.necromine.editor.desktop.MenuItemsDefinitions;
+import com.gadarts.necromine.editor.desktop.menu.definitions.EditMenuItemsDefinitions;
+import com.gadarts.necromine.editor.desktop.menu.definitions.FileMenuItemsDefinitions;
+import com.gadarts.necromine.editor.desktop.menu.definitions.ViewMenuItemsDefinitions;
 
 public enum ToolbarDefinition implements ToolbarButtonDefinition {
-	SAVE(new ToolbarButtonOfMenuItem(
-			"file_save",
-			"Save Map",
-			MenuItemsDefinitions.SAVE)),
+    SAVE(new ToolbarButtonOfMenuItem(
+            "file_save",
+            "Save Map",
+            FileMenuItemsDefinitions.SAVE)),
 
-	LOAD(new ToolbarButtonOfMenuItem(
-			"file_load",
-			"Load Map",
-			MenuItemsDefinitions.LOAD)),
+    LOAD(new ToolbarButtonOfMenuItem(
+            "file_load",
+            "Load Map",
+            FileMenuItemsDefinitions.LOAD)),
 
-	SEPARATOR_1(),
+    SEPARATOR_1(),
 
-	MODE_TILE(new ToolbarButtonOfMenuItem(
-			"mode_tile",
-			"Tiles Mode",
-			MenuItemsDefinitions.MODE_TILE,
-			Constants.BUTTON_GROUP_MODES)),
+    MODE_TILE(new ToolbarButtonOfMenuItem(
+            "mode_tile",
+            "Tiles Mode",
+            EditMenuItemsDefinitions.MODE_TILE)),
 
-	MODE_CHARACTER(new ToolbarButtonOfMenuItem(
-			"mode_character",
-			"Characters Mode",
-			MenuItemsDefinitions.MODE_CHARACTER,
-			Constants.BUTTON_GROUP_MODES)),
+    MODE_CHARACTER(new ToolbarButtonOfMenuItem(
+            "mode_character",
+            "Characters Mode",
+            EditMenuItemsDefinitions.MODE_CHARACTER)),
 
-	MODE_ENV(new ToolbarButtonOfMenuItem(
-			"mode_env",
-			"Environment Objects Mode",
-			MenuItemsDefinitions.MODE_ENV,
-			Constants.BUTTON_GROUP_MODES)),
+    MODE_ENV(new ToolbarButtonOfMenuItem(
+            "mode_env",
+            "Environment Objects Mode",
+            EditMenuItemsDefinitions.MODE_ENV)),
 
-	MODE_PICKUP(new ToolbarButtonOfMenuItem(
-			"mode_pickup",
-			"Pick-Ups Mode",
-			MenuItemsDefinitions.MODE_PICKUPS,
-			Constants.BUTTON_GROUP_MODES)),
+    MODE_PICKUP(new ToolbarButtonOfMenuItem(
+            "mode_pickup",
+            "Pick-Ups Mode",
+            EditMenuItemsDefinitions.MODE_PICKUPS)),
 
-	MODE_LIGHTS(new ToolbarButtonOfMenuItem(
-			"mode_light",
-			"Lights Mode",
-			MenuItemsDefinitions.MODE_LIGHTS,
-			Constants.BUTTON_GROUP_MODES)),
+    MODE_LIGHTS(new ToolbarButtonOfMenuItem(
+            "mode_light",
+            "Lights Mode",
+            EditMenuItemsDefinitions.MODE_LIGHTS)),
 
-	SEPARATOR_2(),
+    SEPARATOR_2(),
 
-	CAMERA_PAN(new ToolbarButtonOfMenuItem(
-			"camera_pan",
-			"Pan Camera",
-			MenuItemsDefinitions.CAMERA_PAN,
-			Constants.BUTTON_GROUP_MODES)),
+    CAMERA_PAN(new ToolbarButtonOfMenuItem(
+            "camera_pan",
+            "Pan Camera",
+            ViewMenuItemsDefinitions.CAMERA_PAN)),
 
-	CAMERA_ROTATE(new ToolbarButtonOfMenuItem(
-			"camera_rotate",
-			"Rotate Camera",
-			MenuItemsDefinitions.CAMERA_ROTATE,
-			Constants.BUTTON_GROUP_MODES)),
+    CAMERA_ROTATE(new ToolbarButtonOfMenuItem(
+            "camera_rotate",
+            "Rotate Camera",
+            ViewMenuItemsDefinitions.CAMERA_ROTATE)),
 
-	CAMERA_ZOOM(new ToolbarButtonOfMenuItem(
-			"camera_zoom",
-			"Zoom Camera",
-			MenuItemsDefinitions.CAMERA_ZOOM,
-			Constants.BUTTON_GROUP_MODES)),
+    CAMERA_ZOOM(new ToolbarButtonOfMenuItem(
+            "camera_zoom",
+            "Zoom Camera",
+            ViewMenuItemsDefinitions.CAMERA_ZOOM)),
 
-	SEPARATOR_3();
+    SEPARATOR_3();
 
-	private final ToolbarButtonOfMenuItem toolbarButtonOfMenuItem;
+    private final ToolbarButtonOfMenuItem toolbarButtonOfMenuItem;
 
-	ToolbarDefinition() {
-		this(null);
-	}
+    ToolbarDefinition() {
+        this(null);
+    }
 
-	ToolbarDefinition(final ToolbarButtonOfMenuItem toolbarButtonOfMenuItem) {
-		this.toolbarButtonOfMenuItem = toolbarButtonOfMenuItem;
-	}
+    ToolbarDefinition(final ToolbarButtonOfMenuItem toolbarButtonOfMenuItem) {
+        this.toolbarButtonOfMenuItem = toolbarButtonOfMenuItem;
+    }
 
-	@Override
-	public ToolbarButtonOfMenuItem getButtonProperties() {
-		return toolbarButtonOfMenuItem;
-	}
+    @Override
+    public ToolbarButtonOfMenuItem getButtonProperties() {
+        return toolbarButtonOfMenuItem;
+    }
 
-	public static final class Constants {
-		public static final String BUTTON_GROUP_MODES = "modes";
 
-		private Constants() {
-		}
-	}
 }

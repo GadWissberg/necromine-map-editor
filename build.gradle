@@ -46,7 +46,6 @@ project(":desktop") {
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
         compileOnly 'org.projectlombok:lombok:1.18.12'
         annotationProcessor 'org.projectlombok:lombok:1.18.12'
-        compile group: 'com.bulenkov', name: 'darcula', version: '2018.2'
     }
 }
 

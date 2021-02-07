@@ -1,4 +1,6 @@
-package com.gadarts.necromine.editor.desktop;
+package com.gadarts.necromine.editor.desktop.tree;
+
+import com.gadarts.necromine.editor.desktop.MapperWindow;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;

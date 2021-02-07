@@ -1,7 +1,4 @@
-package com.gadarts.necromine.editor.desktop;
-
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonDefinition;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonOfMenuItem;
+package com.gadarts.necromine.editor.desktop.toolbar;
 
 public class SubToolbarButtonDefinition implements ToolbarButtonDefinition {
 	private final ToolbarButtonOfMenuItem buttonProperties;

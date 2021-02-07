@@ -1,4 +1,4 @@
-package com.gadarts.necromine.editor.desktop.menuitems;
+package com.gadarts.necromine.editor.desktop.menu;
 
 public interface MenuItemDefinition {
 	MenuItemProperties getMenuItemProperties();

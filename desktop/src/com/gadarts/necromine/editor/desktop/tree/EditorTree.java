@@ -1,4 +1,4 @@
-package com.gadarts.necromine.editor.desktop;
+package com.gadarts.necromine.editor.desktop.tree;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
