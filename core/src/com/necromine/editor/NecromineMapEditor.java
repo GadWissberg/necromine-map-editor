@@ -68,17 +68,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
 	private static final float CURSOR_OPACITY = 0.5f;
 	private static final Matrix4 auxMatrix = new Matrix4();
-	private static final String KEY_TARGET = "target";
 	private static final int TARGET_VERSION = 5;
-	private static final String KEY_TILES = "tiles";
-	private static final String KEY_WIDTH = "width";
-	private static final String KEY_DEPTH = "depth";
-	private static final String KEY_MATRIX = "matrix";
-	private static final String KEY_ROW = "row";
-	private static final String KEY_COL = "col";
-	private static final String KEY_DIRECTION = "direction";
-	private static final String KEY_CHARACTERS = "characters";
-	private static final String KEY_TYPE = "type";
 	@Getter
 	private static EditorMode mode = EditModes.TILES;
 	public final int VIEWPORT_WIDTH;
@@ -428,21 +418,9 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		modelInstance.transform.translate(0.5f, 0, 0.5f);
 		modelInstance.transform.rotate(Vector3.Y, -1 * facingDirection.getDirection(auxVector2_1).angleDeg());
 		modelInstance.transform.translate(definition.getOffset(auxVector3_1));
-		handleEvenSize(definition, modelInstance, facingDirection);
+		EnvironmentDefinitions.handleEvenSize(definition, modelInstance, facingDirection);
 		modelBatch.render(modelInstance);
 		modelInstance.transform.set(originalTransform);
-	}
-
-	private void handleEvenSize(final EnvironmentDefinitions definition,
-								final ModelInstance modelInstance,
-								final Direction facingDirection) {
-		boolean handleEvenSize = facingDirection == EAST || facingDirection == NORTH;
-		if (definition.getWidth() % 2 == 0) {
-			modelInstance.transform.translate(0.5f * (handleEvenSize ? -1 : 1), 0, 0);
-		}
-		if (definition.getHeight() % 2 == 0) {
-			modelInstance.transform.translate(0, 0, 0.5f * (handleEvenSize ? -1 : 1));
-		}
 	}
 
 	private void renderAxis() {
@@ -556,9 +534,9 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	@Override
 	public void onSaveMapRequested() {
 		JsonObject output = new JsonObject();
-		output.addProperty(KEY_TARGET, TARGET_VERSION);
+		output.addProperty(MapJsonKeys.KEY_TARGET, TARGET_VERSION);
 		JsonObject tiles = createTilesData();
-		output.add(KEY_TILES, tiles);
+		output.add(MapJsonKeys.KEY_TILES, tiles);
 		addCharacters(output);
 		addElementsGroup(output, EditModes.ENVIRONMENT, true);
 		addElementsGroup(output, EditModes.PICKUPS, false);
@@ -587,7 +565,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 				inflateElements(input, mode);
 			}
 		});
-		JsonObject tilesJsonObject = input.getAsJsonObject(KEY_TILES);
+		JsonObject tilesJsonObject = input.getAsJsonObject(MapJsonKeys.KEY_TILES);
 		map.setTiles(inflateTiles(tilesJsonObject));
 	}
 
@@ -603,7 +581,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void inflateCharacters(final JsonObject input) {
-		JsonObject charactersJsonObject = input.get(KEY_CHARACTERS).getAsJsonObject();
+		JsonObject charactersJsonObject = input.get(MapJsonKeys.KEY_CHARACTERS).getAsJsonObject();
 		List<? extends PlacedElement> placedCharacters = this.placedElements.get(EditModes.CHARACTERS);
 		placedCharacters.clear();
 		Arrays.stream(CharacterTypes.values()).forEach(type -> {
@@ -626,22 +604,22 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		elementsJsonArray.forEach(characterJsonObject -> {
 			JsonObject json = characterJsonObject.getAsJsonObject();
 			Direction direction = SOUTH;
-			if (json.has(KEY_DIRECTION)) {
-				direction = Direction.values()[json.get(KEY_DIRECTION).getAsInt()];
+			if (json.has(MapJsonKeys.KEY_DIRECTION)) {
+				direction = Direction.values()[json.get(MapJsonKeys.KEY_DIRECTION).getAsInt()];
 			}
-			Node node = new Node(json.get(KEY_ROW).getAsInt(), json.get(KEY_COL).getAsInt());
+			Node node = new Node(json.get(MapJsonKeys.KEY_ROW).getAsInt(), json.get(MapJsonKeys.KEY_COL).getAsInt());
 			ElementDefinition definition = null;
 			if (definitions != null) {
-				definition = definitions[json.get(KEY_TYPE).getAsInt()];
+				definition = definitions[json.get(MapJsonKeys.KEY_TYPE).getAsInt()];
 			}
 			placedElements.add(creation.create(definition, node, direction, assetsManager));
 		});
 	}
 
 	private MapNode[][] inflateTiles(final JsonObject tilesJsonObject) {
-		int width = tilesJsonObject.get(KEY_WIDTH).getAsInt();
-		int depth = tilesJsonObject.get(KEY_DEPTH).getAsInt();
-		String matrix = tilesJsonObject.get(KEY_MATRIX).getAsString();
+		int width = tilesJsonObject.get(MapJsonKeys.KEY_WIDTH).getAsInt();
+		int depth = tilesJsonObject.get(MapJsonKeys.KEY_DEPTH).getAsInt();
+		String matrix = tilesJsonObject.get(MapJsonKeys.KEY_MATRIX).getAsString();
 		MapNode[][] inputMap = new MapNode[depth][width];
 		initializedTiles.clear();
 		IntStream.range(0, depth)
@@ -683,25 +661,25 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 					.filter(character -> ((CharacterDefinition) character.getDefinition()).getCharacterType() == type)
 					.forEach(character -> charactersJsonArray.add(createElementJsonObject(character, true)));
 		});
-		output.add(KEY_CHARACTERS, charactersJsonObject);
+		output.add(MapJsonKeys.KEY_CHARACTERS, charactersJsonObject);
 	}
 
 	private JsonObject createElementJsonObject(final PlacedElement element, final boolean addFacingDirection) {
 		JsonObject characterJsonObject = new JsonObject();
 		Node elementNode = element.getNode();
-		characterJsonObject.addProperty(KEY_ROW, elementNode.getRow());
-		characterJsonObject.addProperty(KEY_COL, elementNode.getCol());
+		characterJsonObject.addProperty(MapJsonKeys.KEY_ROW, elementNode.getRow());
+		characterJsonObject.addProperty(MapJsonKeys.KEY_COL, elementNode.getCol());
 		if (addFacingDirection) {
-			characterJsonObject.addProperty(KEY_DIRECTION, element.getFacingDirection().ordinal());
+			characterJsonObject.addProperty(MapJsonKeys.KEY_DIRECTION, element.getFacingDirection().ordinal());
 		}
-		characterJsonObject.addProperty(KEY_TYPE, element.getDefinition().ordinal());
+		characterJsonObject.addProperty(MapJsonKeys.KEY_TYPE, element.getDefinition().ordinal());
 		return characterJsonObject;
 	}
 
 	private JsonObject createTilesData() {
 		JsonObject tiles = new JsonObject();
-		tiles.addProperty(KEY_WIDTH, LEVEL_SIZE);
-		tiles.addProperty(KEY_DEPTH, LEVEL_SIZE);
+		tiles.addProperty(MapJsonKeys.KEY_WIDTH, LEVEL_SIZE);
+		tiles.addProperty(MapJsonKeys.KEY_DEPTH, LEVEL_SIZE);
 		StringBuilder builder = new StringBuilder();
 		IntStream.range(0, LEVEL_SIZE).forEach(row ->
 				IntStream.range(0, LEVEL_SIZE).forEach(col -> {
@@ -713,7 +691,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 					}
 				})
 		);
-		tiles.addProperty(KEY_MATRIX, builder.toString());
+		tiles.addProperty(MapJsonKeys.KEY_MATRIX, builder.toString());
 		return tiles;
 	}
 
