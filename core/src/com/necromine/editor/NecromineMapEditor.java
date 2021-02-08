@@ -26,6 +26,7 @@ import com.badlogic.gdx.utils.Array;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.Assets.AssetsTypes;
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.assets.MapJsonKeys;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.MapNodesTypes;
