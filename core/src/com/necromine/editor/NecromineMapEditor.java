@@ -665,16 +665,16 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		output.add(MapJsonKeys.KEY_CHARACTERS, charactersJsonObject);
 	}
 
-	private JsonObject createElementJsonObject(final PlacedElement element, final boolean addFacingDirection) {
-		JsonObject characterJsonObject = new JsonObject();
-		Node elementNode = element.getNode();
-		characterJsonObject.addProperty(MapJsonKeys.KEY_ROW, elementNode.getRow());
-		characterJsonObject.addProperty(MapJsonKeys.KEY_COL, elementNode.getCol());
+	private JsonObject createElementJsonObject(final PlacedElement e, final boolean addFacingDirection) {
+		JsonObject charJsonObject = new JsonObject();
+		charJsonObject.addProperty(MapJsonKeys.KEY_ROW, e.getNode().getRow());
+		charJsonObject.addProperty(MapJsonKeys.KEY_COL, e.getNode().getCol());
 		if (addFacingDirection) {
-			characterJsonObject.addProperty(MapJsonKeys.KEY_DIRECTION, element.getFacingDirection().ordinal());
+			charJsonObject.addProperty(MapJsonKeys.KEY_DIRECTION, e.getFacingDirection().ordinal());
 		}
-		characterJsonObject.addProperty(MapJsonKeys.KEY_TYPE, element.getDefinition().ordinal());
-		return characterJsonObject;
+		ElementDefinition definition = e.getDefinition();
+		Optional.ofNullable(definition).ifPresent(d -> charJsonObject.addProperty(MapJsonKeys.KEY_TYPE, d.ordinal()));
+		return charJsonObject;
 	}
 
 	private JsonObject createTilesData() {
