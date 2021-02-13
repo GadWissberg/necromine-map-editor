@@ -1,7 +1,6 @@
 package com.necromine.editor.actions;
 
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
@@ -30,21 +29,17 @@ import java.util.Set;
 public class ActionsHandler {
 	private static final Vector3 auxVector = new Vector3();
 
-	private final ModelInstance cursorTileModelInstance;
 	private final GameMap map;
 	private final Map<EditModes, List<? extends PlacedElement>> placedElements;
+
+	@Getter
+	private final CursorData cursorData = new CursorData();
 
 	@Setter
 	private Assets.FloorsTextures selectedTile;
 
 	@Setter
 	private ElementDefinition selectedElement;
-
-	@Setter
-	private CharacterDecal cursorCharacterDecal;
-
-	@Setter
-	private CursorSelectionModel cursorSelectionModel;
 
 	@Getter
 	private MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess;
@@ -56,10 +51,9 @@ public class ActionsHandler {
 		}
 	}
 
-	private void beginTilePlacingProcess(final ModelInstance cursorTileModelInstance,
-										 final GameAssetsManager assetsManager,
+	private void beginTilePlacingProcess(final GameAssetsManager assetsManager,
 										 final Set<MapNode> initializedTiles) {
-		Vector3 position = cursorTileModelInstance.transform.getTranslation(auxVector);
+		Vector3 position = cursorData.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		PlaceTilesProcess placeTilesProcess = new PlaceTilesProcess(new Node(row, col), assetsManager, initializedTiles, map);
@@ -73,19 +67,19 @@ public class ActionsHandler {
 		Class<? extends EditorMode> modeClass = mode.getClass();
 		if (modeClass.equals(EditModes.class)) {
 			if (mode == EditModes.TILES && currentProcess == null && selectedTile != null) {
-				beginTilePlacingProcess(cursorTileModelInstance, assetsManager, initializedTiles);
+				beginTilePlacingProcess(assetsManager, initializedTiles);
 				return true;
 			} else if (mode == EditModes.LIGHTS) {
-				placeLight(cursorTileModelInstance, map, assetsManager);
+				placeLight(map, assetsManager);
 				return true;
 			} else if (selectedElement != null) {
 				if (mode == EditModes.CHARACTERS) {
-					placeCharacter(cursorTileModelInstance, map, assetsManager);
+					placeCharacter(map, assetsManager);
 					return true;
 				} else if (mode == EditModes.ENVIRONMENT) {
-					placeEnvObject(cursorSelectionModel.getModelInstance(), map, assetsManager);
+					placeEnvObject(map, assetsManager);
 				} else if (mode == EditModes.PICKUPS) {
-					placePickup(cursorSelectionModel.getModelInstance(), map, assetsManager);
+					placePickup(map, assetsManager);
 					return true;
 				}
 			}
@@ -93,10 +87,10 @@ public class ActionsHandler {
 		return false;
 	}
 
-	private void placeEnvObject(final ModelInstance modelInstance,
-								final GameMap map,
+	private void placeEnvObject(final GameMap map,
 								final GameAssetsManager am) {
-		Vector3 position = modelInstance.transform.getTranslation(auxVector);
+		CursorSelectionModel cursorSelectionModel = cursorData.getCursorSelectionModel();
+		Vector3 position = cursorSelectionModel.getModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		PlaceEnvObjectAction action = new PlaceEnvObjectAction(
@@ -109,10 +103,10 @@ public class ActionsHandler {
 		executeAction(action);
 	}
 
-	private void placePickup(final ModelInstance cursor,
-							 final GameMap map,
+	private void placePickup(final GameMap map,
 							 final GameAssetsManager am) {
-		Vector3 position = cursor.transform.getTranslation(auxVector);
+		CursorSelectionModel cursorSelectionModel = cursorData.getCursorSelectionModel();
+		Vector3 position = cursorSelectionModel.getModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		PlacePickupAction action = new PlacePickupAction(
@@ -125,10 +119,9 @@ public class ActionsHandler {
 		executeAction(action);
 	}
 
-	private void placeLight(final ModelInstance cursor,
-							final GameMap map,
+	private void placeLight(final GameMap map,
 							final GameAssetsManager am) {
-		Vector3 position = cursor.transform.getTranslation(auxVector);
+		Vector3 position = cursorData.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		PlaceLightAction action = new PlaceLightAction(
@@ -140,10 +133,9 @@ public class ActionsHandler {
 		executeAction(action);
 	}
 
-	private void placeCharacter(final ModelInstance modelInstance,
-								final GameMap map,
+	private void placeCharacter(final GameMap map,
 								final GameAssetsManager am) {
-		Vector3 position = modelInstance.transform.getTranslation(auxVector);
+		Vector3 position = cursorData.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		PlaceCharacterAction action = new PlaceCharacterAction(
@@ -152,7 +144,7 @@ public class ActionsHandler {
 				new Node(row, col),
 				(CharacterDefinition) selectedElement,
 				am,
-				cursorCharacterDecal.getSpriteDirection());
+				cursorData.getCursorCharacterDecal().getSpriteDirection());
 		executeAction(action);
 	}
 
@@ -167,7 +159,7 @@ public class ActionsHandler {
 	}
 
 	private void finishProcess(final Assets.FloorsTextures selectedTile, final Model cursorTileModel) {
-		Vector3 position = cursorTileModelInstance.transform.getTranslation(auxVector);
+		Vector3 position = cursorData.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		PlaceTilesProcess currentProcess = (PlaceTilesProcess) this.currentProcess;
 		int dstRow = (int) position.z;
 		int dstCol = (int) position.x;

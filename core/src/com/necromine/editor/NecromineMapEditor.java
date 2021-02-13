@@ -39,6 +39,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.necromine.editor.actions.ActionsHandler;
+import com.necromine.editor.actions.CursorData;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.actions.processes.PlaceTilesProcess;
 import com.necromine.editor.model.*;
@@ -163,9 +164,11 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 	}
 
 	private void createActionsHandler() {
-		actionsHandler = new ActionsHandler(cursorTileModelInstance, map, placedElements);
-		actionsHandler.setCursorCharacterDecal(cursorCharacterDecal);
-		actionsHandler.setCursorSelectionModel(cursorSelectionModel);
+		actionsHandler = new ActionsHandler(map, placedElements);
+		CursorData cursorData = actionsHandler.getCursorData();
+		cursorData.setCursorCharacterDecal(cursorCharacterDecal);
+		cursorData.setCursorTileModelInstance(cursorTileModelInstance);
+		cursorData.setCursorSelectionModel(cursorSelectionModel);
 	}
 
 	private void initializeGameFiles() {

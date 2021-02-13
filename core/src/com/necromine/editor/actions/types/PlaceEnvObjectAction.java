@@ -40,7 +40,7 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 	}
 
 	private void applyOnMap() {
-		int halfHeight = selectedEnvObject.getHeight() / 2;
+		int halfHeight = selectedEnvObject.getDepth() / 2;
 		int halfWidth = selectedEnvObject.getWidth() / 2;
 		for (int row = -halfHeight; row < Math.max(halfHeight, 1); row++) {
 			for (int col = -halfWidth; col < Math.max(halfWidth, 1); col++) {
