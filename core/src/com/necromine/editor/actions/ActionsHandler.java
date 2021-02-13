@@ -33,7 +33,7 @@ public class ActionsHandler {
 	private final Map<EditModes, List<? extends PlacedElement>> placedElements;
 
 	@Getter
-	private final CursorData cursorData = new CursorData();
+	private final CursorHandler cursorHandler;
 
 	@Setter
 	private Assets.FloorsTextures selectedTile;
@@ -53,7 +53,7 @@ public class ActionsHandler {
 
 	private void beginTilePlacingProcess(final GameAssetsManager assetsManager,
 										 final Set<MapNode> initializedTiles) {
-		Vector3 position = cursorData.getCursorTileModelInstance().transform.getTranslation(auxVector);
+		Vector3 position = cursorHandler.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		PlaceTilesProcess placeTilesProcess = new PlaceTilesProcess(new Node(row, col), assetsManager, initializedTiles, map);
@@ -89,7 +89,7 @@ public class ActionsHandler {
 
 	private void placeEnvObject(final GameMap map,
 								final GameAssetsManager am) {
-		CursorSelectionModel cursorSelectionModel = cursorData.getCursorSelectionModel();
+		CursorSelectionModel cursorSelectionModel = cursorHandler.getCursorSelectionModel();
 		Vector3 position = cursorSelectionModel.getModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
@@ -105,7 +105,7 @@ public class ActionsHandler {
 
 	private void placePickup(final GameMap map,
 							 final GameAssetsManager am) {
-		CursorSelectionModel cursorSelectionModel = cursorData.getCursorSelectionModel();
+		CursorSelectionModel cursorSelectionModel = cursorHandler.getCursorSelectionModel();
 		Vector3 position = cursorSelectionModel.getModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
@@ -121,7 +121,7 @@ public class ActionsHandler {
 
 	private void placeLight(final GameMap map,
 							final GameAssetsManager am) {
-		Vector3 position = cursorData.getCursorTileModelInstance().transform.getTranslation(auxVector);
+		Vector3 position = cursorHandler.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		PlaceLightAction action = new PlaceLightAction(
@@ -135,7 +135,7 @@ public class ActionsHandler {
 
 	private void placeCharacter(final GameMap map,
 								final GameAssetsManager am) {
-		Vector3 position = cursorData.getCursorTileModelInstance().transform.getTranslation(auxVector);
+		Vector3 position = cursorHandler.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		PlaceCharacterAction action = new PlaceCharacterAction(
@@ -144,7 +144,7 @@ public class ActionsHandler {
 				new Node(row, col),
 				(CharacterDefinition) selectedElement,
 				am,
-				cursorData.getCursorCharacterDecal().getSpriteDirection());
+				cursorHandler.getCursorCharacterDecal().getSpriteDirection());
 		executeAction(action);
 	}
 
@@ -159,7 +159,7 @@ public class ActionsHandler {
 	}
 
 	private void finishProcess(final Assets.FloorsTextures selectedTile, final Model cursorTileModel) {
-		Vector3 position = cursorData.getCursorTileModelInstance().transform.getTranslation(auxVector);
+		Vector3 position = cursorHandler.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		PlaceTilesProcess currentProcess = (PlaceTilesProcess) this.currentProcess;
 		int dstRow = (int) position.z;
 		int dstCol = (int) position.x;
