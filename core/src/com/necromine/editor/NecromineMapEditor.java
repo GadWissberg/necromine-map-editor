@@ -51,8 +51,19 @@ import java.util.stream.IntStream;
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 import static com.gadarts.necromine.model.characters.Direction.*;
 
+/**
+ * The world renderer.
+ */
 public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsSubscriber, InputProcessor {
+
+	/**
+	 * Camera's far.
+	 */
 	public static final float FAR = 200f;
+
+	/**
+	 * The rate of the cursor flicker animation.
+	 */
 	public static final float FLICKER_RATE = 0.05f;
 	public static final String TEMP_ASSETS_FOLDER = "C:\\Users\\gadw1\\StudioProjects\\isometric-game\\core\\assets";
 	public static final float CURSOR_Y = 0.01f;
@@ -313,7 +324,6 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		renderDecal(characterDecal.getDecal());
 	}
 
-
 	private void renderDecal(final Decal decal) {
 		decal.lookAt(auxVector3_1.set(decal.getPosition()).sub(camera.direction), camera.up);
 		decalBatch.add(decal);
@@ -356,27 +366,36 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		}
 	}
 
-	@SuppressWarnings("SuspiciousNameCombination")
 	private void renderModelCursorFloorGrid() {
 		Vector3 originalPosition = cursorTileModelInstance.transform.getTranslation(auxVector3_1);
 		Vector3 cursorPosition = highlighter.transform.getTranslation(auxVector3_3);
 		cursorPosition.y = CURSOR_Y;
 		EnvironmentDefinitions def = (EnvironmentDefinitions) selectedElement;
 		Direction facingDirection = cursorSelectionModel.getFacingDirection();
+		renderModelCursorFloorGridCells(cursorPosition, def, facingDirection);
+		cursorTileModelInstance.transform.setTranslation(originalPosition);
+	}
+
+	private void renderModelCursorFloorGridCells(final Vector3 cursorPosition,
+												 final EnvironmentDefinitions def,
+												 final Direction facingDirection) {
 		int halfWidth = def.getWidth() / 2;
-		int halfHeight = def.getHeight() / 2;
+		int halfDepth = def.getDepth() / 2;
 		if (facingDirection == NORTH || facingDirection == SOUTH) {
 			int swap = halfWidth;
-			halfWidth = halfHeight;
-			halfHeight = swap;
+			halfWidth = halfDepth;
+			halfDepth = swap;
 		}
-		for (int row = -halfHeight; row < Math.max(halfHeight, 1); row++) {
-			for (int col = -halfWidth; col < Math.max(halfWidth, 1); col++) {
-				cursorTileModelInstance.transform.setTranslation(cursorPosition).translate(col, 0, row);
-				modelBatch.render(cursorTileModelInstance);
-			}
+		for (int row = -halfDepth; row < Math.max(halfDepth, 1); row++) {
+			renderModelCursorFloorGridRow(cursorPosition, halfWidth, row);
 		}
-		cursorTileModelInstance.transform.setTranslation(originalPosition);
+	}
+
+	private void renderModelCursorFloorGridRow(final Vector3 cursorPosition, final int halfWidth, final int row) {
+		for (int col = -halfWidth; col < Math.max(halfWidth, 1); col++) {
+			cursorTileModelInstance.transform.setTranslation(cursorPosition).translate(col, 0, row);
+			modelBatch.render(cursorTileModelInstance);
+		}
 	}
 
 
@@ -800,7 +819,7 @@ public class NecromineMapEditor extends ApplicationAdapter implements GuiEventsS
 		highlighter.transform.setTranslation(initialTilePos);
 	}
 
-	Vector3 castRayTowardsPlane(final float screenX, final float screenY) {
+	private Vector3 castRayTowardsPlane(final float screenX, final float screenY) {
 		Ray ray = camera.getPickRay(screenX, screenY);
 		auxPlane.set(Vector3.Zero, auxVector3_1.set(0, 1, 0));
 		Intersector.intersectRayPlane(ray, auxPlane, auxVector3_2);

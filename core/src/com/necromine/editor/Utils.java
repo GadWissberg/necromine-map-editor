@@ -5,12 +5,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Material;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.MapNodesTypes;
 import com.gadarts.necromine.model.characters.*;
 
 import java.util.HashMap;
@@ -54,13 +52,12 @@ public class Utils {
 		return decal;
 	}
 
-	public static MapNode initializeTile(final MapNode tile,
-										 final Assets.FloorsTextures selectedTile,
-										 final GameAssetsManager assetsManager) {
+	public static void initializeTile(final MapNode tile,
+									  final Assets.FloorsTextures selectedTile,
+									  final GameAssetsManager assetsManager) {
 		tile.setTextureDefinition(selectedTile);
 		Material material = tile.getModelInstance().materials.get(0);
 		TextureAttribute textureAttribute = (TextureAttribute) material.get(TextureAttribute.Diffuse);
 		textureAttribute.textureDescription.texture = assetsManager.getTexture(selectedTile);
-		return tile;
 	}
 }

@@ -102,7 +102,7 @@ public class ActionsHandler {
 		PlaceEnvObjectAction action = new PlaceEnvObjectAction(
 				map,
 				(List<PlacedEnvObject>) placedElements.get(EditModes.ENVIRONMENT),
-				new Node(row,col),
+				new Node(row, col),
 				(EnvironmentDefinitions) selectedElement,
 				am,
 				cursorSelectionModel.getFacingDirection());
@@ -134,7 +134,7 @@ public class ActionsHandler {
 		PlaceLightAction action = new PlaceLightAction(
 				map,
 				(List<PlacedLight>) placedElements.get(EditModes.LIGHTS),
-				new Node(row,col),
+				new Node(row, col),
 				selectedElement,
 				am);
 		executeAction(action);
@@ -158,19 +158,20 @@ public class ActionsHandler {
 
 	public boolean onTouchUp(final Assets.FloorsTextures selectedTile,
 							 final Model cursorTileModel) {
+		boolean result = false;
 		if (currentProcess != null) {
-			return finishProcess(selectedTile, cursorTileModel);
+			finishProcess(selectedTile, cursorTileModel);
+			result = true;
 		}
-		return false;
+		return result;
 	}
 
-	private boolean finishProcess(final Assets.FloorsTextures selectedTile, final Model cursorTileModel) {
+	private void finishProcess(final Assets.FloorsTextures selectedTile, final Model cursorTileModel) {
 		Vector3 position = cursorTileModelInstance.transform.getTranslation(auxVector);
 		PlaceTilesProcess currentProcess = (PlaceTilesProcess) this.currentProcess;
 		int dstRow = (int) position.z;
 		int dstCol = (int) position.x;
 		currentProcess.finish(new PlaceTilesFinishProcessParameters(dstRow, dstCol, selectedTile, cursorTileModel));
 		this.currentProcess = null;
-		return true;
 	}
 }
