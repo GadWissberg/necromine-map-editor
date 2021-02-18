@@ -10,11 +10,7 @@ import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.actions.ActionsHandler;
 import com.necromine.editor.actions.CursorHandler;
-import com.necromine.editor.model.PlacedElement;
 import lombok.Getter;
-
-import java.util.List;
-import java.util.Map;
 
 @Getter
 public class Handlers implements Disposable {
@@ -24,13 +20,14 @@ public class Handlers implements Disposable {
 	private BatchHandler batchHandler = new BatchHandler();
 
 	public void onCreate(final GameAssetsManager assetsManager,
-						 final GameMap map,
-						 final Map<EditModes, List<? extends PlacedElement>> placedElements, Camera camera) {
-		batchHandler.createBatches(camera);
-		viewAuxHandler.createModels();
-		cursorHandler.createCursors(assetsManager);
-		actionsHandler = new ActionsHandler(map, placedElements, cursorHandler);
-	}
+                         final GameMap map,
+                         final PlacedElements placedElements,
+                         final Camera camera) {
+        batchHandler.createBatches(camera);
+        viewAuxHandler.createModels();
+        cursorHandler.createCursors(assetsManager);
+        actionsHandler = new ActionsHandler(map, placedElements, cursorHandler);
+    }
 
 	@Override
 	public void dispose() {

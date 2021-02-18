@@ -18,4 +18,5 @@ public class PlacedElement {
 		this.definition = definition;
 		this.facingDirection = selectedDirection;
 	}
+
 }

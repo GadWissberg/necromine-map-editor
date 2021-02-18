@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.IntStream;
 
@@ -34,7 +33,7 @@ public class MapInflater {
 	private final Set<MapNode> initializedTiles;
 	private final Gson gson = new Gson();
 
-	void inflateMap(final GameMap map, final Map<EditModes, List<? extends PlacedElement>> placedElements) {
+	void inflateMap(final GameMap map, final PlacedElements placedElements) {
 		try (Reader reader = new FileReader("test_map.json")) {
 			JsonObject input = gson.fromJson(reader, JsonObject.class);
 			inflateCharacters(input, placedElements, assetsManager);
@@ -51,8 +50,8 @@ public class MapInflater {
 	}
 
 	private void inflateElements(final JsonObject input,
-								 final EditModes mode, final Map<EditModes, List<? extends PlacedElement>> placedElements) {
-		List<? extends PlacedElement> placedElementsList = placedElements.get(mode);
+								 final EditModes mode, final PlacedElements placedElements) {
+		List<? extends PlacedElement> placedElementsList = placedElements.getPlacedObjects().get(mode);
 		placedElementsList.clear();
 		inflateElements(
 				(List<PlacedElement>) placedElementsList,
@@ -62,10 +61,10 @@ public class MapInflater {
 	}
 
 	private void inflateCharacters(final JsonObject input,
-								   final Map<EditModes, List<? extends PlacedElement>> placedElements,
+								   final PlacedElements placedElements,
 								   final GameAssetsManager assetsManager) {
 		JsonObject charactersJsonObject = input.get(MapJsonKeys.KEY_CHARACTERS).getAsJsonObject();
-		List<? extends PlacedElement> placedCharacters = placedElements.get(EditModes.CHARACTERS);
+		List<? extends PlacedElement> placedCharacters = placedElements.getPlacedObjects().get(EditModes.CHARACTERS);
 		placedCharacters.clear();
 		Arrays.stream(CharacterTypes.values()).forEach(type -> {
 			String typeName = type.name().toLowerCase();

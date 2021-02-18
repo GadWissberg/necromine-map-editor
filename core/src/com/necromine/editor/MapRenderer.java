@@ -1,7 +1,6 @@
 package com.necromine.editor;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -16,7 +15,11 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.actions.CursorHandler;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.actions.processes.PlaceTilesProcess;
-import com.necromine.editor.model.*;
+import com.necromine.editor.model.PlacedCharacter;
+import com.necromine.editor.model.PlacedElement;
+import com.necromine.editor.model.PlacedEnvObject;
+import com.necromine.editor.model.PlacedLight;
+import com.necromine.editor.model.PlacedPickup;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -32,7 +35,7 @@ public class MapRenderer {
 	private final Handlers handlers;
 	private final OrthographicCamera camera;
 
-	public void draw(final EditorMode mode, final Map<EditModes, List<? extends PlacedElement>> placedElements, final Set<MapNode> initializedTiles, final ElementDefinition selectedElement) {
+	public void draw(final EditorMode mode, final PlacedElements placedElements, final Set<MapNode> initializedTiles, final ElementDefinition selectedElement) {
 		int sam = Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0;
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | sam);
@@ -40,7 +43,7 @@ public class MapRenderer {
 		renderDecals(handlers, mode, placedElements);
 	}
 
-	private void renderDecals(final Handlers handlers, final EditorMode mode, final Map<EditModes, List<? extends PlacedElement>> placedElements) {
+	private void renderDecals(final Handlers handlers, final EditorMode mode, final PlacedElements placedElements) {
 		Gdx.gl.glDepthMask(false);
 		if (handlers.getCursorHandler().getHighlighter() != null && mode.getClass().equals(EditModes.class) && ((EditModes) mode).isDecalCursor()) {
 			renderCursorOfDecalMode(handlers, mode, camera);
@@ -50,12 +53,13 @@ public class MapRenderer {
 		Gdx.gl.glDepthMask(true);
 	}
 
-	private void renderDecalPlacedElements(final Map<EditModes, List<? extends PlacedElement>> placedElements, final Handlers handlers, final OrthographicCamera camera) {
-		List<PlacedCharacter> placedCharacters = (List<PlacedCharacter>) placedElements.get(EditModes.CHARACTERS);
+	private void renderDecalPlacedElements(final PlacedElements placedElements, final Handlers handlers, final OrthographicCamera camera) {
+		Map<EditModes, List<? extends PlacedElement>> placedObjects = placedElements.getPlacedObjects();
+		List<PlacedCharacter> placedCharacters = (List<PlacedCharacter>) placedObjects.get(EditModes.CHARACTERS);
 		for (PlacedCharacter character : placedCharacters) {
 			renderCharacter(character.getCharacterDecal(), character.getCharacterDecal().getSpriteDirection(), camera, handlers);
 		}
-		List<PlacedLight> placedLights = (List<PlacedLight>) placedElements.get(EditModes.LIGHTS);
+		List<PlacedLight> placedLights = (List<PlacedLight>) placedObjects.get(EditModes.LIGHTS);
 		for (PlacedLight placedLight : placedLights) {
 			handlers.getBatchHandler().renderDecal(placedLight.getDecal(), camera);
 		}
@@ -78,7 +82,7 @@ public class MapRenderer {
 	}
 
 
-	private void renderModels(final Set<MapNode> initializedTiles, final Map<EditModes, List<? extends PlacedElement>> placedElements, final EditorMode mode, final ElementDefinition selectedElement) {
+	private void renderModels(final Set<MapNode> initializedTiles, final PlacedElements placedElements, final EditorMode mode, final ElementDefinition selectedElement) {
 		ModelBatch modelBatch = handlers.getBatchHandler().getModelBatch();
 		modelBatch.begin(camera);
 		handlers.getViewAuxHandler().renderAux(modelBatch);
@@ -88,14 +92,14 @@ public class MapRenderer {
 		modelBatch.end();
 	}
 
-	private void renderModelPlacedElements(final Set<MapNode> initializedTiles, final Map<EditModes, List<? extends PlacedElement>> placedElements) {
+	private void renderModelPlacedElements(final Set<MapNode> initializedTiles, final PlacedElements placedElements) {
 		for (MapNode tile : initializedTiles) {
 			if (tile.getModelInstance() != null) {
 				handlers.getBatchHandler().getModelBatch().render(tile.getModelInstance());
 			}
 		}
 		renderEnvObjects(placedElements);
-		List<PlacedPickup> placedPickups = (List<PlacedPickup>) placedElements.get(EditModes.PICKUPS);
+		List<PlacedPickup> placedPickups = (List<PlacedPickup>) placedElements.getPlacedObjects().get(EditModes.PICKUPS);
 		for (PlacedPickup pickup : placedPickups) {
 			renderPickup(pickup.getModelInstance());
 		}
@@ -125,8 +129,8 @@ public class MapRenderer {
 		}
 	}
 
-	private void renderEnvObjects(final Map<EditModes, List<? extends PlacedElement>> placedElements) {
-		List<PlacedEnvObject> placedEnvObjects = (List<PlacedEnvObject>) placedElements.get(EditModes.ENVIRONMENT);
+	private void renderEnvObjects(final PlacedElements placedElements) {
+		List<PlacedEnvObject> placedEnvObjects = (List<PlacedEnvObject>) placedElements.getPlacedObjects().get(EditModes.ENVIRONMENT);
 		for (PlacedEnvObject placedEnvObject : placedEnvObjects) {
 			renderEnvObject(
 					(EnvironmentDefinitions) placedEnvObject.getDefinition(),

@@ -13,8 +13,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -24,7 +22,7 @@ import static com.necromine.editor.NecromineMapEditor.TARGET_VERSION;
 public class MapDeflater {
 	private final Gson gson = new Gson();
 
-	public void deflate(final GameMap map, final Map<EditModes, List<? extends PlacedElement>> placedElements) {
+	public void deflate(final GameMap map, final PlacedElements placedElements) {
 		JsonObject output = new JsonObject();
 		output.addProperty(MapJsonKeys.KEY_TARGET, TARGET_VERSION);
 		JsonObject tiles = createTilesData(map);
@@ -43,18 +41,18 @@ public class MapDeflater {
 	private void addElementsGroup(final JsonObject output,
 								  final EditModes mode,
 								  final boolean addFacingDirection,
-								  final Map<EditModes, List<? extends PlacedElement>> placedElements) {
+								  final PlacedElements placedElements) {
 		JsonArray jsonArray = new JsonArray();
-		placedElements.get(mode).forEach(element -> jsonArray.add(createElementJsonObject(element, addFacingDirection)));
+		placedElements.getPlacedObjects().get(mode).forEach(element -> jsonArray.add(createElementJsonObject(element, addFacingDirection)));
 		output.add(mode.name().toLowerCase(), jsonArray);
 	}
 
-	private void addCharacters(final JsonObject output, final Map<EditModes, List<? extends PlacedElement>> placedElements) {
+	private void addCharacters(final JsonObject output, final PlacedElements placedElements) {
 		JsonObject charactersJsonObject = new JsonObject();
 		Arrays.stream(CharacterTypes.values()).forEach(type -> {
 			JsonArray charactersJsonArray = new JsonArray();
 			charactersJsonObject.add(type.name().toLowerCase(), charactersJsonArray);
-			placedElements.get(EditModes.CHARACTERS).stream()
+			placedElements.getPlacedObjects().get(EditModes.CHARACTERS).stream()
 					.filter(character -> ((CharacterDefinition) character.getDefinition()).getCharacterType() == type)
 					.forEach(character -> charactersJsonArray.add(createElementJsonObject(character, true)));
 		});
