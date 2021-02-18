@@ -24,6 +24,7 @@ public class PlaceCharacterAction extends PlaceElementAction<PlacedCharacter, Ch
 
 	@Override
 	protected void execute() {
+		super.execute();
 		MapNode tile = map.getTiles()[node.getRow()][node.getCol()];
 		if (tile != null) {
 			placedElements.add(new PlacedCharacter(

@@ -24,6 +24,7 @@ public class PlacePickupAction extends PlaceElementAction<PlacedPickup, ItemDefi
 
 	@Override
 	protected void execute() {
+		super.execute();
 		int selectedRow = node.getRow();
 		int selectedCol = node.getCol();
 		MapNode tile = map.getTiles()[selectedRow][selectedCol];

@@ -11,6 +11,7 @@ import com.necromine.editor.MapNode;
 import com.necromine.editor.actions.PlaceElementAction;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, EnvironmentDefinitions> {
 
@@ -30,12 +31,13 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 
 	@Override
 	protected void execute() {
-		PlacedEnvObject character = new PlacedEnvObject(
+		super.execute();
+		PlacedEnvObject env = new PlacedEnvObject(
 				selectedEnvObject,
 				node,
 				assetsManager,
 				elementDirection);
-		placedEnvObjects.add(character);
+		placedEnvObjects.add(env);
 		applyOnMap();
 	}
 

@@ -4,7 +4,9 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
+import com.necromine.editor.MapNode;
 import com.necromine.editor.Node;
+import com.necromine.editor.model.PlacedCharacter;
 import com.necromine.editor.model.PlacedElement;
 
 import java.util.List;
@@ -29,5 +31,20 @@ public abstract class PlaceElementAction<T extends PlacedElement, S extends Elem
 		this.elementDirection = elementDirection;
 		this.elementDefinition = elementDefinition;
 		this.placedElements = placedElements;
+	}
+
+	@Override
+	protected void execute() {
+		MapNode tile = map.getTiles()[node.getRow()][node.getCol()];
+		if (tile != null) {
+			removeElementFromTile(tile, placedElements);
+		}
+	}
+
+	private void removeElementFromTile(final MapNode tile, final List<? extends PlacedElement> placedElements) {
+		placedElements.stream()
+				.filter(placedCharacter -> placedCharacter.getNode().equals(tile.getRow(), tile.getCol()))
+				.findFirst()
+				.ifPresent(placedElements::remove);
 	}
 }
