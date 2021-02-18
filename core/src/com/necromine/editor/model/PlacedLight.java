@@ -20,6 +20,6 @@ public class PlacedLight extends PlacedElement {
 					   final GameAssetsManager gameAssetsManager) {
 		super(new Node(row, col), definition, Direction.SOUTH);
 		decal = Utils.createSimpleDecal(gameAssetsManager.getTexture(Assets.UiTextures.BULB));
-		decal.setPosition(col, BULB_Y, row);
+		decal.setPosition(col + 0.5f, BULB_Y, row + 0.5f);
 	}
 }
