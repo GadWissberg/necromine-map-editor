@@ -16,8 +16,8 @@ import lombok.Getter;
 public class Handlers implements Disposable {
 	private final ViewAuxHandler viewAuxHandler = new ViewAuxHandler();
 	private final CursorHandler cursorHandler = new CursorHandler();
+	private final BatchHandler batchHandler = new BatchHandler();
 	private ActionsHandler actionsHandler;
-	private BatchHandler batchHandler = new BatchHandler();
 
 	public void onCreate(final GameAssetsManager assetsManager,
                          final GameMap map,
