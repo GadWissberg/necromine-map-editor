@@ -54,7 +54,7 @@ project(":core") {
 
 
     dependencies {
-        implementation 'com.github.GadWissberg:necromine-shared:master-SNAPSHOT'
+        implementation 'com.gadarts.necromine.shared:core:0.1'
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         compileOnly 'org.projectlombok:lombok:1.18.12'
         annotationProcessor 'org.projectlombok:lombok:1.18.12'
