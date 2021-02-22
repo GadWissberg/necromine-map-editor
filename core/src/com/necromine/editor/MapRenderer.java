@@ -15,6 +15,8 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.actions.CursorHandler;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.actions.processes.PlaceTilesProcess;
+import com.necromine.editor.mode.EditModes;
+import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.model.PlacedCharacter;
 import com.necromine.editor.model.PlacedElement;
 import com.necromine.editor.model.PlacedEnvObject;

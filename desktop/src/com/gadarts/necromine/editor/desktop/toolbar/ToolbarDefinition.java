@@ -5,75 +5,75 @@ import com.gadarts.necromine.editor.desktop.menu.definitions.FileMenuItemsDefini
 import com.gadarts.necromine.editor.desktop.menu.definitions.ViewMenuItemsDefinitions;
 
 public enum ToolbarDefinition implements ToolbarButtonDefinition {
-    SAVE(new ToolbarButtonOfMenuItem(
+    SAVE(new ToolbarButtonProperties(
             "file_save",
             "Save Map",
             FileMenuItemsDefinitions.SAVE)),
 
-    LOAD(new ToolbarButtonOfMenuItem(
+    LOAD(new ToolbarButtonProperties(
             "file_load",
             "Load Map",
             FileMenuItemsDefinitions.LOAD)),
 
     SEPARATOR_1(),
 
-    MODE_TILE(new ToolbarButtonOfMenuItem(
+    MODE_TILE(new ToolbarButtonProperties(
             "mode_tile",
             "Tiles Mode",
             EditMenuItemsDefinitions.MODE_TILE)),
 
-    MODE_CHARACTER(new ToolbarButtonOfMenuItem(
+    MODE_CHARACTER(new ToolbarButtonProperties(
             "mode_character",
             "Characters Mode",
             EditMenuItemsDefinitions.MODE_CHARACTER)),
 
-    MODE_ENV(new ToolbarButtonOfMenuItem(
+    MODE_ENV(new ToolbarButtonProperties(
             "mode_env",
             "Environment Objects Mode",
             EditMenuItemsDefinitions.MODE_ENV)),
 
-    MODE_PICKUP(new ToolbarButtonOfMenuItem(
+    MODE_PICKUP(new ToolbarButtonProperties(
             "mode_pickup",
             "Pick-Ups Mode",
             EditMenuItemsDefinitions.MODE_PICKUPS)),
 
-    MODE_LIGHTS(new ToolbarButtonOfMenuItem(
+    MODE_LIGHTS(new ToolbarButtonProperties(
             "mode_light",
             "Lights Mode",
             EditMenuItemsDefinitions.MODE_LIGHTS)),
 
     SEPARATOR_2(),
 
-    CAMERA_PAN(new ToolbarButtonOfMenuItem(
+    CAMERA_PAN(new ToolbarButtonProperties(
             "camera_pan",
             "Pan Camera",
             ViewMenuItemsDefinitions.CAMERA_PAN)),
 
-    CAMERA_ROTATE(new ToolbarButtonOfMenuItem(
+    CAMERA_ROTATE(new ToolbarButtonProperties(
             "camera_rotate",
             "Rotate Camera",
             ViewMenuItemsDefinitions.CAMERA_ROTATE)),
 
-    CAMERA_ZOOM(new ToolbarButtonOfMenuItem(
+    CAMERA_ZOOM(new ToolbarButtonProperties(
             "camera_zoom",
             "Zoom Camera",
             ViewMenuItemsDefinitions.CAMERA_ZOOM)),
 
     SEPARATOR_3();
 
-    private final ToolbarButtonOfMenuItem toolbarButtonOfMenuItem;
+    private final ToolbarButtonProperties toolbarButtonProperties;
 
     ToolbarDefinition() {
         this(null);
     }
 
-    ToolbarDefinition(final ToolbarButtonOfMenuItem toolbarButtonOfMenuItem) {
-        this.toolbarButtonOfMenuItem = toolbarButtonOfMenuItem;
+    ToolbarDefinition(final ToolbarButtonProperties toolbarButtonProperties) {
+        this.toolbarButtonProperties = toolbarButtonProperties;
     }
 
     @Override
-    public ToolbarButtonOfMenuItem getButtonProperties() {
-        return toolbarButtonOfMenuItem;
+    public ToolbarButtonProperties getButtonProperties() {
+        return toolbarButtonProperties;
     }
 
 

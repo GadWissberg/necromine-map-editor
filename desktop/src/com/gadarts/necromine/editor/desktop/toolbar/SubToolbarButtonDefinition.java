@@ -1,14 +1,14 @@
 package com.gadarts.necromine.editor.desktop.toolbar;
 
 public class SubToolbarButtonDefinition implements ToolbarButtonDefinition {
-	private final ToolbarButtonOfMenuItem buttonProperties;
+	private final ToolbarButtonProperties buttonProperties;
 
-	public SubToolbarButtonDefinition(final ToolbarButtonOfMenuItem buttonProperties) {
+	public SubToolbarButtonDefinition(final ToolbarButtonProperties buttonProperties) {
 		this.buttonProperties = buttonProperties;
 	}
 
 	@Override
-	public ToolbarButtonOfMenuItem getButtonProperties() {
+	public ToolbarButtonProperties getButtonProperties() {
 		return buttonProperties;
 	}
 }

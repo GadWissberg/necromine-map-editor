@@ -10,7 +10,7 @@ import java.util.Optional;
 public class ToolBarButton extends JButton {
 
 	public ToolBarButton(final ImageIcon imageIcon,
-						 final ToolbarButtonOfMenuItem buttonDefinition,
+						 final ToolbarButtonProperties buttonDefinition,
 						 final ModesHandler modesHandler) {
 		super(imageIcon);
 		MenuItemDefinition menuItemDefinition = buttonDefinition.getMenuItemDefinition();

@@ -1,6 +1,6 @@
 package com.necromine.editor.actions.types;
 
-import com.necromine.editor.EditModes;
+import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapNode;
 import com.necromine.editor.Node;

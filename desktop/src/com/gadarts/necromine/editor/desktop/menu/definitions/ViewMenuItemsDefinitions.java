@@ -3,7 +3,7 @@ package com.gadarts.necromine.editor.desktop.menu.definitions;
 import com.gadarts.necromine.editor.desktop.commands.SetModeCommand;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
-import com.necromine.editor.CameraModes;
+import com.necromine.editor.mode.CameraModes;
 
 public enum ViewMenuItemsDefinitions implements MenuItemDefinition {
     CAMERA_PAN(new MenuItemProperties("Pan Camera", new SetModeCommand(CameraModes.PAN), "camera_pan", Menus.Constants.BUTTON_GROUP_MODES)),

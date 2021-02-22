@@ -1,8 +1,10 @@
 package com.gadarts.necromine.editor.desktop;
 
-import com.necromine.editor.CameraModes;
-import com.necromine.editor.EditModes;
-import com.necromine.editor.EditorMode;
+import com.necromine.editor.mode.EditorTool;
+import com.necromine.editor.mode.TilesTools;
+import com.necromine.editor.mode.CameraModes;
+import com.necromine.editor.mode.EditModes;
+import com.necromine.editor.mode.EditorMode;
 import lombok.Getter;
 
 import java.awt.*;
@@ -15,6 +17,9 @@ public class ModesHandler extends Component implements PropertyChangeListener {
 
 	@Getter
 	private static EditorMode mode = EditModes.TILES;
+
+	@Getter
+	private static EditorTool tool = TilesTools.BRUSH;
 
 	public void setMode(final EditorMode mode) {
 		if (ModesHandler.mode == mode) return;
@@ -31,6 +36,19 @@ public class ModesHandler extends Component implements PropertyChangeListener {
 		});
 	}
 
+	public void setTool(final TilesTools tool) {
+		if (ModesHandler.tool == tool) return;
+		Class<? extends EditorTool> toolType = tool.getClass();
+		String name = null;
+		if (toolType.equals(TilesTools.class)) {
+			name = Events.TILE_TOOL_SET.name();
+		}
+		Optional.ofNullable(name).ifPresent(n -> {
+			ModesHandler.tool = tool;
+			firePropertyChange(n, -1, tool.ordinal());
+		});
+	}
+
 	@Override
 	public void propertyChange(final PropertyChangeEvent evt) {
 		String propertyName = evt.getPropertyName();
@@ -38,6 +56,8 @@ public class ModesHandler extends Component implements PropertyChangeListener {
 			setMode(EditModes.values()[(int) evt.getNewValue()]);
 		} else if (propertyName.equals(Events.REQUEST_TO_SET_CAMERA_MODE.name())) {
 			setMode(CameraModes.values()[(int) evt.getNewValue()]);
+		} else if (propertyName.equals(Events.REQUEST_TO_SET_TILE_TOOL.name())) {
+			setTool(TilesTools.values()[(int) evt.getNewValue()]);
 		}
 	}
 }

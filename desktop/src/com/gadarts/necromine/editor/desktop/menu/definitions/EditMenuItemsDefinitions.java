@@ -4,7 +4,7 @@ import com.gadarts.necromine.editor.desktop.commands.SetModeCommand;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.menu.definitions.Menus.Constants;
-import com.necromine.editor.EditModes;
+import com.necromine.editor.mode.EditModes;
 
 public enum EditMenuItemsDefinitions implements MenuItemDefinition {
     MODE_TILE(new MenuItemProperties("Tiles Mode", new SetModeCommand(EditModes.TILES), "mode_tile", Constants.BUTTON_GROUP_MODES)),

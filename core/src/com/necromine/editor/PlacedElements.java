@@ -1,5 +1,6 @@
 package com.necromine.editor;
 
+import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.PlacedElement;
 import lombok.Getter;
 

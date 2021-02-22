@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.necromine.editor.actions.CursorHandler;
+import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.PlacedCharacter;
 import com.necromine.editor.model.PlacedElement;
 import lombok.RequiredArgsConstructor;

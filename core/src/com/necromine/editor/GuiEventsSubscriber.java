@@ -5,6 +5,10 @@ import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
+import com.necromine.editor.mode.CameraModes;
+import com.necromine.editor.mode.EditModes;
+import com.necromine.editor.mode.EditorTool;
+import com.necromine.editor.mode.TilesTools;
 
 public interface GuiEventsSubscriber {
 	void onTileSelected(Assets.FloorsTextures texture);
@@ -24,4 +28,6 @@ public interface GuiEventsSubscriber {
 	void onSaveMapRequested();
 
 	void onLoadMapRequested();
+
+	void onToolSet(EditorTool tool);
 }

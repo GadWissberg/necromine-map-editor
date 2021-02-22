@@ -1,7 +1,9 @@
-package com.necromine.editor;
+package com.necromine.editor.mode;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.necromine.editor.CameraManipulation;
+import com.necromine.editor.NecromineMapEditor;
 import lombok.Getter;
 
 @Getter

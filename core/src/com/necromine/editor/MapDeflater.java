@@ -7,6 +7,7 @@ import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.PlacedElement;
 
 import java.io.FileWriter;

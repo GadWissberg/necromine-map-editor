@@ -18,6 +18,8 @@ import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.*;
+import com.necromine.editor.mode.EditModes;
+import com.necromine.editor.mode.EditorMode;
 import lombok.Getter;
 import lombok.Setter;
 

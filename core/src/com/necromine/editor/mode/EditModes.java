@@ -1,10 +1,13 @@
-package com.necromine.editor;
+package com.necromine.editor.mode;
 
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.gadarts.necromine.model.pickups.WeaponsDefinitions;
+import com.necromine.editor.EntriesDisplayTypes;
+import com.necromine.editor.PlacedElementCreation;
+import com.necromine.editor.TreeSection;
 import com.necromine.editor.model.PlacedEnvObject;
 import com.necromine.editor.model.PlacedLight;
 import com.necromine.editor.model.PlacedPickup;
