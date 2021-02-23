@@ -2,6 +2,7 @@ package com.necromine.editor.actions;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
@@ -34,12 +35,13 @@ import lombok.Setter;
 import java.util.List;
 import java.util.Set;
 
-@RequiredArgsConstructor
 public class ActionsHandler {
 	private static final Vector3 auxVector = new Vector3();
 
 	private final GameMap map;
 	private final PlacedElements placedElements;
+
+	private final ModelBuilder modelBuilder;
 
 	@Getter
 	private final CursorHandler cursorHandler;
@@ -52,6 +54,13 @@ public class ActionsHandler {
 
 	@Getter
 	private MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess;
+
+	public ActionsHandler(final GameMap map, final PlacedElements placedElements, final CursorHandler cursorHandler) {
+		modelBuilder = new ModelBuilder();
+		this.map = map;
+		this.placedElements = placedElements;
+		this.cursorHandler = cursorHandler;
+	}
 
 	public void executeAction(final MappingAction mappingAction) {
 		mappingAction.execute();
@@ -72,8 +81,7 @@ public class ActionsHandler {
 
 	public boolean onTouchDown(final GameAssetsManager assetsManager,
 							   final Set<MapNode> initializedTiles,
-							   final int button,
-							   final Model tileModel) {
+							   final int button) {
 		EditorMode mode = NecromineMapEditor.getMode();
 		Class<? extends EditorMode> modeClass = mode.getClass();
 		EditorTool tool = NecromineMapEditor.getTool();
@@ -83,7 +91,7 @@ public class ActionsHandler {
 					if (tool == TilesTools.BRUSH) {
 						beginTilePlacingProcess(assetsManager, initializedTiles);
 					} else if (tool == TilesTools.LIFT) {
-						liftTile(map, 1, tileModel);
+						liftTile(map, 1);
 					}
 					return true;
 				} else if (mode == EditModes.LIGHTS) {
@@ -106,7 +114,7 @@ public class ActionsHandler {
 				if (tool == TilesTools.BRUSH) {
 					return removeElementByMode();
 				} else if (tool == TilesTools.LIFT) {
-					return liftTile(map, -1, tileModel);
+					return liftTile(map, -1);
 				}
 			}
 		}
@@ -170,15 +178,15 @@ public class ActionsHandler {
 		executeAction(action);
 	}
 
-	private boolean liftTile(final GameMap map, final int direction, final Model tileModel) {
+	private boolean liftTile(final GameMap map, final int direction) {
 		Vector3 position = cursorHandler.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		LiftTileAction action = new LiftTileAction(
-				tileModel,
 				map,
 				new Node(row, col),
-				direction);
+				direction,
+				modelBuilder);
 		executeAction(action);
 		return true;
 	}

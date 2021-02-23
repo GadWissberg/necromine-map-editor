@@ -276,7 +276,7 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 		if (button == Input.Buttons.LEFT) {
 			lastMouseTouchPosition.set(screenX, screenY);
 		}
-		return handlers.getActionsHandler().onTouchDown(assetsManager, placedElements.getPlacedTiles(), button, tileModel);
+		return handlers.getActionsHandler().onTouchDown(assetsManager, placedElements.getPlacedTiles(), button);
 	}
 
 	@Override
