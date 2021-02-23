@@ -1,6 +1,8 @@
 package com.necromine.editor.actions;
 
-import com.badlogic.gdx.graphics.*;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -8,7 +10,6 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
@@ -17,7 +18,10 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
-import com.necromine.editor.*;
+import com.necromine.editor.CharacterDecal;
+import com.necromine.editor.CursorSelectionModel;
+import com.necromine.editor.Node;
+import com.necromine.editor.Utils;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import lombok.Getter;
@@ -100,29 +104,15 @@ public class CursorHandler implements Disposable {
 		updateCursorOfDecalMode(x, z, mode);
 	}
 
-	public void createCursors(final GameAssetsManager assetsManager) {
+	public void createCursors(final GameAssetsManager assetsManager, Model tileModel) {
+		this.cursorTileModel = tileModel;
 		createCursorTile();
 		createCursorCharacterDecal(assetsManager);
 		createCursorSimpleDecal(assetsManager);
 	}
 
-	private Model createRectModel() {
-		ModelBuilder builder = new ModelBuilder();
-		BlendingAttribute highlightBlend = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-		Material material = new Material(highlightBlend);
-		return builder.createRect(
-				1, 0, 0,
-				0, 0, 0,
-				0, 0, 1,
-				1, 0, 1,
-				0, 1, 0,
-				material,
-				VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates
-		);
-	}
 
 	private void createCursorTile() {
-		cursorTileModel = createRectModel();
 		cursorTileModel.materials.get(0).set(ColorAttribute.createDiffuse(CURSOR_COLOR));
 		cursorTileModelInstance = new ModelInstance(cursorTileModel);
 	}
@@ -181,6 +171,5 @@ public class CursorHandler implements Disposable {
 
 	@Override
 	public void dispose() {
-		cursorTileModel.dispose();
 	}
 }

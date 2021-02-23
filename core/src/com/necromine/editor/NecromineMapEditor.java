@@ -3,12 +3,16 @@ package com.necromine.editor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
@@ -50,9 +54,12 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 	static final int TARGET_VERSION = 5;
 	private static final float NEAR = 0.01f;
 	private static final float CAMERA_HEIGHT = 6;
+
 	@Getter
 	private static EditorMode mode = EditModes.TILES;
-	private static EditorTool tool;
+
+	@Getter
+	private static EditorTool tool = TilesTools.BRUSH;
 
 	public final int VIEWPORT_WIDTH;
 	public final int VIEWPORT_HEIGHT;
@@ -60,18 +67,20 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 	private final PlacedElements placedElements = new PlacedElements();
 	private final Vector2 lastMouseTouchPosition = new Vector2();
 	private final GameMap map = new GameMap();
-	private final Handlers handlers = new Handlers();
+	private final Handlers handlers;
 	private final MapInflater inflater;
 	private final MapDeflater deflater = new MapDeflater();
 	private MapRenderer renderer;
 	private OrthographicCamera camera;
 	private Assets.FloorsTextures selectedTile;
 	private ElementDefinition selectedElement;
+	private Model tileModel;
 
 	public NecromineMapEditor(final int width, final int height) {
 		VIEWPORT_WIDTH = width / 50;
 		VIEWPORT_HEIGHT = height / 50;
 		assetsManager = new GameAssetsManager(TEMP_ASSETS_FOLDER.replace('\\', '/') + '/');
+		handlers = new Handlers(assetsManager);
 		CursorHandler cursorHandler = handlers.getCursorHandler();
 		cursorHandler.setCursorSelectionModel(new CursorSelectionModel(assetsManager));
 		inflater = new MapInflater(assetsManager, cursorHandler, placedElements.getPlacedTiles());
@@ -83,8 +92,24 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 		camera = createCamera();
 		renderer = new MapRenderer(assetsManager, handlers, camera);
 		initializeGameFiles();
-		handlers.onCreate(assetsManager, map, placedElements, camera);
+		tileModel = createRectModel();
+		handlers.onCreate(tileModel, map, placedElements, camera);
 		initializeInput();
+	}
+
+	private Model createRectModel() {
+		ModelBuilder builder = new ModelBuilder();
+		BlendingAttribute highlightBlend = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		Material material = new Material(highlightBlend);
+		return builder.createRect(
+				1, 0, 0,
+				0, 0, 0,
+				0, 0, 1,
+				1, 0, 1,
+				0, 1, 0,
+				material,
+				VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates
+		);
 	}
 
 	private void initializeGameFiles() {
@@ -144,6 +169,7 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 	public void dispose() {
 		handlers.dispose();
 		assetsManager.dispose();
+		tileModel.dispose();
 	}
 
 	@Override
@@ -223,7 +249,8 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 	@Override
 	public void onToolSet(final EditorTool tool) {
 		selectedElement = null;
-		handlers.getCursorHandler().setHighlighter(null);
+		CursorHandler cursorHandler = handlers.getCursorHandler();
+		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
 		NecromineMapEditor.tool = tool;
 	}
 
@@ -249,7 +276,7 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 		if (button == Input.Buttons.LEFT) {
 			lastMouseTouchPosition.set(screenX, screenY);
 		}
-		return handlers.getActionsHandler().onTouchDown(assetsManager, placedElements.getPlacedTiles(), button);
+		return handlers.getActionsHandler().onTouchDown(assetsManager, placedElements.getPlacedTiles(), button, tileModel);
 	}
 
 	@Override

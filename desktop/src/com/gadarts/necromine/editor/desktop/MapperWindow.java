@@ -323,7 +323,7 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 			} else {
 				entitiesLayout.show(entitiesPanel, NONE.name());
 			}
-			guiEventsSubscriber.onToolSet(TilesTools.BRUSH);
+			guiEventsSubscriber.onToolSet(selectedTool);
 		} else if (propertyName.equals(Events.TREE_ENTRY_SELECTED.name())) {
 			if (mode == EditModes.CHARACTERS) {
 				guiEventsSubscriber.onTreeCharacterSelected((CharacterDefinition) evt.getNewValue());

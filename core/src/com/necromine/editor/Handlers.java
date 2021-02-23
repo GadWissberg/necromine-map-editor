@@ -1,6 +1,7 @@
 package com.necromine.editor;
 
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.Disposable;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
@@ -17,15 +18,20 @@ public class Handlers implements Disposable {
 	private final ViewAuxHandler viewAuxHandler = new ViewAuxHandler();
 	private final CursorHandler cursorHandler = new CursorHandler();
 	private final BatchHandler batchHandler = new BatchHandler();
+	private final GameAssetsManager assetsManager;
 	private ActionsHandler actionsHandler;
 
-	public void onCreate(final GameAssetsManager assetsManager,
-                         final GameMap map,
-                         final PlacedElements placedElements,
-                         final Camera camera) {
+	public Handlers(final GameAssetsManager assetsManager) {
+		this.assetsManager = assetsManager;
+	}
+
+	public void onCreate(final Model tileModel,
+						 final GameMap map,
+						 final PlacedElements placedElements,
+						 final Camera camera) {
         batchHandler.createBatches(camera);
         viewAuxHandler.createModels();
-        cursorHandler.createCursors(assetsManager);
+        cursorHandler.createCursors(assetsManager, tileModel);
         actionsHandler = new ActionsHandler(map, placedElements, cursorHandler);
     }
 

@@ -6,7 +6,6 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapNode;
 import com.necromine.editor.Node;
-import com.necromine.editor.model.PlacedCharacter;
 import com.necromine.editor.model.PlacedElement;
 
 import java.util.List;

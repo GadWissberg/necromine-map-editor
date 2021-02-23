@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
+import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.model.MapNodesTypes;
 import lombok.AccessLevel;
@@ -15,6 +16,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MapNode {
+
+	private final static Vector3 auxVector = new Vector3();
+	private ModelInstance eastWall;
+	private ModelInstance southWall;
+	private ModelInstance westWall;
+	private ModelInstance northWall;
 
 	@Setter(AccessLevel.NONE)
 	private int col;
@@ -49,5 +56,13 @@ public class MapNode {
 		material.remove(ColorAttribute.Diffuse);
 		material.set(TextureAttribute.createDiffuse((Texture) null));
 		modelInstance.transform.setTranslation(col, 0, row);
+	}
+
+	public void lift(final float delta) {
+		modelInstance.transform.translate(0, delta, 0);
+	}
+
+	public float getHeight() {
+		return modelInstance.transform.getTranslation(auxVector).y;
 	}
 }
