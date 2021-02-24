@@ -95,15 +95,30 @@ public class MapRenderer {
 	}
 
 	private void renderModelPlacedElements(final Set<MapNode> initializedTiles, final PlacedElements placedElements) {
-		for (MapNode tile : initializedTiles) {
-			if (tile.getModelInstance() != null) {
-				handlers.getBatchHandler().getModelBatch().render(tile.getModelInstance());
-			}
-		}
+		renderTiles(initializedTiles);
 		renderEnvObjects(placedElements);
 		List<PlacedPickup> placedPickups = (List<PlacedPickup>) placedElements.getPlacedObjects().get(EditModes.PICKUPS);
 		for (PlacedPickup pickup : placedPickups) {
 			renderPickup(pickup.getModelInstance());
+		}
+	}
+
+	private void renderTiles(final Set<MapNode> initializedTiles) {
+		for (MapNode tile : initializedTiles) {
+			if (tile.getModelInstance() != null) {
+				ModelBatch modelBatch = handlers.getBatchHandler().getModelBatch();
+				modelBatch.render(tile.getModelInstance());
+				renderWall(modelBatch, tile.getNorthWall());
+				renderWall(modelBatch, tile.getEastWall());
+				renderWall(modelBatch, tile.getWestWall());
+				renderWall(modelBatch, tile.getSouthWall());
+			}
+		}
+	}
+
+	private void renderWall(final ModelBatch modelBatch, final ModelInstance wall) {
+		if (wall != null) {
+			modelBatch.render(wall);
 		}
 	}
 

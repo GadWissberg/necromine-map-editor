@@ -175,7 +175,7 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 	@Override
 	public void onTileSelected(final Assets.FloorsTextures texture) {
 		selectedTile = texture;
-		handlers.onTileSelected(selectedTile);
+		handlers.onTileSelected();
 	}
 
 	@Override

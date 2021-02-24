@@ -1,7 +1,12 @@
 package com.necromine.editor.actions;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.VertexAttributes.Usage;
+import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.Assets;
@@ -41,25 +46,34 @@ public class ActionsHandler {
 	private final GameMap map;
 	private final PlacedElements placedElements;
 
-	private final ModelBuilder modelBuilder;
 
 	@Getter
 	private final CursorHandler cursorHandler;
-
-	@Setter
-	private Assets.FloorsTextures selectedTile;
 
 	@Setter
 	private ElementDefinition selectedElement;
 
 	@Getter
 	private MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess;
+	private Model wallModel;
 
 	public ActionsHandler(final GameMap map, final PlacedElements placedElements, final CursorHandler cursorHandler) {
-		modelBuilder = new ModelBuilder();
 		this.map = map;
 		this.placedElements = placedElements;
 		this.cursorHandler = cursorHandler;
+		createWallModel();
+	}
+
+	private void createWallModel() {
+		ModelBuilder modelBuilder = new ModelBuilder();
+		wallModel = modelBuilder.createRect(
+				0, 0, 1,
+				1, 0, 1,
+				1, 0, 0,
+				0, 0, 0,
+				0, 1, 0,
+				new Material(ColorAttribute.createDiffuse(Color.RED)),
+				Usage.Position | Usage.Normal | Usage.TextureCoordinates);
 	}
 
 	public void executeAction(final MappingAction mappingAction) {
@@ -186,7 +200,7 @@ public class ActionsHandler {
 				map,
 				new Node(row, col),
 				direction,
-				modelBuilder);
+				wallModel);
 		executeAction(action);
 		return true;
 	}

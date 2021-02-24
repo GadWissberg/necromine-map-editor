@@ -3,7 +3,6 @@ package com.necromine.editor;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.Disposable;
-import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
@@ -42,9 +41,8 @@ public class Handlers implements Disposable {
 		batchHandler.dispose();
 	}
 
-	public void onTileSelected(final Assets.FloorsTextures selectedTile) {
+	public void onTileSelected() {
 		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
-		actionsHandler.setSelectedTile(selectedTile);
 	}
 
 	public void onTreeCharacterSelected(final ElementDefinition selectedElement, final CharacterDefinition definition) {
