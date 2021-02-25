@@ -1,12 +1,11 @@
 package com.necromine.editor.actions;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.Assets;
@@ -34,7 +33,6 @@ import com.necromine.editor.model.PlacedEnvObject;
 import com.necromine.editor.model.PlacedLight;
 import com.necromine.editor.model.PlacedPickup;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -72,7 +70,7 @@ public class ActionsHandler {
 				1, 0, 0,
 				0, 0, 0,
 				0, 1, 0,
-				new Material(ColorAttribute.createDiffuse(Color.RED)),
+				new Material(TextureAttribute.createDiffuse((Texture) null)),
 				Usage.Position | Usage.Normal | Usage.TextureCoordinates);
 	}
 
@@ -105,7 +103,7 @@ public class ActionsHandler {
 					if (tool == TilesTools.BRUSH) {
 						beginTilePlacingProcess(assetsManager, initializedTiles);
 					} else if (tool == TilesTools.LIFT) {
-						liftTile(map, 1);
+						liftTile(map, 1, assetsManager);
 					}
 					return true;
 				} else if (mode == EditModes.LIGHTS) {
@@ -128,7 +126,7 @@ public class ActionsHandler {
 				if (tool == TilesTools.BRUSH) {
 					return removeElementByMode();
 				} else if (tool == TilesTools.LIFT) {
-					return liftTile(map, -1);
+					return liftTile(map, -1, assetsManager);
 				}
 			}
 		}
@@ -192,16 +190,11 @@ public class ActionsHandler {
 		executeAction(action);
 	}
 
-	private boolean liftTile(final GameMap map, final int direction) {
+	private boolean liftTile(final GameMap map, final int direction, final GameAssetsManager assetsManager) {
 		Vector3 position = cursorHandler.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
-		LiftTileAction action = new LiftTileAction(
-				map,
-				new Node(row, col),
-				direction,
-				wallModel);
-		executeAction(action);
+		executeAction(ActionBuilder.begin(map).liftTile(new Node(row, col), direction, wallModel, assetsManager).finish());
 		return true;
 	}
 

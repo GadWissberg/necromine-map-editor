@@ -104,7 +104,7 @@ public class CursorHandler implements Disposable {
 		updateCursorOfDecalMode(x, z, mode);
 	}
 
-	public void createCursors(final GameAssetsManager assetsManager, Model tileModel) {
+	public void createCursors(final GameAssetsManager assetsManager, final Model tileModel) {
 		this.cursorTileModel = tileModel;
 		createCursorTile();
 		createCursorCharacterDecal(assetsManager);
