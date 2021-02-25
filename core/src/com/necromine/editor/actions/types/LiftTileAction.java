@@ -31,74 +31,70 @@ public class LiftTileAction extends MappingAction {
         MapNode[][] tiles = map.getTiles();
         Optional.ofNullable(tiles[row][col]).ifPresent(selectedNode -> {
             selectedNode.lift(direction * STEP);
-            Optional.ofNullable(tiles[row - 1][col]).ifPresent(north -> adjustNorthWall(selectedNode, north, north.getSouthWall()));
-            Optional.ofNullable(tiles[row][col + 1]).ifPresent(east -> adjustEastWall(selectedNode, east, east.getWestWall()));
-            Optional.ofNullable(tiles[row + 1][col]).ifPresent(south -> adjustSouthWall(selectedNode, south, south.getNorthWall()));
-            Optional.ofNullable(tiles[row][col - 1]).ifPresent(west -> adjustWestWall(selectedNode, west, west.getEastWall()));
+            Optional.ofNullable(tiles[row - 1][col]).ifPresent(north -> adjustNorthWall(selectedNode, north));
+            Optional.ofNullable(tiles[row][col + 1]).ifPresent(east -> adjustEastWall(selectedNode, east));
+            Optional.ofNullable(tiles[row + 1][col]).ifPresent(south -> adjustSouthWall(selectedNode, south));
+            Optional.ofNullable(tiles[row][col - 1]).ifPresent(west -> adjustWestWall(selectedNode, west));
         });
     }
 
     private void adjustNorthWall(final MapNode southernNode,
-                                 final MapNode northernNode,
-                                 final ModelInstance wallBetweenThem) {
-        if (wallBetweenThem == null && southernNode.getNorthWall() == null) {
+                                 final MapNode northernNode) {
+        if (northernNode.getSouthWall() == null && southernNode.getNorthWall() == null) {
             createNorthWall(southernNode.getRow(), southernNode.getCol(), southernNode);
         }
-        adjustNeighborSouthOrNorthWall(southernNode, northernNode);
+        adjustWallBetweenNorthAndSouth(southernNode, northernNode);
     }
 
-    private void adjustNeighborSouthOrNorthWall(final MapNode southernNode,
+    private void adjustWallBetweenNorthAndSouth(final MapNode southernNode,
                                                 final MapNode northernNode) {
         ModelInstance wallBetween = Optional.ofNullable(southernNode.getNorthWall()).orElse(northernNode.getSouthWall());
+        adjustWallBetweenTwoNodes(southernNode, northernNode, wallBetween);
+        float degrees = (southernNode.getHeight() > northernNode.getHeight() ? -1 : 1) * 90F;
+        wallBetween.transform.rotate(Vector3.X, degrees);
+    }
+
+    private void adjustWallBetweenEastAndWest(final MapNode eastNode,
+                                              final MapNode westNode) {
+        ModelInstance wallBetween = Optional.ofNullable(eastNode.getWestWall()).orElse(westNode.getEastWall());
+        adjustWallBetweenTwoNodes(eastNode, westNode, wallBetween);
+        wallBetween.transform.rotate(Vector3.Z, (eastNode.getHeight() > westNode.getHeight() ? 1 : -1) * 90F);
+    }
+
+    private void adjustWallBetweenTwoNodes(final MapNode eastOrSouthNode,
+                                           final MapNode westOrNorthNode,
+                                           final ModelInstance wallBetween) {
         Vector3 wallBetweenThemPos = wallBetween.transform.getTranslation(auxVector);
-        float southHeight = southernNode.getHeight();
-        float northHeight = northernNode.getHeight();
-        float sizeHeight = Math.abs(northHeight - southHeight);
-        float y = Math.min(southHeight, northHeight) + (southHeight > northHeight ? 0 : sizeHeight);
+        float eastOrSouthHeight = eastOrSouthNode.getHeight();
+        float westOrNorthHeight = westOrNorthNode.getHeight();
+        float sizeHeight = Math.abs(westOrNorthHeight - eastOrSouthHeight);
+        float offset = eastOrSouthHeight > westOrNorthHeight ? 0 : sizeHeight;
+        float y = Math.min(eastOrSouthHeight, westOrNorthHeight) + offset;
         wallBetween.transform.setToTranslationAndScaling(wallBetweenThemPos.x, y, wallBetweenThemPos.z,
                 1, sizeHeight, 1);
-        wallBetween.transform.rotate(Vector3.X, (southHeight > northHeight ? -1 : 1) * 90F);
     }
 
     private void adjustSouthWall(final MapNode northernNode,
-                                 final MapNode southernNode,
-                                 final ModelInstance wallBetweenThem) {
-        if (wallBetweenThem == null && northernNode.getSouthWall() == null) {
+                                 final MapNode southernNode) {
+        if (southernNode.getNorthWall() == null && northernNode.getSouthWall() == null) {
             createSouthWall(northernNode.getRow(), southernNode.getCol(), northernNode);
         }
-        adjustNeighborSouthOrNorthWall(southernNode, northernNode);
+        adjustWallBetweenNorthAndSouth(southernNode, northernNode);
     }
 
-    private void adjustEastWall(final MapNode selected, final MapNode neighbor, final ModelInstance neighborWall) {
-        int row = selected.getRow();
-        int col = selected.getCol();
-        if (neighborWall == null) {
-            createEastWall(row, col, selected, neighbor);
-        } else {
-            Vector3 neighborWallPos = neighborWall.transform.getTranslation(auxVector);
-            float height = selected.getHeight();
-            float neighborHeight = neighbor.getHeight();
-            boolean isHigherThanNeighbor = height > neighborHeight;
-            float sizeHeight = Math.abs(neighborHeight - height);
-            neighborWall.transform.setToTranslationAndScaling(neighborWallPos.x, Math.min(height, neighborHeight) + (isHigherThanNeighbor ? sizeHeight : 0), neighborWallPos.z,
-                    1, sizeHeight, 1);
-            neighborWall.transform.rotate(Vector3.Z, (isHigherThanNeighbor ? -1 : 1) * 90F);
+    private void adjustEastWall(final MapNode westernNode,
+                                final MapNode easternNode) {
+        if (westernNode.getEastWall() == null && easternNode.getWestWall() == null) {
+            createEastWall(westernNode.getRow(), westernNode.getCol(), westernNode);
         }
+        adjustWallBetweenEastAndWest(easternNode, westernNode);
     }
 
-    private void adjustWestWall(final MapNode selected, final MapNode neighbor, final ModelInstance neighborWall) {
-        int row = selected.getRow();
-        int col = selected.getCol();
-        if (neighborWall == null) {
-            createWestWall(row, col, selected, neighbor);
-        } else {
-            float height = selected.getHeight();
-            float modelInstanceHeight = Math.abs(neighbor.getHeight() - height);
-            boolean isHigherThanNeighbor = height > neighbor.getHeight();
-            neighborWall.transform.setToTranslationAndScaling(col, Math.min(height, neighbor.getHeight()) + (isHigherThanNeighbor ? 0 : modelInstanceHeight), row,
-                    1, Math.abs(neighbor.getHeight() - selected.getHeight()), 1);
-            neighborWall.transform.rotate(Vector3.Z, (isHigherThanNeighbor ? 1 : -1) * 90F);
+    private void adjustWestWall(final MapNode easternNode, final MapNode westernNode) {
+        if (westernNode.getEastWall() == null && easternNode.getWestWall() == null) {
+            createWestWall(easternNode.getRow(), easternNode.getCol(), easternNode);
         }
+        adjustWallBetweenEastAndWest(easternNode, westernNode);
     }
 
     private void createNorthWall(final int row, final int col, final MapNode n) {
@@ -115,22 +111,18 @@ public class LiftTileAction extends MappingAction {
         southWall.transform.rotate(Vector3.X, 90);
     }
 
-    private void createEastWall(final int row, final int col, final MapNode n, final MapNode neighbor) {
+    private void createEastWall(final int row, final int col, final MapNode selected) {
         ModelInstance eastWall = new ModelInstance(wallModel);
-        eastWall.transform.setToTranslationAndScaling(
-                col + 1, n.getHeight(), row,
-                1, Math.abs(neighbor.getHeight() - n.getHeight()), 1);
+        selected.setEastWall(eastWall);
+        eastWall.transform.setToTranslation(col + 1F, 0, row);
         eastWall.transform.rotate(Vector3.Z, -90);
-        n.setEastWall(eastWall);
     }
 
-    private void createWestWall(final int row, final int col, final MapNode n, final MapNode neighbor) {
-        ModelInstance westWall = new ModelInstance(wallModel);
-        westWall.transform.setToTranslationAndScaling(
-                col, neighbor.getHeight(), row,
-                1, Math.abs(neighbor.getHeight() - n.getHeight()), 1);
-        westWall.transform.rotate(Vector3.Z, 90);
-        n.setWestWall(westWall);
+    private void createWestWall(final int row, final int col, final MapNode selected) {
+        ModelInstance wastWall = new ModelInstance(wallModel);
+        selected.setWestWall(wastWall);
+        wastWall.transform.setToTranslation(col, 0, row);
+        wastWall.transform.rotate(Vector3.Z, 90);
     }
 
     @Override
