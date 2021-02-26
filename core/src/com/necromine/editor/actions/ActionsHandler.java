@@ -14,15 +14,10 @@ import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
-import com.necromine.editor.CursorSelectionModel;
+import com.necromine.editor.*;
 import com.necromine.editor.actions.types.*;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
-import com.necromine.editor.GameMap;
-import com.necromine.editor.MapNode;
-import com.necromine.editor.NecromineMapEditor;
-import com.necromine.editor.Node;
-import com.necromine.editor.PlacedElements;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.actions.processes.PlaceTilesFinishProcessParameters;
 import com.necromine.editor.actions.processes.PlaceTilesProcess;
@@ -93,10 +88,11 @@ public class ActionsHandler {
 
 	public boolean onTouchDown(final GameAssetsManager assetsManager,
 							   final Set<MapNode> initializedTiles,
-							   final int button) {
-		EditorMode mode = NecromineMapEditor.getMode();
+							   final int button,
+							   final MapHandlerEventsNotifier eventsNotifier) {
+		EditorMode mode = MapHandler.getMode();
 		Class<? extends EditorMode> modeClass = mode.getClass();
-		EditorTool tool = NecromineMapEditor.getTool();
+		EditorTool tool = MapHandler.getTool();
 		if (button == Input.Buttons.LEFT) {
 			if (modeClass.equals(EditModes.class)) {
 				if (mode == EditModes.TILES && currentProcess == null) {
@@ -104,6 +100,8 @@ public class ActionsHandler {
 						beginTilePlacingProcess(assetsManager, initializedTiles);
 					} else if (tool == TilesTools.LIFT) {
 						liftTile(map, 1, assetsManager);
+					} else if (tool == TilesTools.WALL_TILING) {
+						tileWall(eventsNotifier);
 					}
 					return true;
 				} else if (mode == EditModes.LIGHTS) {
@@ -133,13 +131,22 @@ public class ActionsHandler {
 		return false;
 	}
 
+	private void tileWall(final MapHandlerEventsNotifier eventsNotifier) {
+		Vector3 cursorPosition = cursorHandler.getHighlighter().transform.getTranslation(auxVector);
+		int row = (int) cursorPosition.z;
+		int col = (int) cursorPosition.x;
+		if (map.getTiles()[row][col] != null) {
+			eventsNotifier.tileSelectedUsingWallTilingTool(row, col);
+		}
+	}
+
 	private boolean removeElementByMode() {
 		Vector3 position = cursorHandler.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		RemoveElementAction action = new RemoveElementAction(
 				map,
 				placedElements,
 				new Node((int) position.z, (int) position.x),
-				(EditModes) NecromineMapEditor.getMode());
+				(EditModes) MapHandler.getMode());
 		executeAction(action);
 		return true;
 	}

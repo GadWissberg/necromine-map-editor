@@ -4,14 +4,13 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.NecromineMapEditor;
+import com.necromine.editor.MapHandler;
 import com.necromine.editor.Node;
 import com.necromine.editor.model.PlacedEnvObject;
 import com.necromine.editor.MapNode;
 import com.necromine.editor.actions.PlaceElementAction;
 
 import java.util.List;
-import java.util.Optional;
 
 public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, EnvironmentDefinitions> {
 
@@ -52,8 +51,8 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 	}
 
 	private void applyOnNode(final int row, final int col) {
-		int currentRow = Math.min(Math.max(node.getRow() + row, 0), NecromineMapEditor.LEVEL_SIZE);
-		int currentCol = Math.min(Math.max(node.getCol() + col, 0), NecromineMapEditor.LEVEL_SIZE);
+		int currentRow = Math.min(Math.max(node.getRow() + row, 0), MapHandler.LEVEL_SIZE);
+		int currentCol = Math.min(Math.max(node.getCol() + col, 0), MapHandler.LEVEL_SIZE);
 		MapNode[][] tiles = map.getTiles();
 		MapNode mapNode = tiles[currentRow][currentCol];
 		if (mapNode == null) {

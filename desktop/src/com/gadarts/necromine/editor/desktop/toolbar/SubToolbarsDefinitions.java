@@ -20,6 +20,12 @@ public enum SubToolbarsDefinitions {
 							"staircase",
 							"Set Tile Height",
 							new SetTilesToolCommand(TilesTools.LIFT),
+							Constants.TILE_TOOL)),
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
+							"wall",
+							"Tile Walls",
+							new SetTilesToolCommand(TilesTools.WALL_TILING),
 							Constants.TILE_TOOL))),
 	ROTATABLE_MODE(
 			new SubToolbarButtonDefinition(

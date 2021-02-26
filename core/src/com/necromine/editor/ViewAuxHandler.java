@@ -11,7 +11,7 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 
-import static com.necromine.editor.NecromineMapEditor.LEVEL_SIZE;
+import static com.necromine.editor.MapHandler.LEVEL_SIZE;
 
 public class ViewAuxHandler implements Disposable {
 	private static final Color GRID_COLOR = Color.GRAY;

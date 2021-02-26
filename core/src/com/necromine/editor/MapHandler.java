@@ -30,15 +30,12 @@ import com.necromine.editor.actions.CursorHandler;
 import com.necromine.editor.mode.*;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The world renderer.
  */
-public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber {
+public class MapHandler extends MapEditor implements GuiEventsSubscriber {
 
 	/**
 	 * Camera's far.
@@ -70,13 +67,14 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 	private final Handlers handlers;
 	private final MapInflater inflater;
 	private final MapDeflater deflater = new MapDeflater();
+	private final MapHandlerEventsNotifier eventsNotifier = new MapHandlerEventsNotifier();
 	private MapRenderer renderer;
 	private OrthographicCamera camera;
 	private Assets.FloorsTextures selectedTile;
 	private ElementDefinition selectedElement;
 	private Model tileModel;
 
-	public NecromineMapEditor(final int width, final int height) {
+	public MapHandler(final int width, final int height) {
 		VIEWPORT_WIDTH = width / 50;
 		VIEWPORT_HEIGHT = height / 50;
 		assetsManager = new GameAssetsManager(TEMP_ASSETS_FOLDER.replace('\\', '/') + '/');
@@ -188,7 +186,7 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 	private void onModeSet(final EditorMode mode) {
 		selectedElement = null;
 		handlers.getCursorHandler().setHighlighter(null);
-		NecromineMapEditor.mode = mode;
+		MapHandler.mode = mode;
 	}
 
 	@Override
@@ -251,7 +249,7 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 		selectedElement = null;
 		CursorHandler cursorHandler = handlers.getCursorHandler();
 		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
-		NecromineMapEditor.tool = tool;
+		MapHandler.tool = tool;
 	}
 
 	private void applyOpacity() {
@@ -276,7 +274,8 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 		if (button == Input.Buttons.LEFT) {
 			lastMouseTouchPosition.set(screenX, screenY);
 		}
-		return handlers.getActionsHandler().onTouchDown(assetsManager, placedElements.getPlacedTiles(), button);
+		Set<MapNode> placedTiles = placedElements.getPlacedTiles();
+		return handlers.getActionsHandler().onTouchDown(assetsManager, placedTiles, button, eventsNotifier);
 	}
 
 	@Override
@@ -292,7 +291,7 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 			cameraMode.getManipulation().run(lastMouseTouchPosition, camera, screenX, screenY);
 			result = true;
 		} else {
-			result = handlers.getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, mode);
+			result = handlers.getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, map);
 		}
 		lastMouseTouchPosition.set(screenX, screenY);
 		return result;
@@ -300,7 +299,10 @@ public class NecromineMapEditor extends MapEditor implements GuiEventsSubscriber
 
 	@Override
 	public boolean mouseMoved(final int screenX, final int screenY) {
-		return handlers.getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, mode);
+		return handlers.getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, map);
 	}
 
+	public void subscribeForEvents(MapHandlerEventsSubscriber subscriber) {
+		eventsNotifier.subscribeForEvents(subscriber);
+	}
 }

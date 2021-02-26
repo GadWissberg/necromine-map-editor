@@ -2,7 +2,7 @@ package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.necromine.editor.NecromineMapEditor;
+import com.necromine.editor.MapHandler;
 
 import java.awt.*;
 
@@ -17,9 +17,10 @@ public class DesktopLauncher {
 			config.samples = 3;
 			config.width = WIDTH;
 			config.height = HEIGHT;
-			NecromineMapEditor listener = new NecromineMapEditor(WIDTH,HEIGHT);
-			LwjglAWTCanvas lwjgl = new LwjglAWTCanvas(listener, config);
-			new MapperWindow(WINDOW_HEADER, lwjgl, listener);
+			MapHandler mapHandler = new MapHandler(WIDTH, HEIGHT);
+			LwjglAWTCanvas lwjgl = new LwjglAWTCanvas(mapHandler, config);
+			MapperGui gui = new MapperGui(WINDOW_HEADER, lwjgl, mapHandler);
+			mapHandler.subscribeForEvents(gui);
 		});
 	}
 

@@ -12,12 +12,13 @@ import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
+import com.necromine.editor.MapHandlerEventsSubscriber;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.EntriesDisplayTypes;
 import com.necromine.editor.GuiEventsSubscriber;
-import com.necromine.editor.NecromineMapEditor;
+import com.necromine.editor.MapHandler;
 import com.necromine.editor.mode.TilesTools;
 import org.lwjgl.openal.AL;
 
@@ -34,7 +35,6 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ import java.util.Map;
 
 import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
-public class MapperWindow extends JFrame implements PropertyChangeListener {
+public class MapperGui extends JFrame implements PropertyChangeListener, MapHandlerEventsSubscriber {
 	public static final String FOLDER_TOOLBAR_BUTTONS = "toolbar_buttons";
 	public static final int WIDTH = 1280;
 	public static final int HEIGHT = 720;
@@ -52,13 +52,13 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 
 	private final LwjglAWTCanvas lwjgl;
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
-	private final File assetsFolderLocation = new File(NecromineMapEditor.TEMP_ASSETS_FOLDER);
+	private final File assetsFolderLocation = new File(MapHandler.TEMP_ASSETS_FOLDER);
 	private final GuiEventsSubscriber guiEventsSubscriber;
 	private final ModesHandler modesHandler;
 	private JPanel entitiesPanel;
 
 
-	public MapperWindow(final String header, final LwjglAWTCanvas lwjgl, final GuiEventsSubscriber guiEventsSubscriber) {
+	public MapperGui(final String header, final LwjglAWTCanvas lwjgl, final GuiEventsSubscriber guiEventsSubscriber) {
 		super(header);
 		this.lwjgl = lwjgl;
 		this.guiEventsSubscriber = guiEventsSubscriber;
@@ -262,15 +262,11 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 	private void addImageButtonToGallery(final JPanel gallery,
 										 final Assets.FloorsTextures texture,
 										 final ButtonGroup buttonGroup) throws IOException {
-		String path = assetsFolderLocation.getAbsolutePath() + File.separator + texture.getFilePath();
-		FileInputStream inputStream = new FileInputStream(path);
-		GalleryButton button = new GalleryButton(texture, new ImageIcon(ImageIO.read(inputStream)));
-		button.addItemListener(itemEvent -> {
+		GalleryButton button = GuiUtils.createTextureImageButton(assetsFolderLocation, texture, itemEvent -> {
 			if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
 				guiEventsSubscriber.onTileSelected(texture);
 			}
 		});
-		inputStream.close();
 		buttonGroup.add(button);
 		gallery.add(button);
 	}
@@ -341,4 +337,25 @@ public class MapperWindow extends JFrame implements PropertyChangeListener {
 		}
 	}
 
+	@Override
+	public void onTileSelectedUsingWallTilingTool(final int row, final int col) {
+		WallTilingDialog pane = new WallTilingDialog(assetsFolderLocation, guiEventsSubscriber);
+		JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this));
+		defineWallTilingDialog(pane, dialog);
+		dialog.setVisible(true);
+	}
+
+	private void defineWallTilingDialog(final WallTilingDialog pane, final JDialog dialog) {
+		dialog.setTitle(pane.getDialogTitle());
+		dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+		dialog.setContentPane(pane);
+		dialog.setResizable(false);
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (final Exception e) {
+			e.printStackTrace();
+		}
+		dialog.pack();
+		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+	}
 }

@@ -17,8 +17,8 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static com.necromine.editor.NecromineMapEditor.LEVEL_SIZE;
-import static com.necromine.editor.NecromineMapEditor.TARGET_VERSION;
+import static com.necromine.editor.MapHandler.LEVEL_SIZE;
+import static com.necromine.editor.MapHandler.TARGET_VERSION;
 
 public class MapDeflater {
 	private final Gson gson = new Gson();

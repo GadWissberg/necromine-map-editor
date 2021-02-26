@@ -3,14 +3,14 @@ package com.necromine.editor.mode;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.necromine.editor.CameraManipulation;
-import com.necromine.editor.NecromineMapEditor;
+import com.necromine.editor.MapHandler;
 import lombok.Getter;
 
 @Getter
 public enum CameraModes implements EditorMode {
 	PAN((lastMouseTouchPosition, camera, screenX, screenY) -> {
 		Vector2 velocity = lastMouseTouchPosition.sub(screenX, screenY).scl(0.03f);
-		Vector3 left = NecromineMapEditor.auxVector3_1.set(camera.direction).crs(camera.up).nor().scl(0.3f);
+		Vector3 left = MapHandler.auxVector3_1.set(camera.direction).crs(camera.up).nor().scl(0.3f);
 		float x = camera.direction.x * -velocity.y + left.x * velocity.x;
 		float z = camera.direction.z * -velocity.y + left.z * velocity.x;
 		camera.translate(x, 0, z);
