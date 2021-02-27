@@ -3,9 +3,9 @@ package com.necromine.editor.actions.processes;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.MapNodesTypes;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapNode;
-import com.necromine.editor.Node;
-import com.necromine.editor.Utils;
+import com.necromine.editor.model.node.MapNode;
+import com.necromine.editor.model.node.Node;
+import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 
 import java.util.Set;

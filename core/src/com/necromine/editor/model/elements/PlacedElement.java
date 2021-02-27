@@ -1,8 +1,8 @@
-package com.necromine.editor.model;
+package com.necromine.editor.model.elements;
 
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;
-import com.necromine.editor.Node;
+import com.necromine.editor.model.node.Node;
 import lombok.Getter;
 
 @Getter

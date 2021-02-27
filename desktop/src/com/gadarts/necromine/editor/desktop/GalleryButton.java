@@ -12,7 +12,7 @@ public class GalleryButton extends JToggleButton {
 	private static final Color COLOR_SELECTED = Color.decode("0x14a9ff");
 	private static final int WIDTH = 75;
 	private static final int HEIGHT = 25;
-	private final Assets.FloorsTextures textureDefinition;
+	private Assets.FloorsTextures textureDefinition;
 
 	public GalleryButton(final Assets.FloorsTextures textureDefinition, final ImageIcon imageIcon) {
 		super(imageIcon);
@@ -36,4 +36,8 @@ public class GalleryButton extends JToggleButton {
 		setPreferredSize(new Dimension(WIDTH, HEIGHT));
 	}
 
+	public void applyTexture(final Assets.FloorsTextures texture, final ImageIcon imageIcon) {
+		setIcon(imageIcon);
+		textureDefinition = texture;
+	}
 }

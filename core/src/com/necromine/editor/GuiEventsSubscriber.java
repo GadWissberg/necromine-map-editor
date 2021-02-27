@@ -8,7 +8,7 @@ import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorTool;
-import com.necromine.editor.mode.TilesTools;
+import com.necromine.editor.model.node.NodeWallsDefinitions;
 
 public interface GuiEventsSubscriber {
 	void onTileSelected(Assets.FloorsTextures texture);
@@ -30,4 +30,6 @@ public interface GuiEventsSubscriber {
 	void onLoadMapRequested();
 
 	void onToolSet(EditorTool tool);
+
+	void onNodeWallsDefined(NodeWallsDefinitions definitions, int row, int col);
 }

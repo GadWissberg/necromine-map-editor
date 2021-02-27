@@ -2,11 +2,11 @@ package com.necromine.editor.actions.types;
 
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapNode;
-import com.necromine.editor.Node;
-import com.necromine.editor.PlacedElements;
+import com.necromine.editor.model.node.MapNode;
+import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.elements.PlacedElements;
 import com.necromine.editor.actions.MappingAction;
-import com.necromine.editor.model.PlacedElement;
+import com.necromine.editor.model.elements.PlacedElement;
 
 import java.util.List;
 

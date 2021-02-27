@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.handlers;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes;
@@ -11,7 +11,8 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 
-import static com.necromine.editor.MapHandler.LEVEL_SIZE;
+import static com.necromine.editor.MapEditor.LEVEL_SIZE;
+
 
 public class ViewAuxHandler implements Disposable {
 	private static final Color GRID_COLOR = Color.GRAY;
@@ -56,7 +57,7 @@ public class ViewAuxHandler implements Disposable {
 		scaleAxis();
 	}
 
-	void renderAux(final ModelBatch modelBatch) {
+	public void renderAux(final ModelBatch modelBatch) {
 		modelBatch.render(axisModelInstanceX);
 		modelBatch.render(axisModelInstanceY);
 		modelBatch.render(axisModelInstanceZ);

@@ -1,5 +1,5 @@
 package com.necromine.editor;
 
-public interface MapHandlerEventsSubscriber {
+public interface MapManagerEventsSubscriber {
 	void onTileSelectedUsingWallTilingTool(int row, int col);
 }

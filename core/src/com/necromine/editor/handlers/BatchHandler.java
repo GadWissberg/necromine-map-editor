@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.handlers;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -16,7 +16,7 @@ public class BatchHandler implements Disposable {
 	private ModelBatch modelBatch;
 	private DecalBatch decalBatch;
 
-	void renderDecal(final Decal decal, final Camera camera) {
+	public void renderDecal(final Decal decal, final Camera camera) {
 		decal.lookAt(auxVector3_1.set(decal.getPosition()).sub(camera.direction), camera.up);
 		decalBatch.add(decal);
 	}

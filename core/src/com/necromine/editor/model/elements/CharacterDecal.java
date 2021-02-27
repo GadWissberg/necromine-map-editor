@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.model.elements;
 
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.gadarts.necromine.model.characters.CharacterDefinition;

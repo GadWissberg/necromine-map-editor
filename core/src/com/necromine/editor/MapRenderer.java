@@ -15,13 +15,13 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.actions.CursorHandler;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.actions.processes.PlaceTilesProcess;
+import com.necromine.editor.handlers.Handlers;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
-import com.necromine.editor.model.PlacedCharacter;
-import com.necromine.editor.model.PlacedElement;
-import com.necromine.editor.model.PlacedEnvObject;
-import com.necromine.editor.model.PlacedLight;
-import com.necromine.editor.model.PlacedPickup;
+import com.necromine.editor.model.elements.*;
+import com.necromine.editor.model.node.MapNode;
+import com.necromine.editor.model.node.Node;
+import com.necromine.editor.utils.Utils;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;

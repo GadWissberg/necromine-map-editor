@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.handlers;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Model;
@@ -8,8 +8,10 @@ import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
+import com.necromine.editor.GameMap;
 import com.necromine.editor.actions.ActionsHandler;
 import com.necromine.editor.actions.CursorHandler;
+import com.necromine.editor.model.elements.PlacedElements;
 import lombok.Getter;
 
 @Getter

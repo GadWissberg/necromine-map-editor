@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.utils;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -15,20 +15,17 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.*;
+import com.necromine.editor.model.elements.CharacterDecal;
+import com.necromine.editor.model.node.MapNode;
+import com.necromine.editor.model.node.Node;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.event.ItemEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.HashMap;
 
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_SCALE;
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 
 public class Utils {
-	static final String FRAMES_KEY_CHARACTER = "frames/%s";
+	public static final String FRAMES_KEY_CHARACTER = "frames/%s";
 	private final static Plane auxPlane = new Plane();
 	private static final Vector3 auxVector3_1 = new Vector3();
 	private static final Vector3 auxVector3_2 = new Vector3();

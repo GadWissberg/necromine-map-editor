@@ -3,7 +3,7 @@ package com.necromine.editor.actions.types;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.Node;
+import com.necromine.editor.model.node.Node;
 import com.necromine.editor.actions.MappingAction;
 
 public final class ActionBuilder {

@@ -8,8 +8,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapNode;
-import com.necromine.editor.Node;
+import com.necromine.editor.model.node.MapNode;
+import com.necromine.editor.model.node.Node;
 import com.necromine.editor.actions.MappingAction;
 import lombok.AccessLevel;
 import lombok.Setter;
@@ -130,7 +130,6 @@ public class LiftTileAction extends MappingAction {
 		ModelInstance wall = new ModelInstance(wallModel);
 		TextureAttribute textureAttribute = (TextureAttribute) wall.materials.get(0).get(TextureAttribute.Diffuse);
 		textureAttribute.textureDescription.texture = assetsManager.getTexture(Assets.FloorsTextures.FLOOR_0);
-		textureAttribute.textureDescription.texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat);
 		return wall;
 	}
 

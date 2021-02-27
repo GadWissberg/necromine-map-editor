@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.model.node;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Material;

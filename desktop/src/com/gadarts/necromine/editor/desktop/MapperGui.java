@@ -12,13 +12,10 @@ import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
-import com.necromine.editor.MapHandlerEventsSubscriber;
+import com.necromine.editor.*;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
-import com.necromine.editor.EntriesDisplayTypes;
-import com.necromine.editor.GuiEventsSubscriber;
-import com.necromine.editor.MapHandler;
 import com.necromine.editor.mode.TilesTools;
 import org.lwjgl.openal.AL;
 
@@ -27,11 +24,7 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -39,10 +32,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
-public class MapperGui extends JFrame implements PropertyChangeListener, MapHandlerEventsSubscriber {
+public class MapperGui extends JFrame implements PropertyChangeListener, MapManagerEventsSubscriber {
 	public static final String FOLDER_TOOLBAR_BUTTONS = "toolbar_buttons";
 	public static final int WIDTH = 1280;
 	public static final int HEIGHT = 720;
@@ -52,7 +46,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapHand
 
 	private final LwjglAWTCanvas lwjgl;
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
-	private final File assetsFolderLocation = new File(MapHandler.TEMP_ASSETS_FOLDER);
+	private final File assetsFolderLocation = new File(MapEditor.TEMP_ASSETS_FOLDER);
 	private final GuiEventsSubscriber guiEventsSubscriber;
 	private final ModesHandler modesHandler;
 	private JPanel entitiesPanel;
@@ -227,7 +221,15 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapHand
 		Arrays.stream(EditModes.values()).forEach(mode -> {
 			EntriesDisplayTypes entriesDisplayType = mode.getEntriesDisplayTypes();
 			if (entriesDisplayType == EntriesDisplayTypes.GALLERY) {
-				entitiesPanel.add(createEntitiesGallery(), EditModes.TILES.name());
+				JScrollPane entitiesGallery = GuiUtils.createEntitiesGallery(assetsFolderLocation, itemEvent -> {
+					if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
+						Optional.ofNullable(guiEventsSubscriber).ifPresent(sub -> {
+							Assets.FloorsTextures texture = ((GalleryButton) itemEvent.getItem()).getTextureDefinition();
+							sub.onTileSelected(texture);
+						});
+					}
+				});
+				entitiesPanel.add(entitiesGallery, EditModes.TILES.name());
 			} else if (entriesDisplayType == EntriesDisplayTypes.TREE) {
 				EditorTree resourcesTree = createResourcesTree(mode);
 				resourcesTree.addPropertyChangeListener(this);
@@ -237,38 +239,6 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapHand
 		entitiesPanel.add(new JPanel(), NONE.name());
 		EditModes mode = (EditModes) ModesHandler.getMode();
 		entitiesLayout.show(entitiesPanel, mode.name());
-	}
-
-	private JScrollPane createEntitiesGallery() {
-		GridLayout layout = new GridLayout(0, 3);
-		JPanel gallery = new JPanel(layout);
-		JScrollPane jScrollPane = new JScrollPane(gallery);
-		fillGallery(gallery);
-		jScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		return jScrollPane;
-	}
-
-	private void fillGallery(final JPanel gallery) {
-		ButtonGroup buttonGroup = new ButtonGroup();
-		Arrays.stream(Assets.FloorsTextures.values()).forEach(texture -> {
-			try {
-				addImageButtonToGallery(gallery, texture, buttonGroup);
-			} catch (final IOException e) {
-				e.printStackTrace();
-			}
-		});
-	}
-
-	private void addImageButtonToGallery(final JPanel gallery,
-										 final Assets.FloorsTextures texture,
-										 final ButtonGroup buttonGroup) throws IOException {
-		GalleryButton button = GuiUtils.createTextureImageButton(assetsFolderLocation, texture, itemEvent -> {
-			if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
-				guiEventsSubscriber.onTileSelected(texture);
-			}
-		});
-		buttonGroup.add(button);
-		gallery.add(button);
 	}
 
 
@@ -339,23 +309,9 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapHand
 
 	@Override
 	public void onTileSelectedUsingWallTilingTool(final int row, final int col) {
-		WallTilingDialog pane = new WallTilingDialog(assetsFolderLocation, guiEventsSubscriber);
-		JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this));
-		defineWallTilingDialog(pane, dialog);
-		dialog.setVisible(true);
+		WallTilingDialog pane = new WallTilingDialog(assetsFolderLocation, guiEventsSubscriber, row, col);
+		GuiUtils.openNewDialog(this, pane);
 	}
 
-	private void defineWallTilingDialog(final WallTilingDialog pane, final JDialog dialog) {
-		dialog.setTitle(pane.getDialogTitle());
-		dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
-		dialog.setContentPane(pane);
-		dialog.setResizable(false);
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (final Exception e) {
-			e.printStackTrace();
-		}
-		dialog.pack();
-		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-	}
+
 }

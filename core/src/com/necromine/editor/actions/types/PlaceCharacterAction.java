@@ -4,10 +4,10 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapNode;
-import com.necromine.editor.Node;
+import com.necromine.editor.model.node.MapNode;
+import com.necromine.editor.model.node.Node;
 import com.necromine.editor.actions.PlaceElementAction;
-import com.necromine.editor.model.PlacedCharacter;
+import com.necromine.editor.model.elements.PlacedCharacter;
 
 import java.util.List;
 

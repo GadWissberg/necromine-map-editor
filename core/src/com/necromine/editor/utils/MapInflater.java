@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.utils;
 
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
@@ -11,10 +11,15 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.necromine.editor.GameMap;
 import com.necromine.editor.actions.CursorHandler;
 import com.necromine.editor.mode.EditModes;
-import com.necromine.editor.model.PlacedCharacter;
-import com.necromine.editor.model.PlacedElement;
+import com.necromine.editor.model.elements.PlacedCharacter;
+import com.necromine.editor.model.elements.PlacedElement;
+import com.necromine.editor.model.elements.PlacedElementCreation;
+import com.necromine.editor.model.elements.PlacedElements;
+import com.necromine.editor.model.node.MapNode;
+import com.necromine.editor.model.node.Node;
 import lombok.RequiredArgsConstructor;
 
 import java.io.FileReader;
@@ -34,7 +39,7 @@ public class MapInflater {
 	private final Set<MapNode> initializedTiles;
 	private final Gson gson = new Gson();
 
-	void inflateMap(final GameMap map, final PlacedElements placedElements) {
+	public void inflateMap(final GameMap map, final PlacedElements placedElements) {
 		try (Reader reader = new FileReader("test_map.json")) {
 			JsonObject input = gson.fromJson(reader, JsonObject.class);
 			inflateCharacters(input, placedElements, assetsManager);

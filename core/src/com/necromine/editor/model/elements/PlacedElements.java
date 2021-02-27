@@ -1,7 +1,8 @@
-package com.necromine.editor;
+package com.necromine.editor.model.elements;
 
 import com.necromine.editor.mode.EditModes;
-import com.necromine.editor.model.PlacedElement;
+import com.necromine.editor.model.elements.PlacedElement;
+import com.necromine.editor.model.node.MapNode;
 import lombok.Getter;
 
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.utils;
 
 import com.gadarts.necromine.assets.MapJsonKeys;
 import com.gadarts.necromine.model.ElementDefinition;
@@ -7,8 +7,11 @@ import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.necromine.editor.GameMap;
 import com.necromine.editor.mode.EditModes;
-import com.necromine.editor.model.PlacedElement;
+import com.necromine.editor.model.elements.PlacedElement;
+import com.necromine.editor.model.elements.PlacedElements;
+import com.necromine.editor.model.node.MapNode;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -17,8 +20,9 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static com.necromine.editor.MapHandler.LEVEL_SIZE;
-import static com.necromine.editor.MapHandler.TARGET_VERSION;
+import static com.necromine.editor.MapEditor.LEVEL_SIZE;
+import static com.necromine.editor.MapEditor.TARGET_VERSION;
+
 
 public class MapDeflater {
 	private final Gson gson = new Gson();

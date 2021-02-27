@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.model.node;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

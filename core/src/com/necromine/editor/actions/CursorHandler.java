@@ -21,13 +21,17 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.*;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
+import com.necromine.editor.model.elements.CharacterDecal;
+import com.necromine.editor.model.node.MapNode;
+import com.necromine.editor.model.node.Node;
+import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
 
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 import static com.gadarts.necromine.model.characters.Direction.NORTH;
 import static com.gadarts.necromine.model.characters.Direction.SOUTH;
-import static com.necromine.editor.MapHandler.LEVEL_SIZE;
+import static com.necromine.editor.MapEditor.LEVEL_SIZE;
 
 @Getter
 @Setter
@@ -69,7 +73,7 @@ public class CursorHandler implements Disposable {
 			int z = MathUtils.clamp((int) collisionPoint.z, 0, LEVEL_SIZE);
 			MapNode mapNode = map.getTiles()[z][x];
 			highlighter.transform.setTranslation(x, (mapNode != null ? mapNode.getHeight() : 0) + 0.01f, z);
-			updateCursorAdditionals(x, z, MapHandler.getMode());
+			updateCursorAdditionals(x, z, MapEditor.getMode());
 			return true;
 		}
 		return false;
