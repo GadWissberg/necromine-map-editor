@@ -1,6 +1,5 @@
 package com.necromine.editor.actions.types;
 
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
@@ -11,6 +10,7 @@ import com.necromine.editor.GameMap;
 import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.actions.MappingAction;
+import com.necromine.editor.model.node.Wall;
 import lombok.AccessLevel;
 import lombok.Setter;
 
@@ -54,30 +54,34 @@ public class LiftTileAction extends MappingAction {
 
 	private void adjustWallBetweenNorthAndSouth(final MapNode southernNode,
 												final MapNode northernNode) {
-		ModelInstance wallBetween = Optional.ofNullable(southernNode.getNorthWall()).orElse(northernNode.getSouthWall());
-		float sizeHeight = adjustWallBetweenTwoNodes(southernNode, northernNode, wallBetween);
-		((TextureAttribute) wallBetween.materials.get(0).get(TextureAttribute.Diffuse)).scaleV = sizeHeight;
+		Wall wallBetween = Optional.ofNullable(southernNode.getNorthWall())
+				.orElse(northernNode.getSouthWall());
+		ModelInstance modelInstance = wallBetween.getModelInstance();
+		TextureAttribute textureAttribute = (TextureAttribute) modelInstance.materials.get(0).get(TextureAttribute.Diffuse);
+		textureAttribute.scaleV = adjustWallBetweenTwoNodes(southernNode, northernNode, wallBetween);
 		float degrees = (southernNode.getHeight() > northernNode.getHeight() ? -1 : 1) * 90F;
-		wallBetween.transform.rotate(Vector3.X, degrees);
+		modelInstance.transform.rotate(Vector3.X, degrees);
 	}
 
 	private void adjustWallBetweenEastAndWest(final MapNode eastNode,
 											  final MapNode westNode) {
-		ModelInstance wallBetween = Optional.ofNullable(eastNode.getWestWall()).orElse(westNode.getEastWall());
-		float sizeHeight = adjustWallBetweenTwoNodes(eastNode, westNode, wallBetween);
-		((TextureAttribute) wallBetween.materials.get(0).get(TextureAttribute.Diffuse)).scaleU = sizeHeight;
-		wallBetween.transform.rotate(Vector3.Z, (eastNode.getHeight() > westNode.getHeight() ? 1 : -1) * 90F);
+		Wall wallBetween = Optional.ofNullable(eastNode.getWestWall())
+				.orElse(westNode.getEastWall());
+		ModelInstance modelInstance = wallBetween.getModelInstance();
+		TextureAttribute textureAttribute = (TextureAttribute) modelInstance.materials.get(0).get(TextureAttribute.Diffuse);
+		textureAttribute.scaleU = adjustWallBetweenTwoNodes(eastNode, westNode, wallBetween);
+		modelInstance.transform.rotate(Vector3.Z, (eastNode.getHeight() > westNode.getHeight() ? 1 : -1) * 90F);
 	}
 
 	private float adjustWallBetweenTwoNodes(final MapNode eastOrSouthNode,
 											final MapNode westOrNorthNode,
-											final ModelInstance wallBetween) {
-		Vector3 wallBetweenThemPos = wallBetween.transform.getTranslation(auxVector);
+											final Wall wallBetween) {
+		Vector3 wallBetweenThemPos = wallBetween.getModelInstance().transform.getTranslation(auxVector);
 		float eastOrSouthHeight = eastOrSouthNode.getHeight();
 		float westOrNorthHeight = westOrNorthNode.getHeight();
 		float sizeHeight = Math.abs(westOrNorthHeight - eastOrSouthHeight);
 		float y = Math.min(eastOrSouthHeight, westOrNorthHeight) + (eastOrSouthHeight > westOrNorthHeight ? 0 : sizeHeight);
-		wallBetween.transform.setToTranslationAndScaling(wallBetweenThemPos.x, y, wallBetweenThemPos.z,
+		wallBetween.getModelInstance().transform.setToTranslationAndScaling(wallBetweenThemPos.x, y, wallBetweenThemPos.z,
 				1, sizeHeight, 1);
 		return sizeHeight;
 	}
@@ -106,38 +110,42 @@ public class LiftTileAction extends MappingAction {
 	}
 
 	private void createNorthWall(final int row, final int col, final MapNode n) {
-		ModelInstance northWall = createWall();
+		Wall northWall = createWall();
 		n.setNorthWall(northWall);
-		northWall.transform.setToTranslation(col, 0, row);
-		northWall.transform.rotate(Vector3.X, -90);
+		ModelInstance modelInstance = northWall.getModelInstance();
+		modelInstance.transform.setToTranslation(col, 0, row);
+		modelInstance.transform.rotate(Vector3.X, -90);
 	}
 
 	private void createSouthWall(final int row, final int col, final MapNode selected) {
-		ModelInstance southWall = createWall();
+		Wall southWall = createWall();
 		selected.setSouthWall(southWall);
-		southWall.transform.setToTranslation(col, 0, row + 1);
-		southWall.transform.rotate(Vector3.X, 90);
+		ModelInstance modelInstance = southWall.getModelInstance();
+		modelInstance.transform.setToTranslation(col, 0, row + 1);
+		modelInstance.transform.rotate(Vector3.X, 90);
 	}
 
 	private void createEastWall(final int row, final int col, final MapNode selected) {
-		ModelInstance eastWall = createWall();
+		Wall eastWall = createWall();
 		selected.setEastWall(eastWall);
-		eastWall.transform.setToTranslation(col + 1F, 0, row);
-		eastWall.transform.rotate(Vector3.Z, -90);
+		ModelInstance modelInstance = eastWall.getModelInstance();
+		modelInstance.transform.setToTranslation(col + 1F, 0, row);
+		modelInstance.transform.rotate(Vector3.Z, -90);
 	}
 
-	private ModelInstance createWall() {
-		ModelInstance wall = new ModelInstance(wallModel);
-		TextureAttribute textureAttribute = (TextureAttribute) wall.materials.get(0).get(TextureAttribute.Diffuse);
+	private Wall createWall() {
+		ModelInstance modelInstance = new ModelInstance(wallModel);
+		TextureAttribute textureAttribute = (TextureAttribute) modelInstance.materials.get(0).get(TextureAttribute.Diffuse);
 		textureAttribute.textureDescription.texture = assetsManager.getTexture(Assets.FloorsTextures.FLOOR_0);
-		return wall;
+		return new Wall(modelInstance, Assets.FloorsTextures.FLOOR_0);
 	}
 
 	private void createWestWall(final int row, final int col, final MapNode selected) {
-		ModelInstance wastWall = createWall();
-		selected.setWestWall(wastWall);
-		wastWall.transform.setToTranslation(col, 0, row);
-		wastWall.transform.rotate(Vector3.Z, 90);
+		Wall westWall = createWall();
+		selected.setWestWall(westWall);
+		ModelInstance modelInstance = westWall.getModelInstance();
+		modelInstance.transform.setToTranslation(col, 0, row);
+		modelInstance.transform.rotate(Vector3.Z, 90);
 	}
 
 	@Override

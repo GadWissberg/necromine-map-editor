@@ -2,7 +2,6 @@ package com.gadarts.necromine.editor.desktop;
 
 import com.gadarts.necromine.assets.Assets;
 
-import java.awt.*;
 import java.io.File;
 
 public class TexturesGalleryDialog extends DialogPane {

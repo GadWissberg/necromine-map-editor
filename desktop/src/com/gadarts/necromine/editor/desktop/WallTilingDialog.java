@@ -2,6 +2,7 @@ package com.gadarts.necromine.editor.desktop;
 
 import com.gadarts.necromine.assets.Assets;
 import com.necromine.editor.GuiEventsSubscriber;
+import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 
 import javax.swing.*;
@@ -9,6 +10,7 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 public class WallTilingDialog extends DialogPane {
 	private static final String LABEL_EAST = "East Wall:";
@@ -17,6 +19,7 @@ public class WallTilingDialog extends DialogPane {
 	private static final String LABEL_NORTH = "North Wall:";
 	private static final int PADDING = 10;
 	private static final String BUTTON_LABEL_OK = "OK";
+	private final NodeWallsDefinitions definitions;
 	private GalleryButton eastImageButton;
 	private GalleryButton southImageButton;
 	private GalleryButton westImageButton;
@@ -24,16 +27,23 @@ public class WallTilingDialog extends DialogPane {
 
 	public WallTilingDialog(final File assetsFolderLocation,
 							final GuiEventsSubscriber guiEventsSubscriber,
-							final int row,
-							final int col) {
+							final Node node,
+							final NodeWallsDefinitions definitions) {
+		this.definitions = definitions;
 		setLayout(new GridBagLayout());
+		initializeView(assetsFolderLocation, guiEventsSubscriber, node);
+	}
+
+	private void initializeView(final File assetsFolderLocation,
+								final GuiEventsSubscriber guiEventsSubscriber,
+								final Node node) {
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets(PADDING, PADDING, PADDING, PADDING);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridy = 0;
 		addLabels(c);
 		addImageButtons(assetsFolderLocation, c);
-		addOkButton(c, guiEventsSubscriber, row, col);
+		addOkButton(c, guiEventsSubscriber, node.getRow(), node.getCol());
 	}
 
 	private void addOkButton(final GridBagConstraints c,
@@ -62,20 +72,20 @@ public class WallTilingDialog extends DialogPane {
 	private void addImageButtons(final File assetsFolderLocation,
 								 final GridBagConstraints c) {
 		c.gridy = 0;
-		eastImageButton = addImageButton(assetsFolderLocation, c);
-		southImageButton = addImageButton(assetsFolderLocation, c);
-		westImageButton = addImageButton(assetsFolderLocation, c);
-		northImageButton = addImageButton(assetsFolderLocation, c);
+		eastImageButton = addImageButton(assetsFolderLocation, c, definitions.getEast());
+		southImageButton = addImageButton(assetsFolderLocation, c, definitions.getSouth());
+		westImageButton = addImageButton(assetsFolderLocation, c, definitions.getWest());
+		northImageButton = addImageButton(assetsFolderLocation, c, definitions.getNorth());
 	}
 
 	private GalleryButton addImageButton(final File assetsLocation,
-										 final GridBagConstraints c) {
+										 final GridBagConstraints c,
+										 final Assets.FloorsTextures texture) {
 		GalleryButton button = null;
 		try {
-			Assets.FloorsTextures texture = Assets.FloorsTextures.FLOOR_0;
 			button = GuiUtils.createTextureImageButton(
 					assetsLocation,
-					texture);
+					Optional.ofNullable(texture).orElse(Assets.FloorsTextures.FLOOR_0));
 			GalleryButton finalButton = button;
 			button.addItemListener(itemEvent -> {
 				if (itemEvent.getStateChange() == ItemEvent.SELECTED) {

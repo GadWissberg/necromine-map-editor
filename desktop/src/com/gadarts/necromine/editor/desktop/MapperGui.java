@@ -17,6 +17,8 @@ import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.TilesTools;
+import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.NodeWallsDefinitions;
 import org.lwjgl.openal.AL;
 
 import javax.imageio.ImageIO;
@@ -308,8 +310,8 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	}
 
 	@Override
-	public void onTileSelectedUsingWallTilingTool(final int row, final int col) {
-		WallTilingDialog pane = new WallTilingDialog(assetsFolderLocation, guiEventsSubscriber, row, col);
+	public void onTileSelectedUsingWallTilingTool(final int row, final int col, final NodeWallsDefinitions definitions) {
+		WallTilingDialog pane = new WallTilingDialog(assetsFolderLocation, guiEventsSubscriber, new Node(row, col), definitions);
 		GuiUtils.openNewDialog(this, pane);
 	}
 

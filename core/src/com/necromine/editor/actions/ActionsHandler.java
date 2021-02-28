@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
@@ -15,19 +14,23 @@ import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
-import com.necromine.editor.*;
-import com.necromine.editor.actions.types.*;
-import com.necromine.editor.mode.EditModes;
-import com.necromine.editor.mode.EditorMode;
+import com.necromine.editor.CursorSelectionModel;
+import com.necromine.editor.GameMap;
+import com.necromine.editor.MapEditor;
+import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.actions.processes.PlaceTilesFinishProcessParameters;
 import com.necromine.editor.actions.processes.PlaceTilesProcess;
+import com.necromine.editor.actions.types.*;
+import com.necromine.editor.mode.EditModes;
+import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.EditorTool;
 import com.necromine.editor.mode.TilesTools;
 import com.necromine.editor.model.elements.*;
 import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
+import com.necromine.editor.model.node.Wall;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -137,8 +140,9 @@ public class ActionsHandler {
 		Vector3 cursorPosition = cursorHandler.getHighlighter().transform.getTranslation(auxVector);
 		int row = (int) cursorPosition.z;
 		int col = (int) cursorPosition.x;
-		if (map.getTiles()[row][col] != null) {
-			eventsNotifier.tileSelectedUsingWallTilingTool(row, col);
+		MapNode mapNode = map.getTiles()[row][col];
+		if (mapNode != null) {
+			eventsNotifier.tileSelectedUsingWallTilingTool(row, col, new NodeWallsDefinitions(mapNode));
 		}
 	}
 
@@ -257,7 +261,7 @@ public class ActionsHandler {
 							 final MapNode mapNode,
 							 final GameAssetsManager am,
 							 final MapNode node) {
-		ModelInstance neighborWall = mapNode != null ? mapNode.getSouthWall() : null;
+		Wall neighborWall = mapNode != null ? mapNode.getSouthWall() : null;
 		defineWall(am, node.getNorthWall(), neighborWall, defs.getNorth());
 	}
 
@@ -265,7 +269,7 @@ public class ActionsHandler {
 							final MapNode mapNode,
 							final GameAssetsManager am,
 							final MapNode node) {
-		ModelInstance neighborWall = mapNode != null ? mapNode.getEastWall() : null;
+		Wall neighborWall = mapNode != null ? mapNode.getEastWall() : null;
 		defineWall(am, node.getWestWall(), neighborWall, defs.getWest());
 	}
 
@@ -273,7 +277,7 @@ public class ActionsHandler {
 							 final MapNode mapNode,
 							 final GameAssetsManager am,
 							 final MapNode node) {
-		ModelInstance neighborWall = mapNode != null ? mapNode.getNorthWall() : null;
+		Wall neighborWall = mapNode != null ? mapNode.getNorthWall() : null;
 		defineWall(am, node.getSouthWall(), neighborWall, defs.getSouth());
 	}
 
@@ -281,17 +285,18 @@ public class ActionsHandler {
 							final MapNode neighborNode,
 							final GameAssetsManager am,
 							final MapNode node) {
-		ModelInstance neighborWall = neighborNode != null ? neighborNode.getWestWall() : null;
+		Wall neighborWall = neighborNode != null ? neighborNode.getWestWall() : null;
 		defineWall(am, node.getEastWall(), neighborWall, defs.getEast());
 	}
 
 	private void defineWall(final GameAssetsManager assetsManager,
-							final ModelInstance selectedWall,
-							final ModelInstance neighborWall,
+							final Wall selectedWall,
+							final Wall neighborWall,
 							final Assets.FloorsTextures texture) {
-		ModelInstance wall = Optional.ofNullable(selectedWall).orElse(neighborWall);
+		Wall wall = Optional.ofNullable(selectedWall).orElse(neighborWall);
 		Optional.ofNullable(wall).ifPresent(w -> {
-			Material material = wall.materials.get(0);
+			Material material = wall.getModelInstance().materials.get(0);
+			wall.setDefinition(texture);
 			TextureAttribute textureAttribute = (TextureAttribute) material.get(TextureAttribute.Diffuse);
 			textureAttribute.textureDescription.texture = assetsManager.getTexture(texture);
 			material.set(textureAttribute);

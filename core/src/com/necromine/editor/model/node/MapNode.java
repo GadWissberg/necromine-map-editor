@@ -18,10 +18,10 @@ import lombok.Setter;
 public class MapNode {
 
 	private final static Vector3 auxVector = new Vector3();
-	private ModelInstance eastWall;
-	private ModelInstance southWall;
-	private ModelInstance westWall;
-	private ModelInstance northWall;
+	private Wall eastWall;
+	private Wall southWall;
+	private Wall westWall;
+	private Wall northWall;
 
 	@Setter(AccessLevel.NONE)
 	private int col;

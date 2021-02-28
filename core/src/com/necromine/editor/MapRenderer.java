@@ -21,6 +21,7 @@ import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.model.elements.*;
 import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.Wall;
 import com.necromine.editor.utils.Utils;
 import lombok.RequiredArgsConstructor;
 
@@ -116,9 +117,9 @@ public class MapRenderer {
 		}
 	}
 
-	private void renderWall(final ModelBatch modelBatch, final ModelInstance wall) {
+	private void renderWall(final ModelBatch modelBatch, final Wall wall) {
 		if (wall != null) {
-			modelBatch.render(wall);
+			modelBatch.render(wall.getModelInstance());
 		}
 	}
 
