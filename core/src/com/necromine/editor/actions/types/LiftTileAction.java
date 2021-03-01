@@ -7,19 +7,20 @@ import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.necromine.editor.GameMap;
+import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
-import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.model.node.Wall;
 import lombok.AccessLevel;
 import lombok.Setter;
 
 import java.util.Optional;
 
+import static com.necromine.editor.MapEditor.auxVector3_1;
+
 @Setter(AccessLevel.PACKAGE)
 public class LiftTileAction extends MappingAction {
 	public static final float STEP = 0.1F;
-	private final static Vector3 auxVector = new Vector3();
 
 	private Node node;
 	private int direction;
@@ -30,11 +31,96 @@ public class LiftTileAction extends MappingAction {
 		super(map);
 	}
 
+	public static void adjustWallBetweenNorthAndSouth(final MapNode southernNode,
+													  final MapNode northernNode) {
+		Wall wallBetween = Optional.ofNullable(southernNode.getNorthWall()).orElse(northernNode.getSouthWall());
+		ModelInstance modelInstance = wallBetween.getModelInstance();
+		TextureAttribute textureAttribute = (TextureAttribute) modelInstance.materials.get(0).get(TextureAttribute.Diffuse);
+		textureAttribute.scaleV = adjustWallBetweenTwoNodes(southernNode, northernNode, wallBetween);
+		float degrees = (southernNode.getHeight() > northernNode.getHeight() ? -1 : 1) * 90F;
+		modelInstance.transform.rotate(Vector3.X, degrees);
+	}
+
+	public static void createNorthWall(final MapNode n,
+									   final Model wallModel,
+									   final GameAssetsManager assetsManager,
+									   final Assets.FloorsTextures definition) {
+		Wall northWall = createWall(wallModel, assetsManager, definition);
+		n.setNorthWall(northWall);
+		ModelInstance modelInstance = northWall.getModelInstance();
+		modelInstance.transform.setToTranslation(n.getCol(), 0, n.getRow());
+		modelInstance.transform.rotate(Vector3.X, -90);
+	}
+
+	public static Wall createWall(final Model wallModel,
+								  final GameAssetsManager assetsManager,
+								  final Assets.FloorsTextures definition) {
+		ModelInstance modelInstance = new ModelInstance(wallModel);
+		TextureAttribute textureAttribute = (TextureAttribute) modelInstance.materials.get(0).get(TextureAttribute.Diffuse);
+		textureAttribute.textureDescription.texture = assetsManager.getTexture(definition);
+		return new Wall(modelInstance, Assets.FloorsTextures.FLOOR_0);
+	}
+
+	public static void adjustWallBetweenEastAndWest(final MapNode eastNode,
+													final MapNode westNode) {
+		Wall wallBetween = Optional.ofNullable(eastNode.getWestWall()).orElse(westNode.getEastWall());
+		ModelInstance modelInstance = wallBetween.getModelInstance();
+		TextureAttribute textureAttribute = (TextureAttribute) modelInstance.materials.get(0).get(TextureAttribute.Diffuse);
+		textureAttribute.scaleU = adjustWallBetweenTwoNodes(eastNode, westNode, wallBetween);
+		modelInstance.transform.rotate(Vector3.Z, (eastNode.getHeight() > westNode.getHeight() ? 1 : -1) * 90F);
+	}
+
+	public static float adjustWallBetweenTwoNodes(final MapNode eastOrSouthNode,
+												  final MapNode westOrNorthNode,
+												  final Wall wallBetween) {
+		Vector3 wallBetweenThemPos = wallBetween.getModelInstance().transform.getTranslation(auxVector3_1);
+		float eastOrSouthHeight = eastOrSouthNode.getHeight();
+		float westOrNorthHeight = westOrNorthNode.getHeight();
+		float sizeHeight = Math.abs(westOrNorthHeight - eastOrSouthHeight);
+		float y = Math.min(eastOrSouthHeight, westOrNorthHeight) + (eastOrSouthHeight > westOrNorthHeight ? 0 : sizeHeight);
+		wallBetween.getModelInstance().transform.setToTranslationAndScaling(wallBetweenThemPos.x, y, wallBetweenThemPos.z,
+				1, sizeHeight, 1);
+		return sizeHeight;
+	}
+
+	public static void createWestWall(final MapNode n,
+									  final Model wallModel,
+									  final GameAssetsManager assetsManager,
+									  final Assets.FloorsTextures definition) {
+		Wall westWall = createWall(wallModel, assetsManager, definition);
+		n.setWestWall(westWall);
+		ModelInstance modelInstance = westWall.getModelInstance();
+		modelInstance.transform.setToTranslation(n.getCol(), 0, n.getRow());
+		modelInstance.transform.rotate(Vector3.Z, 90);
+	}
+
+	public static void createSouthWall(final MapNode n,
+									   final Model wallModel,
+									   final GameAssetsManager assetsManager,
+									   final Assets.FloorsTextures definition) {
+		Wall southWall = createWall(wallModel, assetsManager, definition);
+		n.setSouthWall(southWall);
+		ModelInstance modelInstance = southWall.getModelInstance();
+		modelInstance.transform.setToTranslation(n.getCol(), 0, n.getRow() + 1);
+		modelInstance.transform.rotate(Vector3.X, 90);
+	}
+
+	public static void createEastWall(final MapNode n,
+									  final Model wallModel,
+									  final GameAssetsManager assetsManager,
+									  final Assets.FloorsTextures definition) {
+		Wall eastWall = createWall(wallModel, assetsManager, definition);
+		n.setEastWall(eastWall);
+		ModelInstance modelInstance = eastWall.getModelInstance();
+		modelInstance.transform.setToTranslation(n.getCol() + 1F, 0, n.getRow());
+		modelInstance.transform.rotate(Vector3.Z, -90);
+	}
+
 	@Override
 	protected void execute() {
 		int row = node.getRow();
 		int col = node.getCol();
-		MapNode[][] tiles = map.getTiles();
+		MapNode[][] tiles = map.getNodes();
 		Optional.ofNullable(tiles[row][col]).ifPresent(selectedNode -> {
 			selectedNode.lift(direction * STEP);
 			Optional.ofNullable(tiles[row - 1][col]).ifPresent(north -> adjustNorthWall(selectedNode, north));
@@ -47,49 +133,15 @@ public class LiftTileAction extends MappingAction {
 	private void adjustNorthWall(final MapNode southernNode,
 								 final MapNode northernNode) {
 		if (northernNode.getSouthWall() == null && southernNode.getNorthWall() == null) {
-			createNorthWall(southernNode.getRow(), southernNode.getCol(), southernNode);
+			createNorthWall(southernNode, wallModel, assetsManager, Assets.FloorsTextures.FLOOR_0);
 		}
 		adjustWallBetweenNorthAndSouth(southernNode, northernNode);
-	}
-
-	private void adjustWallBetweenNorthAndSouth(final MapNode southernNode,
-												final MapNode northernNode) {
-		Wall wallBetween = Optional.ofNullable(southernNode.getNorthWall())
-				.orElse(northernNode.getSouthWall());
-		ModelInstance modelInstance = wallBetween.getModelInstance();
-		TextureAttribute textureAttribute = (TextureAttribute) modelInstance.materials.get(0).get(TextureAttribute.Diffuse);
-		textureAttribute.scaleV = adjustWallBetweenTwoNodes(southernNode, northernNode, wallBetween);
-		float degrees = (southernNode.getHeight() > northernNode.getHeight() ? -1 : 1) * 90F;
-		modelInstance.transform.rotate(Vector3.X, degrees);
-	}
-
-	private void adjustWallBetweenEastAndWest(final MapNode eastNode,
-											  final MapNode westNode) {
-		Wall wallBetween = Optional.ofNullable(eastNode.getWestWall())
-				.orElse(westNode.getEastWall());
-		ModelInstance modelInstance = wallBetween.getModelInstance();
-		TextureAttribute textureAttribute = (TextureAttribute) modelInstance.materials.get(0).get(TextureAttribute.Diffuse);
-		textureAttribute.scaleU = adjustWallBetweenTwoNodes(eastNode, westNode, wallBetween);
-		modelInstance.transform.rotate(Vector3.Z, (eastNode.getHeight() > westNode.getHeight() ? 1 : -1) * 90F);
-	}
-
-	private float adjustWallBetweenTwoNodes(final MapNode eastOrSouthNode,
-											final MapNode westOrNorthNode,
-											final Wall wallBetween) {
-		Vector3 wallBetweenThemPos = wallBetween.getModelInstance().transform.getTranslation(auxVector);
-		float eastOrSouthHeight = eastOrSouthNode.getHeight();
-		float westOrNorthHeight = westOrNorthNode.getHeight();
-		float sizeHeight = Math.abs(westOrNorthHeight - eastOrSouthHeight);
-		float y = Math.min(eastOrSouthHeight, westOrNorthHeight) + (eastOrSouthHeight > westOrNorthHeight ? 0 : sizeHeight);
-		wallBetween.getModelInstance().transform.setToTranslationAndScaling(wallBetweenThemPos.x, y, wallBetweenThemPos.z,
-				1, sizeHeight, 1);
-		return sizeHeight;
 	}
 
 	private void adjustSouthWall(final MapNode northernNode,
 								 final MapNode southernNode) {
 		if (southernNode.getNorthWall() == null && northernNode.getSouthWall() == null) {
-			createSouthWall(northernNode.getRow(), southernNode.getCol(), northernNode);
+			createSouthWall(northernNode, wallModel, assetsManager, Assets.FloorsTextures.FLOOR_0);
 		}
 		adjustWallBetweenNorthAndSouth(southernNode, northernNode);
 	}
@@ -97,55 +149,16 @@ public class LiftTileAction extends MappingAction {
 	private void adjustEastWall(final MapNode westernNode,
 								final MapNode easternNode) {
 		if (westernNode.getEastWall() == null && easternNode.getWestWall() == null) {
-			createEastWall(westernNode.getRow(), westernNode.getCol(), westernNode);
+			createEastWall(westernNode, wallModel, assetsManager, Assets.FloorsTextures.FLOOR_0);
 		}
 		adjustWallBetweenEastAndWest(easternNode, westernNode);
 	}
 
 	private void adjustWestWall(final MapNode easternNode, final MapNode westernNode) {
 		if (westernNode.getEastWall() == null && easternNode.getWestWall() == null) {
-			createWestWall(easternNode.getRow(), easternNode.getCol(), easternNode);
+			createWestWall(easternNode, wallModel, assetsManager, Assets.FloorsTextures.FLOOR_0);
 		}
 		adjustWallBetweenEastAndWest(easternNode, westernNode);
-	}
-
-	private void createNorthWall(final int row, final int col, final MapNode n) {
-		Wall northWall = createWall();
-		n.setNorthWall(northWall);
-		ModelInstance modelInstance = northWall.getModelInstance();
-		modelInstance.transform.setToTranslation(col, 0, row);
-		modelInstance.transform.rotate(Vector3.X, -90);
-	}
-
-	private void createSouthWall(final int row, final int col, final MapNode selected) {
-		Wall southWall = createWall();
-		selected.setSouthWall(southWall);
-		ModelInstance modelInstance = southWall.getModelInstance();
-		modelInstance.transform.setToTranslation(col, 0, row + 1);
-		modelInstance.transform.rotate(Vector3.X, 90);
-	}
-
-	private void createEastWall(final int row, final int col, final MapNode selected) {
-		Wall eastWall = createWall();
-		selected.setEastWall(eastWall);
-		ModelInstance modelInstance = eastWall.getModelInstance();
-		modelInstance.transform.setToTranslation(col + 1F, 0, row);
-		modelInstance.transform.rotate(Vector3.Z, -90);
-	}
-
-	private Wall createWall() {
-		ModelInstance modelInstance = new ModelInstance(wallModel);
-		TextureAttribute textureAttribute = (TextureAttribute) modelInstance.materials.get(0).get(TextureAttribute.Diffuse);
-		textureAttribute.textureDescription.texture = assetsManager.getTexture(Assets.FloorsTextures.FLOOR_0);
-		return new Wall(modelInstance, Assets.FloorsTextures.FLOOR_0);
-	}
-
-	private void createWestWall(final int row, final int col, final MapNode selected) {
-		Wall westWall = createWall();
-		selected.setWestWall(westWall);
-		ModelInstance modelInstance = westWall.getModelInstance();
-		modelInstance.transform.setToTranslation(col, 0, row);
-		modelInstance.transform.rotate(Vector3.Z, 90);
 	}
 
 	@Override

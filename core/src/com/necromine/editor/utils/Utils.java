@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.Intersector;
@@ -18,8 +20,10 @@ import com.gadarts.necromine.model.characters.*;
 import com.necromine.editor.model.elements.CharacterDecal;
 import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.Wall;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_SCALE;
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
@@ -78,5 +82,6 @@ public class Utils {
 		Intersector.intersectRayPlane(ray, auxPlane, auxVector3_2);
 		return auxVector3_2;
 	}
+
 
 }

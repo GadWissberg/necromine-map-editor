@@ -71,7 +71,7 @@ public class CursorHandler implements Disposable {
 			Vector3 collisionPoint = Utils.castRayTowardsPlane(screenX, screenY, camera);
 			int x = MathUtils.clamp((int) collisionPoint.x, 0, LEVEL_SIZE);
 			int z = MathUtils.clamp((int) collisionPoint.z, 0, LEVEL_SIZE);
-			MapNode mapNode = map.getTiles()[z][x];
+			MapNode mapNode = map.getNodes()[z][x];
 			highlighter.transform.setTranslation(x, (mapNode != null ? mapNode.getHeight() : 0) + 0.01f, z);
 			updateCursorAdditionals(x, z, MapEditor.getMode());
 			return true;

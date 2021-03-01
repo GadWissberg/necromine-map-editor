@@ -29,9 +29,9 @@ public class MapDeflater {
 
 	public void deflate(final GameMap map, final PlacedElements placedElements) {
 		JsonObject output = new JsonObject();
-		output.addProperty(MapJsonKeys.KEY_TARGET, TARGET_VERSION);
+		output.addProperty(MapJsonKeys.TARGET, TARGET_VERSION);
 		JsonObject tiles = createTilesData(map);
-		output.add(MapJsonKeys.KEY_TILES, tiles);
+		output.add(MapJsonKeys.TILES, tiles);
 		addCharacters(output, placedElements);
 		addElementsGroup(output, EditModes.ENVIRONMENT, true, placedElements);
 		addElementsGroup(output, EditModes.PICKUPS, false, placedElements);
@@ -61,37 +61,68 @@ public class MapDeflater {
 					.filter(character -> ((CharacterDefinition) character.getDefinition()).getCharacterType() == type)
 					.forEach(character -> charactersJsonArray.add(createElementJsonObject(character, true)));
 		});
-		output.add(MapJsonKeys.KEY_CHARACTERS, charactersJsonObject);
+		output.add(MapJsonKeys.CHARACTERS, charactersJsonObject);
 	}
 
 	private JsonObject createElementJsonObject(final PlacedElement e, final boolean addFacingDirection) {
 		JsonObject charJsonObject = new JsonObject();
-		charJsonObject.addProperty(MapJsonKeys.KEY_ROW, e.getNode().getRow());
-		charJsonObject.addProperty(MapJsonKeys.KEY_COL, e.getNode().getCol());
+		charJsonObject.addProperty(MapJsonKeys.ROW, e.getNode().getRow());
+		charJsonObject.addProperty(MapJsonKeys.COL, e.getNode().getCol());
 		if (addFacingDirection) {
-			charJsonObject.addProperty(MapJsonKeys.KEY_DIRECTION, e.getFacingDirection().ordinal());
+			charJsonObject.addProperty(MapJsonKeys.DIRECTION, e.getFacingDirection().ordinal());
 		}
 		ElementDefinition definition = e.getDefinition();
-		Optional.ofNullable(definition).ifPresent(d -> charJsonObject.addProperty(MapJsonKeys.KEY_TYPE, d.ordinal()));
+		Optional.ofNullable(definition).ifPresent(d -> charJsonObject.addProperty(MapJsonKeys.TYPE, d.ordinal()));
 		return charJsonObject;
 	}
 
 	private JsonObject createTilesData(final GameMap map) {
 		JsonObject tiles = new JsonObject();
-		tiles.addProperty(MapJsonKeys.KEY_WIDTH, LEVEL_SIZE);
-		tiles.addProperty(MapJsonKeys.KEY_DEPTH, LEVEL_SIZE);
+		addMapSize(tiles);
 		StringBuilder builder = new StringBuilder();
+		JsonArray heights = new JsonArray();
 		IntStream.range(0, LEVEL_SIZE).forEach(row ->
 				IntStream.range(0, LEVEL_SIZE).forEach(col -> {
-					MapNode mapNode = map.getTiles()[row][col];
+					MapNode mapNode = map.getNodes()[row][col];
 					if (mapNode != null && mapNode.getTextureDefinition() != null) {
+						addHeight(mapNode, heights);
 						builder.append(mapNode.getTextureDefinition().ordinal() + 1);
 					} else {
 						builder.append(0);
 					}
 				})
 		);
-		tiles.addProperty(MapJsonKeys.KEY_MATRIX, builder.toString());
+		tiles.addProperty(MapJsonKeys.MATRIX, builder.toString());
+		if (heights.size() > 0) {
+			tiles.add(MapJsonKeys.HEIGHTS, heights);
+		}
 		return tiles;
+	}
+
+	private void addMapSize(final JsonObject tiles) {
+		tiles.addProperty(MapJsonKeys.WIDTH, LEVEL_SIZE);
+		tiles.addProperty(MapJsonKeys.DEPTH, LEVEL_SIZE);
+	}
+
+	private void addHeight(final MapNode node, final JsonArray heights) {
+		if (node.getHeight() > 0) {
+			JsonObject json = new JsonObject();
+			json.addProperty(MapJsonKeys.ROW, node.getRow());
+			json.addProperty(MapJsonKeys.COL, node.getCol());
+			json.addProperty(MapJsonKeys.HEIGHT, node.getHeight());
+			deflateWalls(node, json);
+			heights.add(json);
+		}
+	}
+
+	private void deflateWalls(final MapNode node, final JsonObject json) {
+		Optional.ofNullable(node.getEastWall())
+				.ifPresent(w -> json.addProperty(MapJsonKeys.EAST, w.getDefinition().getName()));
+		Optional.ofNullable(node.getSouthWall())
+				.ifPresent(w -> json.addProperty(MapJsonKeys.SOUTH, w.getDefinition().getName()));
+		Optional.ofNullable(node.getWestWall())
+				.ifPresent(w -> json.addProperty(MapJsonKeys.WEST, w.getDefinition().getName()));
+		Optional.ofNullable(node.getNorthWall())
+				.ifPresent(w -> json.addProperty(MapJsonKeys.NORTH, w.getDefinition().getName()));
 	}
 }

@@ -83,16 +83,29 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	private Assets.FloorsTextures selectedTile;
 	private ElementDefinition selectedElement;
 	private Model tileModel;
+	private Model wallModel;
 
 	public MapEditor(final int width, final int height) {
 		VIEWPORT_WIDTH = width / 50;
 		VIEWPORT_HEIGHT = height / 50;
 		assetsManager = new GameAssetsManager(TEMP_ASSETS_FOLDER.replace('\\', '/') + '/');
-		handlers = new Handlers(assetsManager);
+		handlers = new Handlers(assetsManager, map);
 		CursorHandler cursorHandler = handlers.getCursorHandler();
 		cursorHandler.setCursorSelectionModel(new CursorSelectionModel(assetsManager));
 		inflater = new MapInflater(assetsManager, cursorHandler, placedElements.getPlacedTiles());
 		Arrays.stream(EditModes.values()).forEach(mode -> placedElements.getPlacedObjects().put(mode, new ArrayList<>()));
+	}
+
+	private void createWallModel() {
+		ModelBuilder modelBuilder = new ModelBuilder();
+		wallModel = modelBuilder.createRect(
+				0, 0, 1,
+				1, 0, 1,
+				1, 0, 0,
+				0, 0, 0,
+				0, 1, 0,
+				new Material(TextureAttribute.createDiffuse((Texture) null)),
+				VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
 	}
 
 	@Override
@@ -101,7 +114,8 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		renderer = new MapRenderer(assetsManager, handlers, camera);
 		initializeGameFiles();
 		tileModel = createRectModel();
-		handlers.onCreate(tileModel, map, placedElements, camera);
+		createWallModel();
+		handlers.onCreate(tileModel, placedElements, camera, wallModel);
 		initializeInput();
 	}
 
@@ -185,6 +199,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		handlers.dispose();
 		assetsManager.dispose();
 		tileModel.dispose();
+		wallModel.dispose();
 	}
 
 	@Override
@@ -258,7 +273,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public void onLoadMapRequested() {
-		inflater.inflateMap(map, placedElements);
+		inflater.inflateMap(map, placedElements, wallModel);
 	}
 
 	@Override

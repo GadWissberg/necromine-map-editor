@@ -24,7 +24,7 @@ public class PlaceLightAction extends PlaceElementAction<PlacedLight, ElementDef
 	@Override
 	protected void execute() {
 		super.execute();
-		MapNode tile = map.getTiles()[node.getRow()][node.getCol()];
+		MapNode tile = map.getNodes()[node.getRow()][node.getCol()];
 		if (tile != null) {
 			placedElements.add(new PlacedLight(node.getRow(), node.getCol(), elementDefinition, assetsManager));
 		}

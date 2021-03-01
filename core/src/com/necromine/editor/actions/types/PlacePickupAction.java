@@ -27,7 +27,7 @@ public class PlacePickupAction extends PlaceElementAction<PlacedPickup, ItemDefi
 		super.execute();
 		int selectedRow = node.getRow();
 		int selectedCol = node.getCol();
-		MapNode tile = map.getTiles()[selectedRow][selectedCol];
+		MapNode tile = map.getNodes()[selectedRow][selectedCol];
 		if (tile != null) {
 			PlacedPickup character = new PlacedPickup(selectedRow, selectedCol, elementDefinition, assetsManager);
 			placedElements.add(character);

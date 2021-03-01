@@ -53,7 +53,7 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 	private void applyOnNode(final int row, final int col) {
 		int currentRow = Math.min(Math.max(node.getRow() + row, 0), MapEditor.LEVEL_SIZE);
 		int currentCol = Math.min(Math.max(node.getCol() + col, 0), MapEditor.LEVEL_SIZE);
-		MapNode[][] tiles = map.getTiles();
+		MapNode[][] tiles = map.getNodes();
 		MapNode mapNode = tiles[currentRow][currentCol];
 		if (mapNode == null) {
 			tiles[currentRow][currentCol] = new MapNode(currentRow, currentCol, selectedEnvObject.getNodeType());

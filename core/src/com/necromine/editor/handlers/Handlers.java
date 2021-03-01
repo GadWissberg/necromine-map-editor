@@ -9,6 +9,7 @@ import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.GameMap;
+import com.necromine.editor.MapEditor;
 import com.necromine.editor.actions.ActionsHandler;
 import com.necromine.editor.actions.CursorHandler;
 import com.necromine.editor.model.elements.PlacedElements;
@@ -20,21 +21,23 @@ public class Handlers implements Disposable {
 	private final CursorHandler cursorHandler = new CursorHandler();
 	private final BatchHandler batchHandler = new BatchHandler();
 	private final GameAssetsManager assetsManager;
+	private final GameMap map;
 	private ActionsHandler actionsHandler;
 
-	public Handlers(final GameAssetsManager assetsManager) {
+	public Handlers(final GameAssetsManager assetsManager, GameMap map) {
 		this.assetsManager = assetsManager;
+		this.map = map;
 	}
 
 	public void onCreate(final Model tileModel,
-						 final GameMap map,
 						 final PlacedElements placedElements,
-						 final Camera camera) {
-        batchHandler.createBatches(camera);
-        viewAuxHandler.createModels();
-        cursorHandler.createCursors(assetsManager, tileModel);
-        actionsHandler = new ActionsHandler(map, placedElements, cursorHandler);
-    }
+						 final Camera camera,
+						 final Model wallModel) {
+		batchHandler.createBatches(camera);
+		viewAuxHandler.createModels();
+		cursorHandler.createCursors(assetsManager, tileModel);
+		actionsHandler = new ActionsHandler(map, placedElements, cursorHandler, wallModel);
+	}
 
 	@Override
 	public void dispose() {

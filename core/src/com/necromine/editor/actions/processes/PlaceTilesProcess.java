@@ -51,7 +51,7 @@ public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessPar
 	}
 
 	private void defineTile(final PlaceTilesFinishProcessParameters params, final int col, final int row) {
-		MapNode[][] tiles = map.getTiles();
+		MapNode[][] tiles = map.getNodes();
 		MapNode tile = tiles[row][col];
 		if (tile == null) {
 			tile = new MapNode(params.getTileModel(), row, col, MapNodesTypes.PASSABLE_NODE);

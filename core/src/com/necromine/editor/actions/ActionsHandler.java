@@ -1,12 +1,9 @@
 package com.necromine.editor.actions;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.VertexAttributes.Usage;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
-import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
@@ -47,32 +44,23 @@ public class ActionsHandler {
 
 	@Getter
 	private final CursorHandler cursorHandler;
-
+	private final Model wallModel;
 	@Setter
 	private ElementDefinition selectedElement;
-
 	@Getter
 	private MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess;
-	private Model wallModel;
 
-	public ActionsHandler(final GameMap map, final PlacedElements placedElements, final CursorHandler cursorHandler) {
+	public ActionsHandler(final GameMap map,
+						  final PlacedElements placedElements,
+						  final CursorHandler cursorHandler,
+						  final Model wallModel) {
 		this.map = map;
 		this.placedElements = placedElements;
 		this.cursorHandler = cursorHandler;
-		createWallModel();
+		this.wallModel = wallModel;
 	}
 
-	private void createWallModel() {
-		ModelBuilder modelBuilder = new ModelBuilder();
-		wallModel = modelBuilder.createRect(
-				0, 0, 1,
-				1, 0, 1,
-				1, 0, 0,
-				0, 0, 0,
-				0, 1, 0,
-				new Material(TextureAttribute.createDiffuse((Texture) null)),
-				Usage.Position | Usage.Normal | Usage.TextureCoordinates);
-	}
+
 
 	public void executeAction(final MappingAction mappingAction) {
 		mappingAction.execute();
@@ -140,7 +128,7 @@ public class ActionsHandler {
 		Vector3 cursorPosition = cursorHandler.getHighlighter().transform.getTranslation(auxVector);
 		int row = (int) cursorPosition.z;
 		int col = (int) cursorPosition.x;
-		MapNode mapNode = map.getTiles()[row][col];
+		MapNode mapNode = map.getNodes()[row][col];
 		if (mapNode != null) {
 			eventsNotifier.tileSelectedUsingWallTilingTool(row, col, new NodeWallsDefinitions(mapNode));
 		}
@@ -249,7 +237,7 @@ public class ActionsHandler {
 								   final int row,
 								   final int col,
 								   final GameAssetsManager am) {
-		MapNode[][] nodes = map.getTiles();
+		MapNode[][] nodes = map.getNodes();
 		MapNode node = nodes[row][col];
 		defineEast(defs, nodes[row][col + 1], am, node);
 		defineSouth(defs, nodes[row + 1][col], am, node);

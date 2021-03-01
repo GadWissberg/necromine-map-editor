@@ -35,8 +35,8 @@ public class RemoveElementAction extends MappingAction {
     }
 
     private void removePlacedTile() {
-        MapNode mapNode = map.getTiles()[node.getRow()][node.getCol()];
-        map.getTiles()[node.getRow()][node.getCol()] = null;
+        MapNode mapNode = map.getNodes()[node.getRow()][node.getCol()];
+        map.getNodes()[node.getRow()][node.getCol()] = null;
         placedElements.getPlacedTiles().remove(mapNode);
     }
 

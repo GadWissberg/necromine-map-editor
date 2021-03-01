@@ -14,9 +14,13 @@ public class NodeWallsDefinitions {
 
 
 	public NodeWallsDefinitions(final MapNode mapNode) {
-		this.east = mapNode.getEastWall().getDefinition();
-		this.south = mapNode.getSouthWall().getDefinition();
-		this.west = mapNode.getWestWall().getDefinition();
-		this.north = mapNode.getNorthWall().getDefinition();
+		Wall eastWall = mapNode.getEastWall();
+		this.east = eastWall != null ? eastWall.getDefinition() : null;
+		Wall southWall = mapNode.getSouthWall();
+		this.south = southWall != null ? southWall.getDefinition() : null;
+		Wall westWall = mapNode.getWestWall();
+		this.west = westWall != null ? westWall.getDefinition() : null;
+		Wall northWall = mapNode.getNorthWall();
+		this.north = northWall != null ? northWall.getDefinition() : null;
 	}
 }
