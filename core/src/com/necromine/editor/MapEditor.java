@@ -12,17 +12,18 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
+import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.Assets.AssetsTypes;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
+import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
@@ -33,7 +34,6 @@ import com.necromine.editor.handlers.Handlers;
 import com.necromine.editor.mode.*;
 import com.necromine.editor.model.elements.CharacterDecal;
 import com.necromine.editor.model.elements.PlacedElements;
-import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 import com.necromine.editor.utils.MapDeflater;
 import com.necromine.editor.utils.MapInflater;
@@ -78,12 +78,12 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	private final MapInflater inflater;
 	private final MapDeflater deflater = new MapDeflater();
 	private final MapManagerEventsNotifier eventsNotifier = new MapManagerEventsNotifier();
+	private WallCreator wallCreator;
 	private MapRenderer renderer;
 	private OrthographicCamera camera;
 	private Assets.FloorsTextures selectedTile;
 	private ElementDefinition selectedElement;
 	private Model tileModel;
-	private Model wallModel;
 
 	public MapEditor(final int width, final int height) {
 		VIEWPORT_WIDTH = width / 50;
@@ -96,26 +96,15 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		Arrays.stream(EditModes.values()).forEach(mode -> placedElements.getPlacedObjects().put(mode, new ArrayList<>()));
 	}
 
-	private void createWallModel() {
-		ModelBuilder modelBuilder = new ModelBuilder();
-		wallModel = modelBuilder.createRect(
-				0, 0, 1,
-				1, 0, 1,
-				1, 0, 0,
-				0, 0, 0,
-				0, 1, 0,
-				new Material(TextureAttribute.createDiffuse((Texture) null)),
-				VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates);
-	}
 
 	@Override
 	public void create() {
+		wallCreator = new WallCreator(assetsManager);
 		camera = createCamera();
 		renderer = new MapRenderer(assetsManager, handlers, camera);
 		initializeGameFiles();
 		tileModel = createRectModel();
-		createWallModel();
-		handlers.onCreate(tileModel, placedElements, camera, wallModel);
+		handlers.onCreate(tileModel, placedElements, camera, wallCreator);
 		initializeInput();
 	}
 
@@ -145,9 +134,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		Array<Model> models = new Array<>();
 		assetsManager.getAll(Model.class, models);
 		models.forEach(model -> model.materials.get(0).set(new BlendingAttribute()));
-		Array<Texture> textures = new Array<>();
-		assetsManager.getAll(Texture.class, textures);
-		textures.forEach(texture -> texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat));
+		assetsManager.applyRepeatWrapOnAllTextures();
 	}
 
 	private void generateFramesMapForCharacter(final CharacterDefinition characterDefinition) {
@@ -199,7 +186,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		handlers.dispose();
 		assetsManager.dispose();
 		tileModel.dispose();
-		wallModel.dispose();
+		wallCreator.dispose();
 	}
 
 	@Override
@@ -273,7 +260,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public void onLoadMapRequested() {
-		inflater.inflateMap(map, placedElements, wallModel);
+		inflater.inflateMap(map, placedElements, wallCreator);
 	}
 
 	@Override
@@ -312,7 +299,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		if (button == Input.Buttons.LEFT) {
 			lastMouseTouchPosition.set(screenX, screenY);
 		}
-		Set<MapNode> placedTiles = placedElements.getPlacedTiles();
+		Set<MapNodeData> placedTiles = placedElements.getPlacedTiles();
 		return handlers.getActionsHandler().onTouchDown(assetsManager, placedTiles, button, eventsNotifier);
 	}
 

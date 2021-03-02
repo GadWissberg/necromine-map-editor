@@ -1,8 +1,7 @@
 package com.necromine.editor.model.elements;
 
+import com.gadarts.necromine.model.MapNodeData;
 import com.necromine.editor.mode.EditModes;
-import com.necromine.editor.model.elements.PlacedElement;
-import com.necromine.editor.model.node.MapNode;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -13,6 +12,6 @@ import java.util.Set;
 
 @Getter
 public class PlacedElements {
-    private final Set<MapNode> placedTiles = new HashSet<>();
+    private final Set<MapNodeData> placedTiles = new HashSet<>();
     private final Map<EditModes, List<? extends PlacedElement>> placedObjects = new HashMap<>();
 }

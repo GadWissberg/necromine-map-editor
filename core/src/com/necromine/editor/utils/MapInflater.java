@@ -1,10 +1,12 @@
 package com.necromine.editor.utils;
 
 import com.badlogic.gdx.graphics.g3d.Model;
+import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.assets.MapJsonKeys;
 import com.gadarts.necromine.model.ElementDefinition;
+import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.MapNodesTypes;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
@@ -14,13 +16,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.actions.CursorHandler;
-import com.necromine.editor.actions.types.LiftTileAction;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedCharacter;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElementCreation;
 import com.necromine.editor.model.elements.PlacedElements;
-import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
 import lombok.RequiredArgsConstructor;
 
@@ -39,10 +39,10 @@ import static com.gadarts.necromine.model.characters.Direction.SOUTH;
 public class MapInflater {
 	private final GameAssetsManager assetsManager;
 	private final CursorHandler cursorHandler;
-	private final Set<MapNode> initializedTiles;
+	private final Set<MapNodeData> initializedTiles;
 	private final Gson gson = new Gson();
 
-	public void inflateMap(final GameMap map, final PlacedElements placedElements, final Model wallModel) {
+	public void inflateMap(final GameMap map, final PlacedElements placedElements, final WallCreator wallCreator) {
 		try (Reader reader = new FileReader("test_map.json")) {
 			JsonObject input = gson.fromJson(reader, JsonObject.class);
 			inflateCharacters(input, placedElements, assetsManager);
@@ -53,65 +53,69 @@ public class MapInflater {
 			});
 			JsonObject tilesJsonObject = input.getAsJsonObject(MapJsonKeys.TILES);
 			map.setNodes(inflateTiles(tilesJsonObject, initializedTiles));
-			inflateHeights(tilesJsonObject, map, wallModel);
+			inflateHeights(tilesJsonObject, map, wallCreator);
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	private void inflateHeights(final JsonObject tilesJsonObject, final GameMap map, final Model wallModel) {
+	private void inflateHeights(final JsonObject tilesJsonObject, final GameMap map, final WallCreator wallCreator) {
 		JsonArray heights = tilesJsonObject.get(MapJsonKeys.HEIGHTS).getAsJsonArray();
 		if (heights != null) {
 			heights.forEach(nodeJsonElement -> {
 				JsonObject nodeJsonObject = nodeJsonElement.getAsJsonObject();
 				int row = nodeJsonObject.get(MapJsonKeys.ROW).getAsInt();
 				int col = nodeJsonObject.get(MapJsonKeys.COL).getAsInt();
-				MapNode mapNode = map.getNodes()[row][col];
-				mapNode.lift(nodeJsonObject.get(MapJsonKeys.HEIGHT).getAsFloat());
-				inflateWalls(wallModel, nodeJsonObject, mapNode, map);
+				MapNodeData mapNodeData = map.getNodes()[row][col];
+				mapNodeData.lift(nodeJsonObject.get(MapJsonKeys.HEIGHT).getAsFloat());
+				inflateWalls(nodeJsonObject, mapNodeData, map, wallCreator);
 			});
 		}
 	}
 
-	private void inflateWalls(final Model wallModel, final JsonObject node, final MapNode mapNode, final GameMap map) {
-		MapNode[][] nodes = map.getNodes();
-		int row = mapNode.getRow();
-		int col = mapNode.getCol();
+	private void inflateWalls(final JsonObject node,
+							  final MapNodeData mapNodeData,
+							  final GameMap map,
+							  final WallCreator wallCreator) {
+		MapNodeData[][] nodes = map.getNodes();
+		int row = mapNodeData.getRow();
+		int col = mapNodeData.getCol();
+		Model wallModel = wallCreator.getWallModel();
 		Optional.ofNullable(node.get(MapJsonKeys.EAST)).ifPresent(east -> {
-			LiftTileAction.createEastWall(
-					mapNode,
+			mapNodeData.setEastWall(WallCreator.createEastWall(
+					mapNodeData,
 					wallModel,
 					assetsManager,
 					Assets.FloorsTextures.valueOf(east.getAsString())
-			);
-			LiftTileAction.adjustWallBetweenEastAndWest(nodes[row][col + 1], mapNode);
+			));
+			WallCreator.adjustWallBetweenEastAndWest(nodes[row][col + 1], mapNodeData);
 		});
 		Optional.ofNullable(node.get(MapJsonKeys.SOUTH)).ifPresent(south -> {
-			LiftTileAction.createSouthWall(
-					mapNode,
+			mapNodeData.setSouthWall(WallCreator.createSouthWall(
+					mapNodeData,
 					wallModel,
 					assetsManager,
 					Assets.FloorsTextures.valueOf(south.getAsString())
-			);
-			LiftTileAction.adjustWallBetweenNorthAndSouth(nodes[row + 1][col], mapNode);
+			));
+			WallCreator.adjustWallBetweenNorthAndSouth(nodes[row + 1][col], mapNodeData);
 		});
 		Optional.ofNullable(node.get(MapJsonKeys.WEST)).ifPresent(west -> {
-			LiftTileAction.createWestWall(
-					mapNode,
+			mapNodeData.setWestWall(WallCreator.createWestWall(
+					mapNodeData,
 					wallModel,
 					assetsManager,
 					Assets.FloorsTextures.valueOf(west.getAsString())
-			);
-			LiftTileAction.adjustWallBetweenEastAndWest(mapNode, nodes[row][col - 1]);
+			));
+			WallCreator.adjustWallBetweenEastAndWest(mapNodeData, nodes[row][col - 1]);
 		});
 		Optional.ofNullable(node.get(MapJsonKeys.NORTH)).ifPresent(north -> {
-			LiftTileAction.createNorthWall(
-					mapNode,
+			mapNodeData.setNorthWall(WallCreator.createNorthWall(
+					mapNodeData,
 					wallModel,
 					assetsManager,
 					Assets.FloorsTextures.valueOf(north.getAsString())
-			);
-			LiftTileAction.adjustWallBetweenNorthAndSouth(mapNode, nodes[row - 1][col]);
+			));
+			WallCreator.adjustWallBetweenNorthAndSouth(mapNodeData, nodes[row - 1][col]);
 		});
 	}
 
@@ -164,11 +168,11 @@ public class MapInflater {
 		});
 	}
 
-	private MapNode[][] inflateTiles(final JsonObject tilesJsonObject, final Set<MapNode> initializedTiles) {
+	private MapNodeData[][] inflateTiles(final JsonObject tilesJsonObject, final Set<MapNodeData> initializedTiles) {
 		int width = tilesJsonObject.get(MapJsonKeys.WIDTH).getAsInt();
 		int depth = tilesJsonObject.get(MapJsonKeys.DEPTH).getAsInt();
 		String matrix = tilesJsonObject.get(MapJsonKeys.MATRIX).getAsString();
-		MapNode[][] inputMap = new MapNode[depth][width];
+		MapNodeData[][] inputMap = new MapNodeData[depth][width];
 		initializedTiles.clear();
 		IntStream.range(0, depth)
 				.forEach(row -> IntStream.range(0, width)
@@ -178,14 +182,14 @@ public class MapInflater {
 
 	private void inflateTile(final int mapWidth,
 							 final String matrix,
-							 final MapNode[][] inputMap,
+							 final MapNodeData[][] inputMap,
 							 final Node node) {
 		int row = node.getRow();
 		int col = node.getCol();
 		char tileId = matrix.charAt(row * mapWidth + col % mapWidth);
 		if (tileId != '0') {
 			Assets.FloorsTextures textureDefinition = Assets.FloorsTextures.values()[tileId - '1'];
-			MapNode tile = new MapNode(cursorHandler.getCursorTileModel(), node.getRow(), node.getCol(), MapNodesTypes.PASSABLE_NODE);
+			MapNodeData tile = new MapNodeData(cursorHandler.getCursorTileModel(), node.getRow(), node.getCol(), MapNodesTypes.PASSABLE_NODE);
 			Utils.initializeTile(tile, textureDefinition, assetsManager);
 			inputMap[row][col] = tile;
 			initializedTiles.add(tile);

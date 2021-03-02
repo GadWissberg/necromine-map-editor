@@ -6,8 +6,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g3d.Material;
-import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.Intersector;
@@ -16,14 +14,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.Ray;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.*;
 import com.necromine.editor.model.elements.CharacterDecal;
-import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
-import com.necromine.editor.model.node.Wall;
 
 import java.util.HashMap;
-import java.util.Optional;
 
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_SCALE;
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
@@ -67,7 +63,7 @@ public class Utils {
 		return decal;
 	}
 
-	public static void initializeTile(final MapNode tile,
+	public static void initializeTile(final MapNodeData tile,
 									  final Assets.FloorsTextures selectedTile,
 									  final GameAssetsManager assetsManager) {
 		tile.setTextureDefinition(selectedTile);

@@ -2,6 +2,7 @@ package com.necromine.editor.utils;
 
 import com.gadarts.necromine.assets.MapJsonKeys;
 import com.gadarts.necromine.model.ElementDefinition;
+import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.google.gson.Gson;
@@ -11,7 +12,6 @@ import com.necromine.editor.GameMap;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElements;
-import com.necromine.editor.model.node.MapNode;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -83,10 +83,10 @@ public class MapDeflater {
 		JsonArray heights = new JsonArray();
 		IntStream.range(0, LEVEL_SIZE).forEach(row ->
 				IntStream.range(0, LEVEL_SIZE).forEach(col -> {
-					MapNode mapNode = map.getNodes()[row][col];
-					if (mapNode != null && mapNode.getTextureDefinition() != null) {
-						addHeight(mapNode, heights);
-						builder.append(mapNode.getTextureDefinition().ordinal() + 1);
+					MapNodeData mapNodeData = map.getNodes()[row][col];
+					if (mapNodeData != null && mapNodeData.getTextureDefinition() != null) {
+						addHeight(mapNodeData, heights);
+						builder.append(mapNodeData.getTextureDefinition().ordinal() + 1);
 					} else {
 						builder.append(0);
 					}
@@ -104,7 +104,7 @@ public class MapDeflater {
 		tiles.addProperty(MapJsonKeys.DEPTH, LEVEL_SIZE);
 	}
 
-	private void addHeight(final MapNode node, final JsonArray heights) {
+	private void addHeight(final MapNodeData node, final JsonArray heights) {
 		if (node.getHeight() > 0) {
 			JsonObject json = new JsonObject();
 			json.addProperty(MapJsonKeys.ROW, node.getRow());
@@ -115,7 +115,7 @@ public class MapDeflater {
 		}
 	}
 
-	private void deflateWalls(final MapNode node, final JsonObject json) {
+	private void deflateWalls(final MapNodeData node, final JsonObject json) {
 		Optional.ofNullable(node.getEastWall())
 				.ifPresent(w -> json.addProperty(MapJsonKeys.EAST, w.getDefinition().getName()));
 		Optional.ofNullable(node.getSouthWall())

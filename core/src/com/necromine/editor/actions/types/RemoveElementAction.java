@@ -1,8 +1,8 @@
 package com.necromine.editor.actions.types;
 
+import com.gadarts.necromine.model.MapNodeData;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.elements.PlacedElements;
 import com.necromine.editor.actions.MappingAction;
@@ -35,9 +35,9 @@ public class RemoveElementAction extends MappingAction {
     }
 
     private void removePlacedTile() {
-        MapNode mapNode = map.getNodes()[node.getRow()][node.getCol()];
+        MapNodeData mapNodeData = map.getNodes()[node.getRow()][node.getCol()];
         map.getNodes()[node.getRow()][node.getCol()] = null;
-        placedElements.getPlacedTiles().remove(mapNode);
+        placedElements.getPlacedTiles().remove(mapNodeData);
     }
 
     private void removePlacedObject() {

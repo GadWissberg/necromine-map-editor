@@ -1,10 +1,10 @@
 package com.necromine.editor.actions.types;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.actions.PlaceElementAction;
 import com.necromine.editor.model.elements.PlacedCharacter;
@@ -25,7 +25,7 @@ public class PlaceCharacterAction extends PlaceElementAction<PlacedCharacter, Ch
 	@Override
 	protected void execute() {
 		super.execute();
-		MapNode tile = map.getNodes()[node.getRow()][node.getCol()];
+		MapNodeData tile = map.getNodes()[node.getRow()][node.getCol()];
 		if (tile != null) {
 			placedElements.add(new PlacedCharacter(
 					elementDefinition,

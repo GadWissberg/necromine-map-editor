@@ -2,9 +2,9 @@ package com.necromine.editor.actions;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
+import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.elements.PlacedElement;
 
@@ -34,13 +34,13 @@ public abstract class PlaceElementAction<T extends PlacedElement, S extends Elem
 
 	@Override
 	protected void execute() {
-		MapNode tile = map.getNodes()[node.getRow()][node.getCol()];
+		MapNodeData tile = map.getNodes()[node.getRow()][node.getCol()];
 		if (tile != null) {
 			removeElementFromTile(tile, placedElements);
 		}
 	}
 
-	private void removeElementFromTile(final MapNode tile, final List<? extends PlacedElement> placedElements) {
+	private void removeElementFromTile(final MapNodeData tile, final List<? extends PlacedElement> placedElements) {
 		placedElements.stream()
 				.filter(placedCharacter -> placedCharacter.getNode().equals(tile.getRow(), tile.getCol()))
 				.findFirst()

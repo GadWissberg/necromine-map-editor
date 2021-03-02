@@ -5,10 +5,13 @@ import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.math.Vector3;
+import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
+import com.gadarts.necromine.model.MapNodeData;
+import com.gadarts.necromine.model.Wall;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.CursorSelectionModel;
@@ -24,10 +27,8 @@ import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.EditorTool;
 import com.necromine.editor.mode.TilesTools;
 import com.necromine.editor.model.elements.*;
-import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
-import com.necromine.editor.model.node.Wall;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -44,7 +45,7 @@ public class ActionsHandler {
 
 	@Getter
 	private final CursorHandler cursorHandler;
-	private final Model wallModel;
+	private final WallCreator wallCreator;
 	@Setter
 	private ElementDefinition selectedElement;
 	@Getter
@@ -53,13 +54,12 @@ public class ActionsHandler {
 	public ActionsHandler(final GameMap map,
 						  final PlacedElements placedElements,
 						  final CursorHandler cursorHandler,
-						  final Model wallModel) {
+						  final WallCreator wallCreator) {
 		this.map = map;
 		this.placedElements = placedElements;
 		this.cursorHandler = cursorHandler;
-		this.wallModel = wallModel;
+		this.wallCreator = wallCreator;
 	}
-
 
 
 	public void executeAction(final MappingAction mappingAction) {
@@ -70,7 +70,7 @@ public class ActionsHandler {
 	}
 
 	private void beginTilePlacingProcess(final GameAssetsManager assetsManager,
-										 final Set<MapNode> initializedTiles) {
+										 final Set<MapNodeData> initializedTiles) {
 		Vector3 position = cursorHandler.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
@@ -80,7 +80,7 @@ public class ActionsHandler {
 	}
 
 	public boolean onTouchDown(final GameAssetsManager assetsManager,
-							   final Set<MapNode> initializedTiles,
+							   final Set<MapNodeData> initializedTiles,
 							   final int button,
 							   final MapManagerEventsNotifier eventsNotifier) {
 		EditorMode mode = MapEditor.getMode();
@@ -92,7 +92,7 @@ public class ActionsHandler {
 					if (tool == TilesTools.BRUSH) {
 						beginTilePlacingProcess(assetsManager, initializedTiles);
 					} else if (tool == TilesTools.LIFT) {
-						liftTile(map, 1, assetsManager);
+						liftTile(map, 1, assetsManager, wallCreator);
 					} else if (tool == TilesTools.WALL_TILING) {
 						tileWall(eventsNotifier);
 					}
@@ -117,7 +117,7 @@ public class ActionsHandler {
 				if (tool == TilesTools.BRUSH) {
 					return removeElementByMode();
 				} else if (tool == TilesTools.LIFT) {
-					return liftTile(map, -1, assetsManager);
+					return liftTile(map, -1, assetsManager, wallCreator);
 				}
 			}
 		}
@@ -128,9 +128,9 @@ public class ActionsHandler {
 		Vector3 cursorPosition = cursorHandler.getHighlighter().transform.getTranslation(auxVector);
 		int row = (int) cursorPosition.z;
 		int col = (int) cursorPosition.x;
-		MapNode mapNode = map.getNodes()[row][col];
-		if (mapNode != null) {
-			eventsNotifier.tileSelectedUsingWallTilingTool(row, col, new NodeWallsDefinitions(mapNode));
+		MapNodeData mapNodeData = map.getNodes()[row][col];
+		if (mapNodeData != null) {
+			eventsNotifier.tileSelectedUsingWallTilingTool(row, col, new NodeWallsDefinitions(mapNodeData));
 		}
 	}
 
@@ -191,11 +191,12 @@ public class ActionsHandler {
 		executeAction(action);
 	}
 
-	private boolean liftTile(final GameMap map, final int direction, final GameAssetsManager assetsManager) {
+	private boolean liftTile(final GameMap map, final int direction, final GameAssetsManager assetsManager, WallCreator wallCreator) {
 		Vector3 position = cursorHandler.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
-		executeAction(ActionBuilder.begin(map).liftTile(new Node(row, col), direction, wallModel, assetsManager).finish());
+		Node node = new Node(row, col);
+		executeAction(ActionBuilder.begin(map, assetsManager).liftTile(node, direction, wallCreator).finish());
 		return true;
 	}
 
@@ -237,8 +238,8 @@ public class ActionsHandler {
 								   final int row,
 								   final int col,
 								   final GameAssetsManager am) {
-		MapNode[][] nodes = map.getNodes();
-		MapNode node = nodes[row][col];
+		MapNodeData[][] nodes = map.getNodes();
+		MapNodeData node = nodes[row][col];
 		defineEast(defs, nodes[row][col + 1], am, node);
 		defineSouth(defs, nodes[row + 1][col], am, node);
 		defineWest(defs, nodes[row][col - 1], am, node);
@@ -246,33 +247,33 @@ public class ActionsHandler {
 	}
 
 	private void defineNorth(final NodeWallsDefinitions defs,
-							 final MapNode mapNode,
+							 final MapNodeData mapNodeData,
 							 final GameAssetsManager am,
-							 final MapNode node) {
-		Wall neighborWall = mapNode != null ? mapNode.getSouthWall() : null;
+							 final MapNodeData node) {
+		Wall neighborWall = mapNodeData != null ? mapNodeData.getSouthWall() : null;
 		defineWall(am, node.getNorthWall(), neighborWall, defs.getNorth());
 	}
 
 	private void defineWest(final NodeWallsDefinitions defs,
-							final MapNode mapNode,
+							final MapNodeData mapNodeData,
 							final GameAssetsManager am,
-							final MapNode node) {
-		Wall neighborWall = mapNode != null ? mapNode.getEastWall() : null;
+							final MapNodeData node) {
+		Wall neighborWall = mapNodeData != null ? mapNodeData.getEastWall() : null;
 		defineWall(am, node.getWestWall(), neighborWall, defs.getWest());
 	}
 
 	private void defineSouth(final NodeWallsDefinitions defs,
-							 final MapNode mapNode,
+							 final MapNodeData mapNodeData,
 							 final GameAssetsManager am,
-							 final MapNode node) {
-		Wall neighborWall = mapNode != null ? mapNode.getNorthWall() : null;
+							 final MapNodeData node) {
+		Wall neighborWall = mapNodeData != null ? mapNodeData.getNorthWall() : null;
 		defineWall(am, node.getSouthWall(), neighborWall, defs.getSouth());
 	}
 
 	private void defineEast(final NodeWallsDefinitions defs,
-							final MapNode neighborNode,
+							final MapNodeData neighborNode,
 							final GameAssetsManager am,
-							final MapNode node) {
+							final MapNodeData node) {
 		Wall neighborWall = neighborNode != null ? neighborNode.getWestWall() : null;
 		defineWall(am, node.getEastWall(), neighborWall, defs.getEast());
 	}

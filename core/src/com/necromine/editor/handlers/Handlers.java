@@ -3,13 +3,13 @@ package com.necromine.editor.handlers;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.utils.Disposable;
+import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapEditor;
 import com.necromine.editor.actions.ActionsHandler;
 import com.necromine.editor.actions.CursorHandler;
 import com.necromine.editor.model.elements.PlacedElements;
@@ -24,7 +24,7 @@ public class Handlers implements Disposable {
 	private final GameMap map;
 	private ActionsHandler actionsHandler;
 
-	public Handlers(final GameAssetsManager assetsManager, GameMap map) {
+	public Handlers(final GameAssetsManager assetsManager, final GameMap map) {
 		this.assetsManager = assetsManager;
 		this.map = map;
 	}
@@ -32,11 +32,11 @@ public class Handlers implements Disposable {
 	public void onCreate(final Model tileModel,
 						 final PlacedElements placedElements,
 						 final Camera camera,
-						 final Model wallModel) {
+						 final WallCreator wallCreator) {
 		batchHandler.createBatches(camera);
 		viewAuxHandler.createModels();
 		cursorHandler.createCursors(assetsManager, tileModel);
-		actionsHandler = new ActionsHandler(map, placedElements, cursorHandler, wallModel);
+		actionsHandler = new ActionsHandler(map, placedElements, cursorHandler, wallCreator);
 	}
 
 	@Override

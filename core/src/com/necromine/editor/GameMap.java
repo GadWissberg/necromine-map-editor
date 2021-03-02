@@ -1,6 +1,6 @@
 package com.necromine.editor;
 
-import com.necromine.editor.model.node.MapNode;
+import com.gadarts.necromine.model.MapNodeData;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,5 +9,5 @@ import static com.necromine.editor.MapEditor.LEVEL_SIZE;
 @Getter
 @Setter
 public class GameMap {
-	private MapNode[][] nodes = new MapNode[LEVEL_SIZE][LEVEL_SIZE];
+	private MapNodeData[][] nodes = new MapNodeData[LEVEL_SIZE][LEVEL_SIZE];
 }

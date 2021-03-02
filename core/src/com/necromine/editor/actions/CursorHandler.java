@@ -16,13 +16,13 @@ import com.badlogic.gdx.utils.Disposable;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
+import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.*;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.model.elements.CharacterDecal;
-import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
@@ -71,8 +71,8 @@ public class CursorHandler implements Disposable {
 			Vector3 collisionPoint = Utils.castRayTowardsPlane(screenX, screenY, camera);
 			int x = MathUtils.clamp((int) collisionPoint.x, 0, LEVEL_SIZE);
 			int z = MathUtils.clamp((int) collisionPoint.z, 0, LEVEL_SIZE);
-			MapNode mapNode = map.getNodes()[z][x];
-			highlighter.transform.setTranslation(x, (mapNode != null ? mapNode.getHeight() : 0) + 0.01f, z);
+			MapNodeData mapNodeData = map.getNodes()[z][x];
+			highlighter.transform.setTranslation(x, (mapNodeData != null ? mapNodeData.getHeight() : 0) + 0.01f, z);
 			updateCursorAdditionals(x, z, MapEditor.getMode());
 			return true;
 		}

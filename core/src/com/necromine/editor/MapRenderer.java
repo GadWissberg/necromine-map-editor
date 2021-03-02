@@ -11,6 +11,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
+import com.gadarts.necromine.model.MapNodeData;
+import com.gadarts.necromine.model.Wall;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.actions.CursorHandler;
 import com.necromine.editor.actions.processes.MappingProcess;
@@ -19,9 +21,7 @@ import com.necromine.editor.handlers.Handlers;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.model.elements.*;
-import com.necromine.editor.model.node.MapNode;
 import com.necromine.editor.model.node.Node;
-import com.necromine.editor.model.node.Wall;
 import com.necromine.editor.utils.Utils;
 import lombok.RequiredArgsConstructor;
 
@@ -38,7 +38,7 @@ public class MapRenderer {
 	private final Handlers handlers;
 	private final OrthographicCamera camera;
 
-	public void draw(final EditorMode mode, final PlacedElements placedElements, final Set<MapNode> initializedTiles, final ElementDefinition selectedElement) {
+	public void draw(final EditorMode mode, final PlacedElements placedElements, final Set<MapNodeData> initializedTiles, final ElementDefinition selectedElement) {
 		int sam = Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0;
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | sam);
@@ -85,7 +85,7 @@ public class MapRenderer {
 	}
 
 
-	private void renderModels(final Set<MapNode> initializedTiles, final PlacedElements placedElements, final EditorMode mode, final ElementDefinition selectedElement) {
+	private void renderModels(final Set<MapNodeData> initializedTiles, final PlacedElements placedElements, final EditorMode mode, final ElementDefinition selectedElement) {
 		ModelBatch modelBatch = handlers.getBatchHandler().getModelBatch();
 		modelBatch.begin(camera);
 		handlers.getViewAuxHandler().renderAux(modelBatch);
@@ -95,7 +95,7 @@ public class MapRenderer {
 		modelBatch.end();
 	}
 
-	private void renderModelPlacedElements(final Set<MapNode> initializedTiles, final PlacedElements placedElements) {
+	private void renderModelPlacedElements(final Set<MapNodeData> initializedTiles, final PlacedElements placedElements) {
 		renderTiles(initializedTiles);
 		renderEnvObjects(placedElements);
 		List<PlacedPickup> placedPickups = (List<PlacedPickup>) placedElements.getPlacedObjects().get(EditModes.PICKUPS);
@@ -104,8 +104,8 @@ public class MapRenderer {
 		}
 	}
 
-	private void renderTiles(final Set<MapNode> initializedTiles) {
-		for (MapNode tile : initializedTiles) {
+	private void renderTiles(final Set<MapNodeData> initializedTiles) {
+		for (MapNodeData tile : initializedTiles) {
 			if (tile.getModelInstance() != null) {
 				ModelBatch modelBatch = handlers.getBatchHandler().getModelBatch();
 				modelBatch.render(tile.getModelInstance());
