@@ -31,7 +31,11 @@ import com.gadarts.necromine.model.characters.SpriteType;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.actions.CursorHandler;
 import com.necromine.editor.handlers.Handlers;
-import com.necromine.editor.mode.*;
+import com.necromine.editor.mode.CameraModes;
+import com.necromine.editor.mode.EditModes;
+import com.necromine.editor.mode.EditorMode;
+import com.necromine.editor.mode.EditorTool;
+import com.necromine.editor.mode.TilesTools;
 import com.necromine.editor.model.elements.CharacterDecal;
 import com.necromine.editor.model.elements.PlacedElements;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
@@ -40,7 +44,11 @@ import com.necromine.editor.utils.MapInflater;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * The world renderer.
@@ -134,7 +142,9 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		Array<Model> models = new Array<>();
 		assetsManager.getAll(Model.class, models);
 		models.forEach(model -> model.materials.get(0).set(new BlendingAttribute()));
-		assetsManager.applyRepeatWrapOnAllTextures();
+		Array<Texture> textures = new Array<>();
+		assetsManager.getAll(Texture.class, textures);
+		textures.forEach(texture -> texture.setWrap(Texture.TextureWrap.Repeat, Texture.TextureWrap.Repeat));
 	}
 
 	private void generateFramesMapForCharacter(final CharacterDefinition characterDefinition) {
