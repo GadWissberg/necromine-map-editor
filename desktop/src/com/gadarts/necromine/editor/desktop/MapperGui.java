@@ -49,6 +49,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	private final GuiEventsSubscriber guiEventsSubscriber;
 	private final ModesHandler modesHandler;
 	private JPanel entitiesPanel;
+	private JPanel subToolbarPanel;
 
 
 	public MapperGui(final String header,
@@ -89,6 +90,12 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	}
 
 	protected JToolBar addToolBar(final ToolbarButtonDefinition[] toolbarOptions, final Container container) {
+		return addToolBar(toolbarOptions, container, BorderLayout.PAGE_START);
+	}
+
+	protected JToolBar addToolBar(final ToolbarButtonDefinition[] toolbarOptions,
+								  final Container container,
+								  final String constraints) {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		Arrays.stream(toolbarOptions).forEach(option -> {
@@ -104,7 +111,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 				toolBar.addSeparator();
 			}
 		});
-		container.add(toolBar, BorderLayout.PAGE_START);
+		container.add(toolBar, constraints);
 		return toolBar;
 	}
 
@@ -168,10 +175,11 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 
 	private void addSubToolbars(final JPanel mainPanel) {
 		CardLayout subToolbarsCardLayout = new CardLayout();
-		JPanel panel = new JPanel(subToolbarsCardLayout);
-		mainPanel.add(panel, BorderLayout.PAGE_START);
-		Arrays.stream(SubToolbarsDefinitions.values()).forEach(subToolbarDefinition ->
-				addToolBar(subToolbarDefinition.getButtons(), panel).add(Box.createHorizontalGlue()));
+		subToolbarPanel = new JPanel(subToolbarsCardLayout);
+		mainPanel.add(subToolbarPanel, BorderLayout.PAGE_START);
+		Arrays.stream(SubToolbarsDefinitions.values()).forEach(sub ->
+				addToolBar(sub.getButtons(), subToolbarPanel, sub.name()).add(Box.createHorizontalGlue()));
+		subToolbarsCardLayout.show(subToolbarPanel, SubToolbarsDefinitions.MODE_TILES.name());
 	}
 
 	private JSplitPane createSplitPane(final Canvas canvas, final JPanel entitiesPanel) {
@@ -275,15 +283,19 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 			EditModes editMode = (EditModes) mode;
 			CardLayout cardLayout = (CardLayout) entitiesPanel.getLayout();
 			guiEventsSubscriber.onEditModeSet(editMode);
+			updateSubToolbar(editMode);
 			if (editMode.getEntriesDisplayTypes() != NONE) {
 				cardLayout.show(entitiesPanel, editMode.name());
 			} else {
 				cardLayout.show(entitiesPanel, NONE.name());
 			}
 		} else if (propertyName.equals(Events.MODE_SET_CAMERA.name())) {
+			int newModeIndex = (int) evt.getNewValue();
+			mode = CameraModes.values()[newModeIndex];
 			guiEventsSubscriber.onCameraModeSet((CameraModes) mode);
 			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
 			entitiesLayout.show(entitiesPanel, NONE.name());
+			updateSubToolbar(mode);
 		} else if (propertyName.equals(Events.TILE_TOOL_SET.name())) {
 			TilesTools selectedTool = TilesTools.values()[(int) evt.getNewValue()];
 			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
@@ -308,6 +320,14 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		} else if (propertyName.equals(Events.REQUEST_TO_LOAD.name())) {
 			guiEventsSubscriber.onLoadMapRequested();
 		}
+	}
+
+	private void updateSubToolbar(final EditorMode mode) {
+		CardLayout subToolbarLayout = (CardLayout) subToolbarPanel.getLayout();
+		Optional.ofNullable(SubToolbarsDefinitions.findByMode(mode))
+				.ifPresentOrElse(
+						sub -> subToolbarLayout.show(subToolbarPanel, sub.name()),
+						() -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
 	}
 
 	@Override

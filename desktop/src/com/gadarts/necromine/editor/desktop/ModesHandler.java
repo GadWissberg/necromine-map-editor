@@ -21,7 +21,7 @@ public class ModesHandler extends Component implements PropertyChangeListener {
 	@Getter
 	private static EditorTool tool = TilesTools.BRUSH;
 
-	public void setMode(final EditorMode mode) {
+	public void applyMode(final EditorMode mode) {
 		if (ModesHandler.mode == mode) return;
 		Class<? extends EditorMode> modeType = mode.getClass();
 		String name = null;
@@ -53,9 +53,9 @@ public class ModesHandler extends Component implements PropertyChangeListener {
 	public void propertyChange(final PropertyChangeEvent evt) {
 		String propertyName = evt.getPropertyName();
 		if (propertyName.equals(Events.REQUEST_TO_SET_EDIT_MODE.name())) {
-			setMode(EditModes.values()[(int) evt.getNewValue()]);
+			applyMode(EditModes.values()[(int) evt.getNewValue()]);
 		} else if (propertyName.equals(Events.REQUEST_TO_SET_CAMERA_MODE.name())) {
-			setMode(CameraModes.values()[(int) evt.getNewValue()]);
+			applyMode(CameraModes.values()[(int) evt.getNewValue()]);
 		} else if (propertyName.equals(Events.REQUEST_TO_SET_TILE_TOOL.name())) {
 			setTool(TilesTools.values()[(int) evt.getNewValue()]);
 		}
