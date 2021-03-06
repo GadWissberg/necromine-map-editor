@@ -31,10 +31,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
@@ -48,14 +45,18 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 
 	private final LwjglAWTCanvas lwjgl;
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
-	private final File assetsFolderLocation = new File(MapEditor.TEMP_ASSETS_FOLDER);
+	private final File assetsFolderLocation;
 	private final GuiEventsSubscriber guiEventsSubscriber;
 	private final ModesHandler modesHandler;
 	private JPanel entitiesPanel;
 
 
-	public MapperGui(final String header, final LwjglAWTCanvas lwjgl, final GuiEventsSubscriber guiEventsSubscriber) {
+	public MapperGui(final String header,
+					 final LwjglAWTCanvas lwjgl,
+					 final GuiEventsSubscriber guiEventsSubscriber,
+					 final Properties properties) {
 		super(header);
+		this.assetsFolderLocation = new File(properties.getProperty(DesktopLauncher.PROPERTIES_KEY_ASSETS_PATH));
 		this.lwjgl = lwjgl;
 		this.guiEventsSubscriber = guiEventsSubscriber;
 		modesHandler = new ModesHandler();

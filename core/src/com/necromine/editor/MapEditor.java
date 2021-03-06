@@ -44,11 +44,7 @@ import com.necromine.editor.utils.MapInflater;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The world renderer.
@@ -63,7 +59,6 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	/**
 	 * The rate of the cursor flicker animation.
 	 */
-	public static final String TEMP_ASSETS_FOLDER = "C:\\Users\\gadw1\\StudioProjects\\isometric-game\\core\\assets";
 	public static final int LEVEL_SIZE = 20;
 	public static final Vector3 auxVector3_1 = new Vector3();
 	public static final int TARGET_VERSION = 5;
@@ -93,10 +88,10 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	private ElementDefinition selectedElement;
 	private Model tileModel;
 
-	public MapEditor(final int width, final int height) {
+	public MapEditor(final int width, final int height, final String assetsLocation) {
 		VIEWPORT_WIDTH = width / 50;
 		VIEWPORT_HEIGHT = height / 50;
-		assetsManager = new GameAssetsManager(TEMP_ASSETS_FOLDER.replace('\\', '/') + '/');
+		assetsManager = new GameAssetsManager(assetsLocation.replace('\\', '/') + '/');
 		handlers = new Handlers(assetsManager, map);
 		CursorHandler cursorHandler = handlers.getCursorHandler();
 		cursorHandler.setCursorSelectionModel(new CursorSelectionModel(assetsManager));
