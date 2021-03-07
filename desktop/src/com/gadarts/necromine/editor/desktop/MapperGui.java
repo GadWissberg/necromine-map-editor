@@ -5,14 +5,21 @@ import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.menu.definitions.Menus;
-import com.gadarts.necromine.editor.desktop.toolbar.*;
+import com.gadarts.necromine.editor.desktop.toolbar.RadioToolBarButton;
+import com.gadarts.necromine.editor.desktop.toolbar.SubToolbarsDefinitions;
+import com.gadarts.necromine.editor.desktop.toolbar.ToolBarButton;
+import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonDefinition;
+import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonProperties;
+import com.gadarts.necromine.editor.desktop.toolbar.ToolbarDefinition;
 import com.gadarts.necromine.editor.desktop.tree.EditorTree;
 import com.gadarts.necromine.editor.desktop.tree.ResourcesTreeCellRenderer;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
-import com.necromine.editor.*;
+import com.necromine.editor.EntriesDisplayTypes;
+import com.necromine.editor.GuiEventsSubscriber;
+import com.necromine.editor.MapManagerEventsSubscriber;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
@@ -26,12 +33,20 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
@@ -179,7 +194,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		mainPanel.add(subToolbarPanel, BorderLayout.PAGE_START);
 		Arrays.stream(SubToolbarsDefinitions.values()).forEach(sub ->
 				addToolBar(sub.getButtons(), subToolbarPanel, sub.name()).add(Box.createHorizontalGlue()));
-		subToolbarsCardLayout.show(subToolbarPanel, SubToolbarsDefinitions.MODE_TILES.name());
+		subToolbarsCardLayout.show(subToolbarPanel, SubToolbarsDefinitions.TILES.name());
 	}
 
 	private JSplitPane createSplitPane(final Canvas canvas, final JPanel entitiesPanel) {
