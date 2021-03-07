@@ -1,5 +1,6 @@
 package com.necromine.editor.utils;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -47,13 +48,14 @@ public class Utils {
 																 final Direction facingDirection,
 																 final Camera camera,
 																 final GameAssetsManager assetsManager) {
-		Direction spriteDirection = characterDecal.getSpriteDirection();
 		Direction dirSeenFromCamera = CharacterUtils.calculateDirectionSeenFromCamera(camera, facingDirection);
-		if (dirSeenFromCamera != spriteDirection) {
-			CharacterTypes characterType = characterDecal.getCharacterDefinition().getCharacterType();
-			String name = String.format(FRAMES_KEY_CHARACTER, characterType.name());
-			HashMap<Direction, TextureAtlas.AtlasRegion> hashMap = assetsManager.get(name);
-			characterDecal.getDecal().setTextureRegion(hashMap.get(dirSeenFromCamera));
+		CharacterTypes characterType = characterDecal.getCharacterDefinition().getCharacterType();
+		String name = String.format(FRAMES_KEY_CHARACTER, characterType.name());
+		HashMap<Direction, TextureAtlas.AtlasRegion> hashMap = assetsManager.get(name);
+		TextureAtlas.AtlasRegion textureRegion = hashMap.get(dirSeenFromCamera);
+		Decal decal = characterDecal.getDecal();
+		if (textureRegion != decal.getTextureRegion()) {
+			decal.setTextureRegion(textureRegion);
 		}
 	}
 

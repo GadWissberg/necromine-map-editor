@@ -53,6 +53,7 @@ public class Handlers implements Disposable {
 	public void onTreeCharacterSelected(final ElementDefinition selectedElement, final CharacterDefinition definition) {
 		actionsHandler.setSelectedElement(selectedElement);
 		cursorHandler.getCursorCharacterDecal().setCharacterDefinition(definition);
+		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
 	}
 
 	public void onTreeEnvSelected(final ElementDefinition selectedElement) {

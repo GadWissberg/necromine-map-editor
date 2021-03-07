@@ -204,7 +204,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	public void onEditModeSet(final EditModes mode) {
 		onModeSet(mode);
 		CursorHandler cursorHandler = handlers.getCursorHandler();
-		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+		cursorHandler.setHighlighter(null);
 	}
 
 	private void onModeSet(final EditorMode mode) {
@@ -272,7 +272,11 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	public void onToolSet(final EditorTool tool) {
 		selectedElement = null;
 		CursorHandler cursorHandler = handlers.getCursorHandler();
-		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+		if (tool != TilesTools.BRUSH) {
+			cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+		} else {
+			cursorHandler.setHighlighter(null);
+		}
 		MapEditor.tool = tool;
 	}
 
