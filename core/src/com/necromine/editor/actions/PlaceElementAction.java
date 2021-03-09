@@ -33,7 +33,7 @@ public abstract class PlaceElementAction<T extends PlacedElement, S extends Elem
 	}
 
 	@Override
-	protected void execute() {
+	public void execute() {
 		MapNodeData tile = map.getNodes()[node.getRow()][node.getCol()];
 		if (tile != null) {
 			removeElementFromTile(tile, placedElements);

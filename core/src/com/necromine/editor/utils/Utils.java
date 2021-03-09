@@ -27,8 +27,8 @@ import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 
 public class Utils {
 	public static final String FRAMES_KEY_CHARACTER = "frames/%s";
+	public static final Vector3 auxVector3_1 = new Vector3();
 	private final static Plane auxPlane = new Plane();
-	private static final Vector3 auxVector3_1 = new Vector3();
 	private static final Vector3 auxVector3_2 = new Vector3();
 
 	public static CharacterDecal createCharacterDecal(final GameAssetsManager assetsManager,

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 public abstract class MappingAction {
 	protected final GameMap map;
 
-	protected abstract void execute();
+	public abstract void execute();
 
 	public abstract boolean isProcess();
 }

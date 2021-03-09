@@ -23,7 +23,7 @@ public class PlacePickupAction extends PlaceElementAction<PlacedPickup, ItemDefi
 	}
 
 	@Override
-	protected void execute() {
+	public void execute() {
 		super.execute();
 		int selectedRow = node.getRow();
 		int selectedCol = node.getCol();

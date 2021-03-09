@@ -1,6 +1,9 @@
-package com.gadarts.necromine.editor.desktop;
+package com.gadarts.necromine.editor.desktop.dialogs;
 
 import com.gadarts.necromine.assets.Assets;
+import com.gadarts.necromine.editor.desktop.GalleryButton;
+import com.gadarts.necromine.editor.desktop.GuiUtils;
+import com.gadarts.necromine.editor.desktop.OnTextureSelected;
 
 import java.io.File;
 
@@ -16,7 +19,7 @@ public class TexturesGalleryDialog extends DialogPane {
 
 
 	@Override
-	String getDialogTitle() {
+	public String getDialogTitle() {
 		return "Select Texture";
 	}
 }

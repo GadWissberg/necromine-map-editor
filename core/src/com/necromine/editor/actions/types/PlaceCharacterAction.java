@@ -23,7 +23,7 @@ public class PlaceCharacterAction extends PlaceElementAction<PlacedCharacter, Ch
 	}
 
 	@Override
-	protected void execute() {
+	public void execute() {
 		super.execute();
 		MapNodeData tile = map.getNodes()[node.getRow()][node.getCol()];
 		if (tile != null) {

@@ -29,7 +29,7 @@ import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.characters.SpriteType;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
-import com.necromine.editor.actions.CursorHandler;
+import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.handlers.Handlers;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
@@ -38,6 +38,7 @@ import com.necromine.editor.mode.EditorTool;
 import com.necromine.editor.mode.TilesTools;
 import com.necromine.editor.model.elements.CharacterDecal;
 import com.necromine.editor.model.elements.PlacedElements;
+import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 import com.necromine.editor.utils.MapDeflater;
 import com.necromine.editor.utils.MapInflater;
@@ -291,6 +292,11 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
     @Override
     public void onNodeWallsDefined(final NodeWallsDefinitions definitions, final int row, final int col) {
         handlers.getActionsHandler().onNodeWallsDefined(definitions, row, col, assetsManager);
+    }
+
+    @Override
+    public void onTilesLift(final Node src, final Node dst, final float value) {
+        handlers.getActionsHandler().onTilesLift(src,dst,value);
     }
 
 

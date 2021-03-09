@@ -29,7 +29,7 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 	}
 
 	@Override
-	protected void execute() {
+	public void execute() {
 		super.execute();
 		PlacedEnvObject env = new PlacedEnvObject(
 				selectedEnvObject,

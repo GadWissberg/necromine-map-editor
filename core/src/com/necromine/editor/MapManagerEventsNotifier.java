@@ -18,6 +18,6 @@ public class MapManagerEventsNotifier {
     }
 
     public void tilesSelectedForLifting(final Node src, final int dstRow, final int dstCol) {
-        subscribers.forEach(subscriber -> subscriber.onTilesSelectedForLifting(src.getRow(), src.getRow(), dstRow, dstCol));
+        subscribers.forEach(subscriber -> subscriber.onTilesSelectedForLifting(src.getRow(), src.getCol(), dstRow, dstCol));
     }
 }

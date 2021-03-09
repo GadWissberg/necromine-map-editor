@@ -1,11 +1,12 @@
-package com.gadarts.necromine.editor.desktop;
+package com.gadarts.necromine.editor.desktop.dialogs;
 
 import com.gadarts.necromine.assets.Assets;
+import com.gadarts.necromine.editor.desktop.GalleryButton;
+import com.gadarts.necromine.editor.desktop.GuiUtils;
 import com.necromine.editor.GuiEventsSubscriber;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.File;
@@ -17,8 +18,6 @@ public class WallTilingDialog extends DialogPane {
 	private static final String LABEL_SOUTH = "South Wall:";
 	private static final String LABEL_WEST = "West Wall:";
 	private static final String LABEL_NORTH = "North Wall:";
-	private static final int PADDING = 10;
-	private static final String BUTTON_LABEL_OK = "OK";
 	private final NodeWallsDefinitions definitions;
 	private GalleryButton eastImageButton;
 	private GalleryButton southImageButton;
@@ -30,39 +29,25 @@ public class WallTilingDialog extends DialogPane {
 							final Node node,
 							final NodeWallsDefinitions definitions) {
 		this.definitions = definitions;
-		setLayout(new GridBagLayout());
 		initializeView(assetsFolderLocation, guiEventsSubscriber, node);
 	}
 
 	private void initializeView(final File assetsFolderLocation,
 								final GuiEventsSubscriber guiEventsSubscriber,
 								final Node node) {
-		GridBagConstraints c = new GridBagConstraints();
-		c.insets = new Insets(PADDING, PADDING, PADDING, PADDING);
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridy = 0;
+		GridBagConstraints c = createGridBagConstraints();
 		addLabels(c);
 		addImageButtons(assetsFolderLocation, c);
-		addOkButton(c, guiEventsSubscriber, node.getRow(), node.getCol());
-	}
-
-	private void addOkButton(final GridBagConstraints c,
-							 final GuiEventsSubscriber guiEventsSubscriber,
-							 final int row,
-							 final int col) {
-		c.gridwidth = 2;
-		Button ok = new Button(BUTTON_LABEL_OK);
-		ok.addActionListener(e -> {
+		addOkButton(c, e -> {
 			guiEventsSubscriber.onNodeWallsDefined(
 					new NodeWallsDefinitions(
 							eastImageButton.getTextureDefinition(),
 							southImageButton.getTextureDefinition(),
 							westImageButton.getTextureDefinition(),
 							northImageButton.getTextureDefinition()),
-					row, col);
+					node.getRow(), node.getCol());
 			closeDialog();
 		});
-		add(ok, c);
 	}
 
 	public String getDialogTitle() {
@@ -114,8 +99,4 @@ public class WallTilingDialog extends DialogPane {
 		addLabel(c, LABEL_NORTH);
 	}
 
-	private void addLabel(final GridBagConstraints c, final String label) {
-		add(new JLabel(label), c);
-		c.gridy += 1;
-	}
 }

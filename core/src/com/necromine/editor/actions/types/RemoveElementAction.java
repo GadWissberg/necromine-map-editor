@@ -26,7 +26,7 @@ public class RemoveElementAction extends MappingAction {
     }
 
     @Override
-    protected void execute() {
+	public void execute() {
         if (mode == EditModes.TILES) {
             removePlacedTile();
         } else {

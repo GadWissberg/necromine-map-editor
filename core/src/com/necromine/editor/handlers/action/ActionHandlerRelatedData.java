@@ -1,4 +1,4 @@
-package com.necromine.editor.handlers;
+package com.necromine.editor.handlers.action;
 
 import com.necromine.editor.GameMap;
 import com.necromine.editor.model.elements.PlacedElements;

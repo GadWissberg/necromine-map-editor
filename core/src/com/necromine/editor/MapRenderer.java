@@ -14,9 +14,9 @@ import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.Wall;
 import com.gadarts.necromine.model.characters.Direction;
-import com.necromine.editor.actions.ActionsHandler;
-import com.necromine.editor.actions.CursorHandler;
-import com.necromine.editor.actions.processes.LiftTilesProcess;
+import com.necromine.editor.handlers.action.ActionsHandler;
+import com.necromine.editor.handlers.CursorHandler;
+import com.necromine.editor.actions.processes.SelectTilesForLiftProcess;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.actions.processes.PlaceTilesProcess;
 import com.necromine.editor.handlers.Handlers;
@@ -188,7 +188,7 @@ public class MapRenderer {
     private void renderExistingProcess() {
         ActionsHandler actionsHandler = handlers.getActionsHandler();
         MappingProcess<? extends MappingProcess.FinishProcessParameters> p = actionsHandler.getCurrentProcess();
-        if (p instanceof PlaceTilesProcess || p instanceof LiftTilesProcess) {
+        if (p instanceof PlaceTilesProcess || p instanceof SelectTilesForLiftProcess) {
             Node srcNode = p.getSrcNode();
             handlers.getCursorHandler().renderRectangleMarking(
                     srcNode.getRow(),

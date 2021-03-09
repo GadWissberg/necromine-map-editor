@@ -1,6 +1,7 @@
 package com.gadarts.necromine.editor.desktop;
 
 import com.gadarts.necromine.assets.Assets;
+import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -13,8 +14,8 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public final class GuiUtils {
-	static GalleryButton createTextureImageButton(final File assetsFolderLocation,
-												  final Assets.FloorsTextures texture) throws IOException {
+	public static GalleryButton createTextureImageButton(final File assetsFolderLocation,
+														 final Assets.FloorsTextures texture) throws IOException {
 		return createTextureImageButton(assetsFolderLocation, texture, null);
 	}
 
@@ -28,7 +29,7 @@ public final class GuiUtils {
 		return button;
 	}
 
-	static ImageIcon loadImage(final File assetsFolderLocation, final Assets.FloorsTextures texture) throws IOException {
+	public static ImageIcon loadImage(final File assetsFolderLocation, final Assets.FloorsTextures texture) throws IOException {
 		String path = assetsFolderLocation.getAbsolutePath() + File.separator + texture.getFilePath();
 		FileInputStream inputStream = new FileInputStream(path);
 		ImageIcon imageIcon = new ImageIcon(ImageIO.read(inputStream));
@@ -36,7 +37,7 @@ public final class GuiUtils {
 		return imageIcon;
 	}
 
-	static JScrollPane createEntitiesGallery(final File assetsFolderLocation, final ItemListener onClick) {
+	public static JScrollPane createEntitiesGallery(final File assetsFolderLocation, final ItemListener onClick) {
 		GridLayout layout = new GridLayout(0, 3);
 		JPanel gallery = new JPanel(layout);
 		JScrollPane jScrollPane = new JScrollPane(gallery);
