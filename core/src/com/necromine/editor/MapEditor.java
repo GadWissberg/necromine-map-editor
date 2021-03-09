@@ -96,7 +96,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
         VIEWPORT_WIDTH = width / 50;
         VIEWPORT_HEIGHT = height / 50;
         assetsManager = new GameAssetsManager(assetsLocation.replace('\\', '/') + '/');
-        handlers = new Handlers(assetsManager, map);
+        handlers = new Handlers(assetsManager, map, eventsNotifier);
         CursorHandler cursorHandler = handlers.getCursorHandler();
         cursorHandler.setCursorSelectionModel(new CursorSelectionModel(assetsManager));
         inflater = new MapInflater(assetsManager, cursorHandler, placedElements.getPlacedTiles());

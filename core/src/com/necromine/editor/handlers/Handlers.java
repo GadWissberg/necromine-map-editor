@@ -10,6 +10,7 @@ import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.GameMap;
+import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.ActionsHandler;
 import com.necromine.editor.actions.CursorHandler;
 import com.necromine.editor.model.elements.PlacedElements;
@@ -17,54 +18,59 @@ import lombok.Getter;
 
 @Getter
 public class Handlers implements Disposable {
-	private final ViewAuxHandler viewAuxHandler = new ViewAuxHandler();
-	private final CursorHandler cursorHandler = new CursorHandler();
-	private final BatchHandler batchHandler = new BatchHandler();
-	private final GameAssetsManager assetsManager;
-	private final GameMap map;
-	private ActionsHandler actionsHandler;
+    private final ViewAuxHandler viewAuxHandler = new ViewAuxHandler();
+    private final CursorHandler cursorHandler = new CursorHandler();
+    private final BatchHandler batchHandler = new BatchHandler();
+    private final GameAssetsManager assetsManager;
+    private final GameMap map;
+    private final MapManagerEventsNotifier eventsNotifier;
+    private ActionsHandler actionsHandler;
 
-	public Handlers(final GameAssetsManager assetsManager, final GameMap map) {
-		this.assetsManager = assetsManager;
-		this.map = map;
-	}
+    public Handlers(final GameAssetsManager assetsManager,
+                    final GameMap map,
+                    final MapManagerEventsNotifier eventsNotifier) {
+        this.assetsManager = assetsManager;
+        this.map = map;
+        this.eventsNotifier = eventsNotifier;
+    }
 
-	public void onCreate(final Model tileModel,
-						 final PlacedElements placedElements,
-						 final Camera camera,
-						 final WallCreator wallCreator) {
-		batchHandler.createBatches(camera);
-		viewAuxHandler.createModels();
-		cursorHandler.createCursors(assetsManager, tileModel);
-		actionsHandler = new ActionsHandler(map, placedElements, cursorHandler, wallCreator);
-	}
+    public void onCreate(final Model tileModel,
+                         final PlacedElements placedElements,
+                         final Camera camera,
+                         final WallCreator wallCreator) {
+        batchHandler.createBatches(camera);
+        viewAuxHandler.createModels();
+        cursorHandler.createCursors(assetsManager, tileModel);
+        ActionHandlerRelatedData data = new ActionHandlerRelatedData(map, placedElements);
+        actionsHandler = new ActionsHandler(data, cursorHandler, wallCreator, eventsNotifier);
+    }
 
-	@Override
-	public void dispose() {
-		viewAuxHandler.dispose();
-		cursorHandler.dispose();
-		batchHandler.dispose();
-	}
+    @Override
+    public void dispose() {
+        viewAuxHandler.dispose();
+        cursorHandler.dispose();
+        batchHandler.dispose();
+    }
 
-	public void onTileSelected() {
-		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
-	}
+    public void onTileSelected() {
+        cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+    }
 
-	public void onTreeCharacterSelected(final ElementDefinition selectedElement, final CharacterDefinition definition) {
-		actionsHandler.setSelectedElement(selectedElement);
-		cursorHandler.getCursorCharacterDecal().setCharacterDefinition(definition);
-		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
-	}
+    public void onTreeCharacterSelected(final ElementDefinition selectedElement, final CharacterDefinition definition) {
+        actionsHandler.setSelectedElement(selectedElement);
+        cursorHandler.getCursorCharacterDecal().setCharacterDefinition(definition);
+        cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+    }
 
-	public void onTreeEnvSelected(final ElementDefinition selectedElement) {
-		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
-		actionsHandler.setSelectedElement(selectedElement);
-		cursorHandler.getCursorSelectionModel().setSelection(selectedElement, ((EnvironmentDefinitions) selectedElement).getModelDefinition());
-	}
+    public void onTreeEnvSelected(final ElementDefinition selectedElement) {
+        cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+        actionsHandler.setSelectedElement(selectedElement);
+        cursorHandler.getCursorSelectionModel().setSelection(selectedElement, ((EnvironmentDefinitions) selectedElement).getModelDefinition());
+    }
 
-	public void onTreePickupSelected(final ElementDefinition selectedElement, final ItemDefinition definition) {
-		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
-		actionsHandler.setSelectedElement(selectedElement);
-		cursorHandler.getCursorSelectionModel().setSelection(selectedElement, definition.getModelDefinition());
-	}
+    public void onTreePickupSelected(final ElementDefinition selectedElement, final ItemDefinition definition) {
+        cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+        actionsHandler.setSelectedElement(selectedElement);
+        cursorHandler.getCursorSelectionModel().setSelection(selectedElement, definition.getModelDefinition());
+    }
 }

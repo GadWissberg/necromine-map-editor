@@ -12,54 +12,52 @@ import java.util.Set;
 
 @Getter
 public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessParameters> {
-	private final GameAssetsManager assetsManager;
-	private final Set<MapNodeData> initializedTiles;
-	private final Node srcNode;
+    private final GameAssetsManager assetsManager;
+    private final Set<MapNodeData> initializedTiles;
 
-	public PlaceTilesProcess(final Node srcNode,
-							 final GameAssetsManager assetsManager,
-							 final Set<MapNodeData> initializedTiles,
-							 final GameMap map) {
-		super(map);
-		this.srcNode = srcNode;
-		this.assetsManager = assetsManager;
-		this.initializedTiles = initializedTiles;
-	}
+    public PlaceTilesProcess(final Node srcNode,
+                             final GameAssetsManager assetsManager,
+                             final Set<MapNodeData> initializedTiles,
+                             final GameMap map) {
+        super(map, srcNode);
+        this.assetsManager = assetsManager;
+        this.initializedTiles = initializedTiles;
+    }
 
 
-	@Override
-	public boolean isProcess() {
-		return true;
-	}
+    @Override
+    public boolean isProcess() {
+        return true;
+    }
 
-	@Override
-	public void execute() {
+    @Override
+    public void execute() {
 
-	}
+    }
 
-	@Override
-	public void finish(final PlaceTilesFinishProcessParameters params) {
-		int dstRow = params.getDstRow();
-		int dstCol = params.getDstCol();
-		int srcCol = srcNode.getCol();
-		int srcRow = srcNode.getRow();
-		for (int col = Math.min(dstCol, srcCol); col <= Math.max(dstCol, srcCol); col++) {
-			for (int row = Math.min(dstRow, srcRow); row <= Math.max(dstRow, srcRow); row++) {
-				defineTile(params, col, row);
-			}
-		}
-	}
+    @Override
+    public void finish(final PlaceTilesFinishProcessParameters params) {
+        int dstRow = params.getDstRow();
+        int dstCol = params.getDstCol();
+        int srcCol = srcNode.getCol();
+        int srcRow = srcNode.getRow();
+        for (int col = Math.min(dstCol, srcCol); col <= Math.max(dstCol, srcCol); col++) {
+            for (int row = Math.min(dstRow, srcRow); row <= Math.max(dstRow, srcRow); row++) {
+                defineTile(params, col, row);
+            }
+        }
+    }
 
-	private void defineTile(final PlaceTilesFinishProcessParameters params, final int col, final int row) {
-		MapNodeData[][] tiles = map.getNodes();
-		MapNodeData tile = tiles[row][col];
-		if (tile == null) {
-			tile = new MapNodeData(params.getTileModel(), row, col, MapNodesTypes.PASSABLE_NODE);
-			tiles[row][col] = tile;
-		}
-		Utils.initializeTile(tile, params.getSelectedTile(), assetsManager);
-		initializedTiles.add(tile);
-	}
+    private void defineTile(final PlaceTilesFinishProcessParameters params, final int col, final int row) {
+        MapNodeData[][] tiles = map.getNodes();
+        MapNodeData tile = tiles[row][col];
+        if (tile == null) {
+            tile = new MapNodeData(params.getTileModel(), row, col, MapNodesTypes.PASSABLE_NODE);
+            tiles[row][col] = tile;
+        }
+        Utils.initializeTile(tile, params.getSelectedTile(), assetsManager);
+        initializedTiles.add(tile);
+    }
 
 
 }
