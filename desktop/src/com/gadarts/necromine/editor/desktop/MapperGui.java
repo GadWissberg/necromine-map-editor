@@ -3,6 +3,7 @@ package com.gadarts.necromine.editor.desktop;
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
+import com.gadarts.necromine.editor.desktop.dialogs.SetAmbientLightDialog;
 import com.gadarts.necromine.editor.desktop.dialogs.TilesLiftDialog;
 import com.gadarts.necromine.editor.desktop.dialogs.WallTilingDialog;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
@@ -337,6 +338,8 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 			guiEventsSubscriber.onSaveMapRequested();
 		} else if (propertyName.equals(Events.REQUEST_TO_LOAD.name())) {
 			guiEventsSubscriber.onLoadMapRequested();
+		} else if (propertyName.equals(Events.REQUEST_TO_OPEN_AMBIENT_LIGHT_DIALOG.name())) {
+			openDialog(new SetAmbientLightDialog(guiEventsSubscriber.onAmbientLightValueRequest(), guiEventsSubscriber));
 		}
 	}
 

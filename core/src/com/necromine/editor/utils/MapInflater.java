@@ -13,6 +13,7 @@ import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.handlers.CursorHandler;
@@ -53,6 +54,8 @@ public class MapInflater {
 			});
 			JsonObject tilesJsonObject = input.getAsJsonObject(MapJsonKeys.TILES);
 			map.setNodes(inflateTiles(tilesJsonObject, initializedTiles));
+			JsonElement ambient = input.get(MapJsonKeys.AMBIENT);
+			Optional.ofNullable(ambient).ifPresent(a -> map.setAmbientLight(a.getAsFloat()));
 			inflateHeights(tilesJsonObject, map, wallCreator);
 		} catch (final IOException e) {
 			e.printStackTrace();

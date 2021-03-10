@@ -19,6 +19,9 @@ public class WallTilingDialog extends DialogPane {
 	private static final String LABEL_WEST = "West Wall:";
 	private static final String LABEL_NORTH = "North Wall:";
 	private final NodeWallsDefinitions definitions;
+	private final File assetsFolderLocation;
+	private final GuiEventsSubscriber guiEventsSubscriber;
+	private final Node node;
 	private GalleryButton eastImageButton;
 	private GalleryButton southImageButton;
 	private GalleryButton westImageButton;
@@ -29,13 +32,14 @@ public class WallTilingDialog extends DialogPane {
 							final Node node,
 							final NodeWallsDefinitions definitions) {
 		this.definitions = definitions;
-		initializeView(assetsFolderLocation, guiEventsSubscriber, node);
+		this.assetsFolderLocation = assetsFolderLocation;
+		this.guiEventsSubscriber = guiEventsSubscriber;
+		this.node = node;
+		init();
 	}
 
-	private void initializeView(final File assetsFolderLocation,
-								final GuiEventsSubscriber guiEventsSubscriber,
-								final Node node) {
-		GridBagConstraints c = createGridBagConstraints();
+	@Override
+	void initializeView(final GridBagConstraints c) {
 		addLabels(c);
 		addImageButtons(assetsFolderLocation, c);
 		addOkButton(c, e -> {

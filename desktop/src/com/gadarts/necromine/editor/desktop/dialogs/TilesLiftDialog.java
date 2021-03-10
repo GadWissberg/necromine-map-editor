@@ -18,13 +18,16 @@ public class TilesLiftDialog extends DialogPane {
 		this.src = src;
 		this.dst = dst;
 		this.guiEventsSubscriber = guiEventsSubscriber;
-		initializeView();
+		init();
 	}
 
-	private void initializeView() {
-		GridBagConstraints c = createGridBagConstraints();
+	@Override
+	void initializeView(final GridBagConstraints c) {
+		c.gridx = 0;
 		addLabel(c, LABEL_HEIGHT);
-		SpinnerModel model = addSpinner(c);
+		JSpinner model = addHeightSpinner(c);
+		c.gridx = 0;
+		c.gridy++;
 		addOkButton(c, e -> {
 			float value = ((Double) model.getValue()).floatValue();
 			if (value > 0) {
@@ -34,14 +37,10 @@ public class TilesLiftDialog extends DialogPane {
 		});
 	}
 
-	private SpinnerModel addSpinner(final GridBagConstraints c) {
+	private JSpinner addHeightSpinner(final GridBagConstraints c) {
 		c.gridy--;
 		c.gridx++;
-		SpinnerModel model = new SpinnerNumberModel(0, 0, MAX_HEIGHT, STEP);
-		add(new JSpinner(model));
-		c.gridx--;
-		c.gridy++;
-		return model;
+		return addSpinner(0, MAX_HEIGHT, STEP, c);
 	}
 
 	@Override

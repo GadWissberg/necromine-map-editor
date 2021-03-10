@@ -69,8 +69,8 @@ public class CursorHandler implements Disposable {
 											  final GameMap map) {
 		if (highlighter != null) {
 			Vector3 collisionPoint = Utils.castRayTowardsPlane(screenX, screenY, camera);
-			int x = MathUtils.clamp((int) collisionPoint.x, 0, LEVEL_SIZE);
-			int z = MathUtils.clamp((int) collisionPoint.z, 0, LEVEL_SIZE);
+			int x = MathUtils.clamp((int) collisionPoint.x, 0, LEVEL_SIZE - 1);
+			int z = MathUtils.clamp((int) collisionPoint.z, 0, LEVEL_SIZE - 1);
 			MapNodeData mapNodeData = map.getNodes()[z][x];
 			highlighter.transform.setTranslation(x, (mapNodeData != null ? mapNodeData.getHeight() : 0) + 0.01f, z);
 			updateCursorAdditionals(x, z, MapEditor.getMode());

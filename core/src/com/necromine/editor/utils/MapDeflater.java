@@ -29,6 +29,7 @@ public class MapDeflater {
 
 	public void deflate(final GameMap map, final PlacedElements placedElements) {
 		JsonObject output = new JsonObject();
+		output.addProperty(MapJsonKeys.AMBIENT, map.getAmbientLight());
 		output.addProperty(MapJsonKeys.TARGET, TARGET_VERSION);
 		JsonObject tiles = createTilesData(map);
 		output.add(MapJsonKeys.TILES, tiles);

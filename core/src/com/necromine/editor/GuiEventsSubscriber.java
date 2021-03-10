@@ -35,4 +35,8 @@ public interface GuiEventsSubscriber {
 	void onNodeWallsDefined(NodeWallsDefinitions definitions, int row, int col);
 
 	void onTilesLift(Node src, Node dst, float value);
+
+	float onAmbientLightValueRequest();
+
+	void onAmbientLightValueSet(float value);
 }

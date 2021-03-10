@@ -8,6 +8,15 @@ public abstract class DialogPane extends JPanel {
 	private static final int PADDING = 10;
 	private static final String BUTTON_LABEL_OK = "OK";
 
+	public DialogPane() {
+		setLayout(new GridBagLayout());
+	}
+
+	void init() {
+		GridBagConstraints c = createGridBagConstraints();
+		initializeView(c);
+	}
+
 	protected GridBagConstraints createGridBagConstraints() {
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets(PADDING, PADDING, PADDING, PADDING);
@@ -16,6 +25,8 @@ public abstract class DialogPane extends JPanel {
 		return c;
 	}
 
+	abstract void initializeView(GridBagConstraints c);
+
 	protected void addOkButton(final GridBagConstraints c, final ActionListener actionListener) {
 		c.gridwidth = 2;
 		Button ok = new Button(BUTTON_LABEL_OK);
@@ -23,11 +34,14 @@ public abstract class DialogPane extends JPanel {
 		add(ok, c);
 	}
 
-	public abstract String getDialogTitle();
-
-	public DialogPane() {
-		setLayout(new GridBagLayout());
+	protected JSpinner addSpinner(final float value, final int maximum, final float step, final GridBagConstraints c) {
+		SpinnerModel model = new SpinnerNumberModel(value, 0, maximum, step);
+		JSpinner jSpinner = new JSpinner(model);
+		add(jSpinner, c);
+		return jSpinner;
 	}
+
+	public abstract String getDialogTitle();
 
 	void closeDialog() {
 		((Dialog) getRootPane().getParent()).dispose();
