@@ -74,7 +74,7 @@ public class WallTilingDialog extends DialogPane {
 		try {
 			button = GuiUtils.createTextureImageButton(
 					assetsLocation,
-					Optional.ofNullable(texture).orElse(Assets.FloorsTextures.FLOOR_0));
+					Optional.ofNullable(texture).orElse(Assets.FloorsTextures.FLOOR_PAVEMENT_0));
 			GalleryButton finalButton = button;
 			button.addItemListener(itemEvent -> {
 				if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
