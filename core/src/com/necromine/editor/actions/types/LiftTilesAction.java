@@ -33,10 +33,10 @@ public class LiftTilesAction extends MappingAction {
 		MapNodeData[][] t = map.getNodes();
 		IntStream.rangeClosed(minRow, maxRow).forEach(row ->
 				IntStream.rangeClosed(minCol, maxCol).forEach(col ->
-						Optional.ofNullable(t[row][col]).ifPresent(n -> {
-							n.applyHeight(value);
-							adjustWalls(t, row, col, n);
-						})));
+						Optional.ofNullable(t[row][col]).ifPresent(n -> n.applyHeight(value))));
+		IntStream.rangeClosed(minRow, maxRow).forEach(row ->
+				IntStream.rangeClosed(minCol, maxCol).forEach(col ->
+						Optional.ofNullable(t[row][col]).ifPresent(n -> adjustWalls(t, row, col, n))));
 	}
 
 	private void adjustWalls(final MapNodeData[][] t, final int row, final int col, final MapNodeData n) {
