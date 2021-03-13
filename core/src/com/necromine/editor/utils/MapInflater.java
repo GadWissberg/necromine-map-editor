@@ -91,7 +91,7 @@ public class MapInflater {
 					assetsManager,
 					Assets.FloorsTextures.valueOf(east.getAsString())
 			));
-			WallCreator.adjustWallBetweenEastAndWest(nodes[row][col + 1], mapNodeData);
+			WallCreator.adjustWallBetweenEastAndWest(nodes[row][col + 1], mapNodeData, true);
 		});
 		Optional.ofNullable(node.get(MapJsonKeys.SOUTH)).ifPresent(south -> {
 			mapNodeData.setSouthWall(WallCreator.createSouthWall(
@@ -109,7 +109,7 @@ public class MapInflater {
 					assetsManager,
 					Assets.FloorsTextures.valueOf(west.getAsString())
 			));
-			WallCreator.adjustWallBetweenEastAndWest(mapNodeData, nodes[row][col - 1]);
+			WallCreator.adjustWallBetweenEastAndWest(mapNodeData, nodes[row][col - 1], true);
 		});
 		Optional.ofNullable(node.get(MapJsonKeys.NORTH)).ifPresent(north -> {
 			mapNodeData.setNorthWall(WallCreator.createNorthWall(

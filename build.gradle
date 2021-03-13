@@ -40,7 +40,7 @@ project(":desktop") {
 
 
     dependencies {
-        implementation 'com.github.GadWissberg:necromine-shared:master-SNAPSHOT'
+        implementation 'com.gadarts.necromine.shared:core:0.1'
         implementation project(":core")
         api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
