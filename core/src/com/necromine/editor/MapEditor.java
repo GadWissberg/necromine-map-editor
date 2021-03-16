@@ -121,10 +121,10 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		BlendingAttribute highlightBlend = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		Material material = new Material(highlightBlend);
 		return builder.createRect(
-				1, 0, 0,
-				0, 0, 0,
 				0, 0, 1,
 				1, 0, 1,
+				1, 0, 0,
+				0, 0, 0,
 				0, 1, 0,
 				material,
 				VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates

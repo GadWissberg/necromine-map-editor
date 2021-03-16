@@ -6,6 +6,7 @@ import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.necromine.editor.GameMap;
@@ -17,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -80,20 +82,21 @@ public class MapDeflater {
 	private JsonObject createTilesData(final GameMap map) {
 		JsonObject tiles = new JsonObject();
 		addMapSize(tiles);
-		StringBuilder builder = new StringBuilder();
+		byte[] matrix = new byte[LEVEL_SIZE * LEVEL_SIZE];
 		JsonArray heights = new JsonArray();
 		IntStream.range(0, LEVEL_SIZE).forEach(row ->
 				IntStream.range(0, LEVEL_SIZE).forEach(col -> {
 					MapNodeData mapNodeData = map.getNodes()[row][col];
+					int index = row * (LEVEL_SIZE) + col;
 					if (mapNodeData != null && mapNodeData.getTextureDefinition() != null) {
 						addHeight(mapNodeData, heights);
-						builder.append(mapNodeData.getTextureDefinition().ordinal() + 1);
+						matrix[index] = (byte) (mapNodeData.getTextureDefinition().ordinal() + 1);
 					} else {
-						builder.append(0);
+						matrix[index] = (byte) (0);
 					}
 				})
 		);
-		tiles.addProperty(MapJsonKeys.MATRIX, builder.toString());
+		tiles.addProperty(MapJsonKeys.MATRIX, new String(Base64.getEncoder().encode(matrix)));
 		if (heights.size() > 0) {
 			tiles.add(MapJsonKeys.HEIGHTS, heights);
 		}

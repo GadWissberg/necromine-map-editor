@@ -28,10 +28,7 @@ import lombok.RequiredArgsConstructor;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.IntStream;
 
 import static com.gadarts.necromine.model.characters.Direction.SOUTH;
@@ -63,9 +60,9 @@ public class MapInflater {
 	}
 
 	private void inflateHeights(final JsonObject tilesJsonObject, final GameMap map, final WallCreator wallCreator) {
-		JsonArray heights = tilesJsonObject.get(MapJsonKeys.HEIGHTS).getAsJsonArray();
+		JsonElement heights = tilesJsonObject.get(MapJsonKeys.HEIGHTS);
 		if (heights != null) {
-			heights.forEach(nodeJsonElement -> {
+			heights.getAsJsonArray().forEach(nodeJsonElement -> {
 				JsonObject nodeJsonObject = nodeJsonElement.getAsJsonObject();
 				int row = nodeJsonObject.get(MapJsonKeys.ROW).getAsInt();
 				int col = nodeJsonObject.get(MapJsonKeys.COL).getAsInt();
@@ -177,21 +174,22 @@ public class MapInflater {
 		String matrix = tilesJsonObject.get(MapJsonKeys.MATRIX).getAsString();
 		MapNodeData[][] inputMap = new MapNodeData[depth][width];
 		initializedTiles.clear();
+		byte[] matrixByte = Base64.getDecoder().decode(matrix.getBytes());
 		IntStream.range(0, depth)
 				.forEach(row -> IntStream.range(0, width)
-						.forEach(col -> inflateTile(width, matrix, inputMap, new Node(row, col))));
+						.forEach(col -> inflateTile(width, matrixByte, inputMap, new Node(row, col))));
 		return inputMap;
 	}
 
 	private void inflateTile(final int mapWidth,
-							 final String matrix,
+							 final byte[] matrix,
 							 final MapNodeData[][] inputMap,
 							 final Node node) {
 		int row = node.getRow();
 		int col = node.getCol();
-		char tileId = matrix.charAt(row * mapWidth + col % mapWidth);
-		if (tileId != '0') {
-			Assets.FloorsTextures textureDefinition = Assets.FloorsTextures.values()[tileId - '1'];
+		byte tileId = matrix[row * mapWidth + col % mapWidth];
+		if (tileId != 0) {
+			Assets.FloorsTextures textureDefinition = Assets.FloorsTextures.values()[tileId-1];
 			MapNodeData tile = new MapNodeData(cursorHandler.getCursorTileModel(), node.getRow(), node.getCol(), MapNodesTypes.PASSABLE_NODE);
 			Utils.initializeTile(tile, textureDefinition, assetsManager);
 			inputMap[row][col] = tile;
