@@ -5,10 +5,11 @@ import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.elements.PlacedElement;
+import com.necromine.editor.model.node.Node;
 
 import java.util.List;
+import java.util.Optional;
 
 public abstract class PlaceElementAction<T extends PlacedElement, S extends ElementDefinition> extends MappingAction {
 
@@ -38,7 +39,18 @@ public abstract class PlaceElementAction<T extends PlacedElement, S extends Elem
 		if (tile != null) {
 			removeElementFromTile(tile, placedElements);
 		}
+		T element = createElement(tile);
+		Optional.ofNullable(element).ifPresent(e -> {
+			placeElementInCorrectHeight(e, tile);
+			addElementToList(e);
+		});
 	}
+
+	protected abstract void addElementToList(T element);
+
+	protected abstract void placeElementInCorrectHeight(T element, MapNodeData tile);
+
+	protected abstract T createElement(MapNodeData tile);
 
 	private void removeElementFromTile(final MapNodeData tile, final List<? extends PlacedElement> placedElements) {
 		placedElements.stream()

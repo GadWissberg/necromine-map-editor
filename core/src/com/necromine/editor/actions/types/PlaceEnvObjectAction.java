@@ -6,9 +6,9 @@ import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditor;
-import com.necromine.editor.model.node.Node;
-import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.actions.PlaceElementAction;
+import com.necromine.editor.model.elements.PlacedEnvObject;
+import com.necromine.editor.model.node.Node;
 
 import java.util.List;
 
@@ -31,13 +31,26 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 	@Override
 	public void execute() {
 		super.execute();
-		PlacedEnvObject env = new PlacedEnvObject(
+		applyOnMap();
+	}
+
+	@Override
+	protected void addElementToList(PlacedEnvObject element) {
+		placedEnvObjects.add(element);
+	}
+
+	@Override
+	protected void placeElementInCorrectHeight(PlacedEnvObject element, MapNodeData tile) {
+		element.getModelInstance().transform.translate(0, node.getHeight(), 0);
+	}
+
+	@Override
+	protected PlacedEnvObject createElement(MapNodeData tile) {
+		return new PlacedEnvObject(
 				selectedEnvObject,
 				node,
 				assetsManager,
 				elementDirection);
-		placedEnvObjects.add(env);
-		applyOnMap();
 	}
 
 	private void applyOnMap() {

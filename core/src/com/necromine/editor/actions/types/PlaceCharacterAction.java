@@ -1,13 +1,15 @@
 package com.necromine.editor.actions.types;
 
+import com.badlogic.gdx.graphics.g3d.decals.Decal;
+import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.model.node.Node;
 import com.necromine.editor.actions.PlaceElementAction;
 import com.necromine.editor.model.elements.PlacedCharacter;
+import com.necromine.editor.model.node.Node;
 
 import java.util.List;
 
@@ -25,15 +27,34 @@ public class PlaceCharacterAction extends PlaceElementAction<PlacedCharacter, Ch
 	@Override
 	public void execute() {
 		super.execute();
-		MapNodeData tile = map.getNodes()[node.getRow()][node.getCol()];
+	}
+
+	@Override
+	protected void addElementToList(PlacedCharacter element) {
+		placedElements.add(element);
+	}
+
+	@Override
+	protected void placeElementInCorrectHeight(PlacedCharacter element, MapNodeData tile) {
+		Decal decal = element.getCharacterDecal().getDecal();
+		Vector3 position = decal.getPosition();
+		decal.setPosition(position.x, tile.getHeight(), position.z);
+	}
+
+
+	@Override
+	protected PlacedCharacter createElement(MapNodeData tile) {
+		PlacedCharacter result = null;
 		if (tile != null) {
-			placedElements.add(new PlacedCharacter(
+			result = new PlacedCharacter(
 					elementDefinition,
 					node,
 					assetsManager,
-					elementDirection));
+					elementDirection);
 		}
+		return result;
 	}
+
 
 	@Override
 	public boolean isProcess() {

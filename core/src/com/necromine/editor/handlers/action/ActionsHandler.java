@@ -162,7 +162,7 @@ public class ActionsHandler {
 		PlaceEnvObjectAction action = new PlaceEnvObjectAction(
 				map,
 				(List<PlacedEnvObject>) data.getPlacedElements().getPlacedObjects().get(EditModes.ENVIRONMENT),
-				new Node(row, col),
+				new Node(map.getNodes()[row][col]),
 				(EnvironmentDefinitions) selectedElement,
 				am,
 				cursorSelectionModel.getFacingDirection());
@@ -178,7 +178,7 @@ public class ActionsHandler {
 		PlacePickupAction action = new PlacePickupAction(
 				map,
 				(List<PlacedPickup>) data.getPlacedElements().getPlacedObjects().get(EditModes.PICKUPS),
-				new Node(row, col),
+				new Node(map.getNodes()[row][col]),
 				(ItemDefinition) selectedElement,
 				am,
 				cursorSelectionModel.getFacingDirection());
@@ -193,7 +193,7 @@ public class ActionsHandler {
 		PlaceLightAction action = new PlaceLightAction(
 				map,
 				(List<PlacedLight>) data.getPlacedElements().getPlacedObjects().get(EditModes.LIGHTS),
-				new Node(row, col),
+				new Node(map.getNodes()[row][col]),
 				selectedElement,
 				am);
 		executeAction(action);
@@ -221,7 +221,7 @@ public class ActionsHandler {
 		PlaceCharacterAction action = new PlaceCharacterAction(
 				map,
 				(List<PlacedCharacter>) data.getPlacedElements().getPlacedObjects().get(EditModes.CHARACTERS),
-				new Node(row, col),
+				new Node(map.getNodes()[row][col]),
 				(CharacterDefinition) selectedElement,
 				am,
 				cursorHandler.getCursorCharacterDecal().getSpriteDirection());

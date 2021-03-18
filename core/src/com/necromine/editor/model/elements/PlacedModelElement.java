@@ -2,6 +2,7 @@ package com.necromine.editor.model.elements;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.ModelElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.model.node.Node;

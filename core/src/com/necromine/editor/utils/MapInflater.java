@@ -189,7 +189,7 @@ public class MapInflater {
 		int col = node.getCol();
 		byte tileId = matrix[row * mapWidth + col % mapWidth];
 		if (tileId != 0) {
-			Assets.FloorsTextures textureDefinition = Assets.FloorsTextures.values()[tileId-1];
+			Assets.FloorsTextures textureDefinition = Assets.FloorsTextures.values()[tileId - 1];
 			MapNodeData tile = new MapNodeData(cursorHandler.getCursorTileModel(), node.getRow(), node.getCol(), MapNodesTypes.PASSABLE_NODE);
 			Utils.initializeTile(tile, textureDefinition, assetsManager);
 			inputMap[row][col] = tile;
