@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-@EqualsAndHashCode
 public class Node {
 	private final int row;
 	private final int col;
@@ -27,5 +26,9 @@ public class Node {
 
 	public boolean equals(final int row, final int col) {
 		return this.row == row && this.col == col;
+	}
+
+	public boolean equals(final Node node) {
+		return equals(node.getRow(), node.getCol());
 	}
 }
