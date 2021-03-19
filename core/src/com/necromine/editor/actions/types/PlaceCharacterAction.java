@@ -13,6 +13,8 @@ import com.necromine.editor.model.node.Node;
 
 import java.util.List;
 
+import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
+
 public class PlaceCharacterAction extends PlaceElementAction<PlacedCharacter, CharacterDefinition> {
 
 	public PlaceCharacterAction(final GameMap map,
@@ -38,7 +40,7 @@ public class PlaceCharacterAction extends PlaceElementAction<PlacedCharacter, Ch
 	protected void placeElementInCorrectHeight(PlacedCharacter element, MapNodeData tile) {
 		Decal decal = element.getCharacterDecal().getDecal();
 		Vector3 position = decal.getPosition();
-		decal.setPosition(position.x, tile.getHeight(), position.z);
+		decal.setPosition(position.x, BILLBOARD_Y + tile.getHeight(), position.z);
 	}
 
 
