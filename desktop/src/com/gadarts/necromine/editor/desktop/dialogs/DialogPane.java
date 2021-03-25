@@ -27,11 +27,12 @@ public abstract class DialogPane extends JPanel {
 
 	abstract void initializeView(GridBagConstraints c);
 
-	protected void addOkButton(final GridBagConstraints c, final ActionListener actionListener) {
+	protected Button addOkButton(final GridBagConstraints c, final ActionListener actionListener) {
 		c.gridwidth = 2;
 		Button ok = new Button(BUTTON_LABEL_OK);
 		ok.addActionListener(actionListener);
 		add(ok, c);
+		return ok;
 	}
 
 	protected JSpinner addSpinner(final float value, final int maximum, final float step, final GridBagConstraints c) {

@@ -2,7 +2,11 @@ package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.gadarts.necromine.assets.Assets;
-import com.gadarts.necromine.editor.desktop.dialogs.*;
+import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
+import com.gadarts.necromine.editor.desktop.dialogs.SelectObjectInNodeDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.SetAmbientLightDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.TilesLiftDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.WallTilingDialog;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.menu.definitions.Menus;
@@ -366,10 +370,9 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	}
 
 	@Override
-	public void nodeSelectedToSelectEnvObjectsInIt(final Node node,
-												   final List<? extends PlacedElement> elementsInTheNode,
-												   final ActionAnswer answer) {
-		openDialog(new SelectEnvInNodeDialog(node, elementsInTheNode, answer));
+	public void nodeSelectedToSelectPlacedObjectsInIt(final List<? extends PlacedElement> elementsInTheNode,
+													  final ActionAnswer<PlacedElement> answer) {
+		openDialog(new SelectObjectInNodeDialog(elementsInTheNode, answer));
 	}
 
 
