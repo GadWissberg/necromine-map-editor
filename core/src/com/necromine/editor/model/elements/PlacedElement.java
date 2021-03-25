@@ -1,7 +1,6 @@
 package com.necromine.editor.model.elements;
 
 import com.gadarts.necromine.model.ElementDefinition;
-import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.model.node.Node;
 import lombok.Getter;
@@ -20,4 +19,8 @@ public class PlacedElement {
 		this.facingDirection = selectedDirection;
 	}
 
+	@Override
+	public String toString() {
+		return definition.getDisplayName();
+	}
 }

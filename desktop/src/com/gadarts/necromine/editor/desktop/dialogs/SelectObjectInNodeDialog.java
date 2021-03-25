@@ -15,17 +15,21 @@ public class SelectObjectInNodeDialog extends DialogPane {
 									final ActionAnswer<PlacedElement> answer) {
 		this.elementsInTheNode = elementsInTheNode;
 		this.answer = answer;
+		init();
 	}
 
 	@Override
 	void initializeView(final GridBagConstraints c) {
-		JList<JLabel> list = new JList<>();
+		DefaultListModel<PlacedElement> jLabelDefaultListModel = new DefaultListModel<>();
+		JList<PlacedElement> list = new JList<>(jLabelDefaultListModel);
 		ListSelectionModel listSelectionModel = list.getSelectionModel();
-		listSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		Button ok = addOkButton(c, e -> answer.apply(elementsInTheNode.get(listSelectionModel.getSelectedIndices()[0])));
-		listSelectionModel.addListSelectionListener(e -> ok.setEnabled(true));
-		elementsInTheNode.forEach(element -> list.add(new JLabel(element.getDefinition().getDisplayName())));
+		elementsInTheNode.forEach(jLabelDefaultListModel::addElement);
 		add(list);
+		Button ok = addOkButton(c, e -> {
+			answer.apply(elementsInTheNode.get(listSelectionModel.getSelectedIndices()[0]));
+			closeDialog();
+		});
+		listSelectionModel.addListSelectionListener(e -> ok.setEnabled(true));
 		ok.setEnabled(false);
 	}
 

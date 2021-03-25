@@ -59,7 +59,7 @@ public class RemoveElementAction extends MappingAction implements AnswerSubscrib
 	private void letUserDecide(final MapManagerEventsNotifier eventsNotifier,
 							   final List<? extends PlacedElement> elementsInTheNode) {
 		ActionAnswer<PlacedElement> answer = new ActionAnswer<>(this);
-		eventsNotifier.nodeSelectedToSelectEnvObjectsInIt(elementsInTheNode, answer);
+		eventsNotifier.nodeSelectedToSelectObjectsInIt(elementsInTheNode, answer);
 	}
 
 	@Override

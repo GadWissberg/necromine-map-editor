@@ -24,7 +24,8 @@ public class MapManagerEventsNotifier {
 		subscribers.forEach(subscriber -> subscriber.onTilesSelectedForLifting(src.getRow(), src.getCol(), dstRow, dstCol));
 	}
 
-	public void nodeSelectedToSelectEnvObjectsInIt(final List<? extends PlacedElement> elementsInTheNode, ActionAnswer<PlacedElement> answer) {
+	public void nodeSelectedToSelectObjectsInIt(final List<? extends PlacedElement> elementsInTheNode,
+												final ActionAnswer<PlacedElement> answer) {
 		subscribers.forEach(subscriber -> subscriber.nodeSelectedToSelectPlacedObjectsInIt(elementsInTheNode, answer));
 	}
 }
