@@ -8,6 +8,7 @@ import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.tools.EditorTool;
+import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 
@@ -39,4 +40,6 @@ public interface GuiEventsSubscriber {
 	float onAmbientLightValueRequest();
 
 	void onAmbientLightValueSet(float value);
+
+	void onEnvObjectDefined(PlacedEnvObject element, float height);
 }

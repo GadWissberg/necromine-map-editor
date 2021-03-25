@@ -22,6 +22,7 @@ import com.necromine.editor.actions.processes.PlaceTilesProcess;
 import com.necromine.editor.handlers.Handlers;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
+import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.model.elements.CharacterDecal;
 import com.necromine.editor.model.elements.PlacedCharacter;
 import com.necromine.editor.model.elements.PlacedElement;
@@ -134,7 +135,7 @@ public class MapRenderer {
     public void renderCursor(final EditorMode mode, final ElementDefinition selectedElement) {
         ModelInstance highlighter = handlers.getCursorHandler().getHighlighter();
         if (highlighter == null) return;
-        if (mode != EditModes.ENVIRONMENT) {
+        if (MapEditor.getTool() != EnvTools.BRUSH) {
             handlers.getBatchHandler().getModelBatch().render(highlighter);
         }
         renderCursorObjectModel(selectedElement, mode);

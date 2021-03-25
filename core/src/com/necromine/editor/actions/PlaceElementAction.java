@@ -35,7 +35,7 @@ public abstract class PlaceElementAction<T extends PlacedElement, S extends Elem
 	}
 
 	@Override
-	public void execute(MapManagerEventsNotifier eventsNotifier) {
+	public void execute(final MapManagerEventsNotifier eventsNotifier) {
 		MapNodeData tile = map.getNodes()[node.getRow()][node.getCol()];
 		T element = createElement(tile);
 		Optional.ofNullable(element).ifPresent(e -> {

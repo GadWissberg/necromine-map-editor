@@ -6,10 +6,11 @@ import com.necromine.editor.model.node.Node;
 import javax.swing.*;
 import java.awt.*;
 
+import static com.necromine.editor.model.node.Node.MAX_HEIGHT;
+
 public class TilesLiftDialog extends DialogPane {
 	private static final String LABEL_HEIGHT = "Height: ";
-	private static final int MAX_HEIGHT = 10;
-	private static final float STEP = 0.1f;
+	static final float STEP = 0.1f;
 	private final Node src;
 	private final Node dst;
 	private final GuiEventsSubscriber guiEventsSubscriber;
@@ -38,7 +39,6 @@ public class TilesLiftDialog extends DialogPane {
 	}
 
 	private JSpinner addHeightSpinner(final GridBagConstraints c) {
-		c.gridy--;
 		c.gridx++;
 		return addSpinner(0, MAX_HEIGHT, STEP, c);
 	}

@@ -4,6 +4,7 @@ import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.tools.EditorTool;
+import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.mode.tools.TilesTools;
 import lombok.Getter;
 
@@ -36,12 +37,14 @@ public class ModesHandler extends Component implements PropertyChangeListener {
 		});
 	}
 
-	public void setTool(final TilesTools tool) {
+	public void setTool(final EditorTool tool) {
 		if (ModesHandler.tool == tool) return;
 		Class<? extends EditorTool> toolType = tool.getClass();
 		String name = null;
 		if (toolType.equals(TilesTools.class)) {
 			name = Events.TILE_TOOL_SET.name();
+		} else if (toolType.equals(EnvTools.class)) {
+			name = Events.ENV_TOOL_SET.name();
 		}
 		Optional.ofNullable(name).ifPresent(n -> {
 			ModesHandler.tool = tool;
@@ -58,6 +61,8 @@ public class ModesHandler extends Component implements PropertyChangeListener {
 			applyMode(CameraModes.values()[(int) evt.getNewValue()]);
 		} else if (propertyName.equals(Events.REQUEST_TO_SET_TILE_TOOL.name())) {
 			setTool(TilesTools.values()[(int) evt.getNewValue()]);
+		} else if (propertyName.equals(Events.REQUEST_TO_SET_ENV_TOOL.name())) {
+			setTool(EnvTools.values()[(int) evt.getNewValue()]);
 		}
 	}
 }

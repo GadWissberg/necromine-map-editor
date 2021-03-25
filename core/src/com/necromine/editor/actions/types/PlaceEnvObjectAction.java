@@ -30,28 +30,24 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 	}
 
 	@Override
-	public void execute(MapManagerEventsNotifier eventsNotifier) {
+	public void execute(final MapManagerEventsNotifier eventsNotifier) {
 		super.execute(eventsNotifier);
 		applyOnMap();
 	}
 
 	@Override
-	protected void addElementToList(PlacedEnvObject element) {
+	protected void addElementToList(final PlacedEnvObject element) {
 		placedEnvObjects.add(element);
 	}
 
 	@Override
-	protected void placeElementInCorrectHeight(PlacedEnvObject element, MapNodeData tile) {
+	protected void placeElementInCorrectHeight(final PlacedEnvObject element, final MapNodeData tile) {
 		element.getModelInstance().transform.translate(0, node.getHeight(), 0);
 	}
 
 	@Override
-	protected PlacedEnvObject createElement(MapNodeData tile) {
-		return new PlacedEnvObject(
-				selectedEnvObject,
-				node,
-				assetsManager,
-				elementDirection);
+	protected PlacedEnvObject createElement(final MapNodeData tile) {
+		return new PlacedEnvObject(selectedEnvObject, node, assetsManager, elementDirection);
 	}
 
 	private void applyOnMap() {

@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Getter
 public class Node {
+	public static final int MAX_HEIGHT = 10;
+
 	private final int row;
 	private final int col;
 	private final float height;

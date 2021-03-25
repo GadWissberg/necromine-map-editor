@@ -37,7 +37,9 @@ import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.CharacterDecal;
+import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElements;
+import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 import com.necromine.editor.utils.MapDeflater;
@@ -307,6 +309,11 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	@Override
 	public void onAmbientLightValueSet(final float value) {
 		map.setAmbientLight(value);
+	}
+
+	@Override
+	public void onEnvObjectDefined(final PlacedEnvObject element, final float height) {
+		handlers.getActionsHandler().onEnvObjectDefined(element, height);
 	}
 
 

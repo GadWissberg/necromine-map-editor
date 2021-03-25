@@ -2,6 +2,7 @@ package com.necromine.editor;
 
 import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.model.elements.PlacedElement;
+import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 
@@ -29,7 +30,7 @@ public class MapManagerEventsNotifier {
 		subscribers.forEach(subscriber -> subscriber.onNodeSelectedToSelectPlacedObjectsInIt(elementsInTheNode, answer));
 	}
 
-	public void selectedEnvObjectToDefine(final PlacedElement data) {
+	public void selectedEnvObjectToDefine(final PlacedEnvObject data) {
 		subscribers.forEach(subscriber -> subscriber.onSelectedEnvObjectToDefine(data));
 	}
 }

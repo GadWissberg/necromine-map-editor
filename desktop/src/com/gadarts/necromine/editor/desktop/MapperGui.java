@@ -2,11 +2,7 @@ package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.gadarts.necromine.assets.Assets;
-import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
-import com.gadarts.necromine.editor.desktop.dialogs.SelectObjectInNodeDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.SetAmbientLightDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.TilesLiftDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.WallTilingDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.*;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.menu.definitions.Menus;
@@ -29,8 +25,10 @@ import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
+import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.PlacedElement;
+import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 import org.lwjgl.openal.AL;
@@ -328,6 +326,15 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 				entitiesLayout.show(entitiesPanel, NONE.name());
 			}
 			guiEventsSubscriber.onToolSet(selectedTool);
+		} else if (propertyName.equals(Events.ENV_TOOL_SET.name())) {
+			EnvTools selectedTool = EnvTools.values()[(int) evt.getNewValue()];
+			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
+			if (selectedTool == EnvTools.BRUSH) {
+				entitiesLayout.show(entitiesPanel, EditModes.ENVIRONMENT.name());
+			} else {
+				entitiesLayout.show(entitiesPanel, NONE.name());
+			}
+			guiEventsSubscriber.onToolSet(selectedTool);
 		} else if (propertyName.equals(Events.TREE_ENTRY_SELECTED.name())) {
 			if (mode == EditModes.CHARACTERS) {
 				guiEventsSubscriber.onTreeCharacterSelected((CharacterDefinition) evt.getNewValue());
@@ -376,7 +383,8 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	}
 
 	@Override
-	public void onSelectedEnvObjectToDefine(PlacedElement data) {
+	public void onSelectedEnvObjectToDefine(final PlacedEnvObject data) {
+		openDialog(new DefineEnvObjectDialog(data, guiEventsSubscriber));
 	}
 
 

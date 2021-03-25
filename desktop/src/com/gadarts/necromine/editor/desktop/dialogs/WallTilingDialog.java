@@ -98,9 +98,13 @@ public class WallTilingDialog extends DialogPane {
 
 	private void addLabels(final GridBagConstraints c) {
 		addLabel(c, LABEL_EAST);
+		c.gridy++;
 		addLabel(c, LABEL_SOUTH);
+		c.gridy++;
 		addLabel(c, LABEL_WEST);
+		c.gridy++;
 		addLabel(c, LABEL_NORTH);
+		c.gridy++;
 	}
 
 }

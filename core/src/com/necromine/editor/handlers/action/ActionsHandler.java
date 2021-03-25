@@ -19,6 +19,7 @@ import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditor;
 import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.ActionAnswer;
+import com.necromine.editor.actions.AnswerSubscriber;
 import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.actions.ProcessBuilder;
 import com.necromine.editor.actions.processes.MappingProcess;
@@ -26,12 +27,7 @@ import com.necromine.editor.actions.processes.PlaceTilesFinishProcessParameters;
 import com.necromine.editor.actions.processes.PlaceTilesProcess;
 import com.necromine.editor.actions.processes.SelectTilesForLiftFinishProcessParameters;
 import com.necromine.editor.actions.processes.SelectTilesForLiftProcess;
-import com.necromine.editor.actions.types.ActionBuilder;
-import com.necromine.editor.actions.types.PlaceCharacterAction;
-import com.necromine.editor.actions.types.PlaceEnvObjectAction;
-import com.necromine.editor.actions.types.PlaceLightAction;
-import com.necromine.editor.actions.types.PlacePickupAction;
-import com.necromine.editor.actions.types.RemoveElementAction;
+import com.necromine.editor.actions.types.*;
 import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
@@ -116,7 +112,9 @@ public class ActionsHandler {
 					}
 					return true;
 				} else if (mode == EditModes.ENVIRONMENT && currentProcess == null) {
-					if (tool == EnvTools.DEFINE) {
+					if (tool == EnvTools.BRUSH && selectedElement != null) {
+						placeEnvObject(map, assetsManager);
+					} else if (tool == EnvTools.DEFINE) {
 						defineSelectedEnvObject();
 					}
 					return true;
@@ -127,8 +125,6 @@ public class ActionsHandler {
 					if (mode == EditModes.CHARACTERS) {
 						placeCharacter(map, assetsManager);
 						return true;
-					} else if (mode == EditModes.ENVIRONMENT) {
-						placeEnvObject(map, assetsManager);
 					} else if (mode == EditModes.PICKUPS) {
 						placePickup(map, assetsManager);
 						return true;
@@ -148,11 +144,22 @@ public class ActionsHandler {
 	private void defineSelectedEnvObject() {
 		MapNodeData mapNodeData = getMapNodeDataFromCursor();
 		List<? extends PlacedElement> list = this.data.getPlacedElements().getPlacedObjects().get(MapEditor.getMode());
-		List<? extends PlacedElement> elementsInTheNode = list.stream()
+		List<PlacedElement> elementsInTheNode = list.stream()
 				.filter(placedElement -> placedElement.getNode().equals(mapNodeData))
 				.collect(Collectors.toList());
+		int size = elementsInTheNode.size();
+		if (size == 1) {
+			eventsNotifier.selectedEnvObjectToDefine((PlacedEnvObject) elementsInTheNode.get(0));
+		} else if (size > 1) {
+			defineSelectedEnvObjectsInNode(mapNodeData, elementsInTheNode);
+		}
+	}
+
+	private void defineSelectedEnvObjectsInNode(final MapNodeData mapNodeData,
+												final List<PlacedElement> elementsInTheNode) {
 		if (mapNodeData != null) {
-			ActionAnswer<PlacedElement> answer = new ActionAnswer<>(eventsNotifier::selectedEnvObjectToDefine);
+			ActionAnswer<PlacedElement> answer = new ActionAnswer<>(data ->
+					eventsNotifier.selectedEnvObjectToDefine((PlacedEnvObject) data));
 			eventsNotifier.nodeSelectedToSelectObjectsInIt(elementsInTheNode, answer);
 		}
 	}
@@ -343,7 +350,11 @@ public class ActionsHandler {
 	}
 
 	public void onTilesLift(final Node src, final Node dst, final float value) {
-		ActionBuilder.begin(data.getMap()).liftTiles(src, dst, value, services.getWallCreator()).finish().execute(eventsNotifier);
+		LiftTilesAction.Parameters params = new LiftTilesAction.Parameters(src, dst, value, services.getWallCreator());
+		ActionFactory.liftTiles(data.getMap(), params).execute(eventsNotifier);
 	}
 
+	public void onEnvObjectDefined(final PlacedEnvObject element, final float height) {
+		ActionFactory.defineEnvObject(data.getMap(), element, height).execute(eventsNotifier);
+	}
 }
