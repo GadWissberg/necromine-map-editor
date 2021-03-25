@@ -2,10 +2,7 @@ package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.gadarts.necromine.assets.Assets;
-import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
-import com.gadarts.necromine.editor.desktop.dialogs.SetAmbientLightDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.TilesLiftDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.WallTilingDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.*;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.menu.definitions.Menus;
@@ -24,10 +21,12 @@ import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.EntriesDisplayTypes;
 import com.necromine.editor.GuiEventsSubscriber;
 import com.necromine.editor.MapManagerEventsSubscriber;
+import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.TilesTools;
+import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 import org.lwjgl.openal.AL;
@@ -48,6 +47,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -363,6 +363,13 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	@Override
 	public void onTilesSelectedForLifting(final int srcRow, final int srcCol, final int dstRow, final int dstCol) {
 		openDialog(new TilesLiftDialog(new Node(srcRow, srcCol), new Node(dstRow, dstCol), guiEventsSubscriber));
+	}
+
+	@Override
+	public void nodeSelectedToSelectEnvObjectsInIt(final Node node,
+												   final List<? extends PlacedElement> elementsInTheNode,
+												   final ActionAnswer answer) {
+		openDialog(new SelectEnvInNodeDialog(node, elementsInTheNode, answer));
 	}
 
 

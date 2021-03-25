@@ -54,6 +54,7 @@ public class ActionsHandler {
 
 	private final ActionHandlerRelatedData data;
 	private final ActionHandlerRelatedServices services;
+	private final MapManagerEventsNotifier eventsNotifier;
 
 	@Setter
 	private ElementDefinition selectedElement;
@@ -61,14 +62,17 @@ public class ActionsHandler {
 	@Getter
 	private MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess;
 
-	public ActionsHandler(final ActionHandlerRelatedData data, final ActionHandlerRelatedServices services) {
+	public ActionsHandler(final ActionHandlerRelatedData data,
+						  final ActionHandlerRelatedServices services,
+						  final MapManagerEventsNotifier eventsNotifier) {
 		this.data = data;
 		this.services = services;
+		this.eventsNotifier = eventsNotifier;
 	}
 
 
 	public void executeAction(final MappingAction mappingAction) {
-		mappingAction.execute();
+		mappingAction.execute(eventsNotifier);
 		if (mappingAction.isProcess()) {
 			currentProcess = (MappingProcess<? extends MappingProcess.FinishProcessParameters>) mappingAction;
 		}
@@ -85,7 +89,7 @@ public class ActionsHandler {
 				initializedTiles,
 				data.getMap());
 		currentProcess = placeTilesProcess;
-		placeTilesProcess.execute();
+		placeTilesProcess.execute(eventsNotifier);
 	}
 
 	public boolean onTouchDown(final GameAssetsManager assetsManager,
@@ -311,6 +315,6 @@ public class ActionsHandler {
 	}
 
 	public void onTilesLift(final Node src, final Node dst, final float value) {
-		ActionBuilder.begin(data.getMap()).liftTiles(src, dst, value, services.getWallCreator()).finish().execute();
+		ActionBuilder.begin(data.getMap()).liftTiles(src, dst, value, services.getWallCreator()).finish().execute(eventsNotifier);
 	}
 }

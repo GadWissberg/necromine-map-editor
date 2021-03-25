@@ -4,6 +4,7 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.MapNodesTypes;
 import com.necromine.editor.GameMap;
+import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
@@ -31,7 +32,7 @@ public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessPar
     }
 
     @Override
-    public void execute() {
+    public void execute(MapManagerEventsNotifier eventsNotifier) {
 
     }
 

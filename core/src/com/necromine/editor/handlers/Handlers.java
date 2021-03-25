@@ -52,7 +52,7 @@ public class Handlers implements Disposable {
 				wallCreator,
 				eventsNotifier,
 				assetsManager);
-		actionsHandler = new ActionsHandler(data, services);
+		actionsHandler = new ActionsHandler(data, services, eventsNotifier);
 	}
 
 	@Override

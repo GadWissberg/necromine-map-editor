@@ -3,6 +3,7 @@ package com.necromine.editor.actions.processes;
 import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.model.MapNodeData;
 import com.necromine.editor.GameMap;
+import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.model.node.Node;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +27,7 @@ public class SelectTilesForLiftProcess extends MappingProcess<SelectTilesForLift
     }
 
     @Override
-	public void execute() {
+	public void execute(MapManagerEventsNotifier eventsNotifier) {
 
     }
 

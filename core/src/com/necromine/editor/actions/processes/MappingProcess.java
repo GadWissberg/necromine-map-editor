@@ -2,6 +2,7 @@ package com.necromine.editor.actions.processes;
 
 
 import com.necromine.editor.GameMap;
+import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.model.node.Node;
 import lombok.Getter;
@@ -16,7 +17,7 @@ public abstract class MappingProcess<T extends MappingProcess.FinishProcessParam
     }
 
     @Override
-	public abstract void execute();
+	public abstract void execute(MapManagerEventsNotifier eventsNotifier);
 
     abstract void finish(T params);
 
