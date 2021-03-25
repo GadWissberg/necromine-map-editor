@@ -7,7 +7,7 @@ import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
-import com.necromine.editor.mode.EditorTool;
+import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 

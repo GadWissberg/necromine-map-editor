@@ -2,15 +2,15 @@ package com.gadarts.necromine.editor.desktop.commands;
 
 import com.gadarts.necromine.editor.desktop.Events;
 import com.gadarts.necromine.editor.desktop.toolbar.MapperCommand;
-import com.necromine.editor.mode.TilesTools;
+import com.necromine.editor.mode.tools.EditorTool;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-public class SetTilesToolCommand extends MapperCommand {
-	private final TilesTools tool;
+public class SetToolCommand extends MapperCommand {
+	private final EditorTool tool;
 
-	public SetTilesToolCommand(final TilesTools tool) {
+	public SetToolCommand(final EditorTool tool) {
 		super();
 		this.tool = tool;
 	}

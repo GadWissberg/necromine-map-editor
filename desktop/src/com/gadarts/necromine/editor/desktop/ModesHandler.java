@@ -1,10 +1,10 @@
 package com.gadarts.necromine.editor.desktop;
 
-import com.necromine.editor.mode.EditorTool;
-import com.necromine.editor.mode.TilesTools;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
+import com.necromine.editor.mode.tools.EditorTool;
+import com.necromine.editor.mode.tools.TilesTools;
 import lombok.Getter;
 
 import java.awt.*;

@@ -7,6 +7,10 @@ public class SubToolbarButtonDefinition implements ToolbarButtonDefinition {
 		this.buttonProperties = buttonProperties;
 	}
 
+	public SubToolbarButtonDefinition() {
+		this(null);
+	}
+
 	@Override
 	public ToolbarButtonProperties getButtonProperties() {
 		return buttonProperties;

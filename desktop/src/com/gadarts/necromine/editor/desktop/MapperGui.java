@@ -29,7 +29,7 @@ import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
-import com.necromine.editor.mode.TilesTools;
+import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.node.Node;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
