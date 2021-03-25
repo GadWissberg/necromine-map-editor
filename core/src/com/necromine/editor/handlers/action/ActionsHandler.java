@@ -18,6 +18,7 @@ import com.necromine.editor.CursorSelectionModel;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditor;
 import com.necromine.editor.MapManagerEventsNotifier;
+import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.actions.ProcessBuilder;
 import com.necromine.editor.actions.processes.MappingProcess;
@@ -35,8 +36,10 @@ import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.tools.EditorTool;
+import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.PlacedCharacter;
+import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.elements.PlacedLight;
 import com.necromine.editor.model.elements.PlacedPickup;
@@ -48,6 +51,7 @@ import lombok.Setter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class ActionsHandler {
 	private static final Vector3 auxVector = new Vector3();
@@ -111,6 +115,11 @@ public class ActionsHandler {
 						tileWall(eventsNotifier);
 					}
 					return true;
+				} else if (mode == EditModes.ENVIRONMENT && currentProcess == null) {
+					if (tool == EnvTools.DEFINE) {
+						defineSelectedEnvObject();
+					}
+					return true;
 				} else if (mode == EditModes.LIGHTS) {
 					placeLight(map, assetsManager);
 					return true;
@@ -134,6 +143,25 @@ public class ActionsHandler {
 			}
 		}
 		return false;
+	}
+
+	private void defineSelectedEnvObject() {
+		MapNodeData mapNodeData = getMapNodeDataFromCursor();
+		List<? extends PlacedElement> list = this.data.getPlacedElements().getPlacedObjects().get(MapEditor.getMode());
+		List<? extends PlacedElement> elementsInTheNode = list.stream()
+				.filter(placedElement -> placedElement.getNode().equals(mapNodeData))
+				.collect(Collectors.toList());
+		if (mapNodeData != null) {
+			ActionAnswer<PlacedElement> answer = new ActionAnswer<>(eventsNotifier::selectedEnvObjectToDefine);
+			eventsNotifier.nodeSelectedToSelectObjectsInIt(elementsInTheNode, answer);
+		}
+	}
+
+	private MapNodeData getMapNodeDataFromCursor() {
+		Vector3 cursorPosition = services.getCursorHandler().getHighlighter().transform.getTranslation(auxVector);
+		int row = (int) cursorPosition.z;
+		int col = (int) cursorPosition.x;
+		return data.getMap().getNodes()[row][col];
 	}
 
 	private void tileWall(final MapManagerEventsNotifier eventsNotifier) {
@@ -317,4 +345,5 @@ public class ActionsHandler {
 	public void onTilesLift(final Node src, final Node dst, final float value) {
 		ActionBuilder.begin(data.getMap()).liftTiles(src, dst, value, services.getWallCreator()).finish().execute(eventsNotifier);
 	}
+
 }

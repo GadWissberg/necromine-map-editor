@@ -11,6 +11,8 @@ public interface MapManagerEventsSubscriber {
 
 	void onTilesSelectedForLifting(int srcRow, int srcCol, int dstRow, int dstCol);
 
-	void nodeSelectedToSelectPlacedObjectsInIt(List<? extends PlacedElement> elementsInTheNode,
-											   ActionAnswer<PlacedElement> answer);
+	void onNodeSelectedToSelectPlacedObjectsInIt(List<? extends PlacedElement> elementsInTheNode,
+												 ActionAnswer<PlacedElement> answer);
+
+	void onSelectedEnvObjectToDefine(PlacedElement data);
 }

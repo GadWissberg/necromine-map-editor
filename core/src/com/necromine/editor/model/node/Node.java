@@ -1,7 +1,6 @@
 package com.necromine.editor.model.node;
 
 import com.gadarts.necromine.model.MapNodeData;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -12,13 +11,13 @@ public class Node {
 	private final int col;
 	private final float height;
 
-	public Node(int row, int col) {
+	public Node(final int row, final int col) {
 		this.row = row;
 		this.col = col;
 		this.height = 0;
 	}
 
-	public Node(MapNodeData node) {
+	public Node(final MapNodeData node) {
 		this.row = node.getRow();
 		this.col = node.getCol();
 		this.height = node.getHeight();
@@ -29,6 +28,10 @@ public class Node {
 	}
 
 	public boolean equals(final Node node) {
+		return equals(node.getRow(), node.getCol());
+	}
+
+	public boolean equals(final MapNodeData node) {
 		return equals(node.getRow(), node.getCol());
 	}
 }

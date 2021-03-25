@@ -26,6 +26,10 @@ public class MapManagerEventsNotifier {
 
 	public void nodeSelectedToSelectObjectsInIt(final List<? extends PlacedElement> elementsInTheNode,
 												final ActionAnswer<PlacedElement> answer) {
-		subscribers.forEach(subscriber -> subscriber.nodeSelectedToSelectPlacedObjectsInIt(elementsInTheNode, answer));
+		subscribers.forEach(subscriber -> subscriber.onNodeSelectedToSelectPlacedObjectsInIt(elementsInTheNode, answer));
+	}
+
+	public void selectedEnvObjectToDefine(final PlacedElement data) {
+		subscribers.forEach(subscriber -> subscriber.onSelectedEnvObjectToDefine(data));
 	}
 }

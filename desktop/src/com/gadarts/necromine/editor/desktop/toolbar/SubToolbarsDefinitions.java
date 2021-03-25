@@ -61,8 +61,8 @@ public enum SubToolbarsDefinitions {
 			new SubToolbarButtonDefinition(
 					new ToolbarButtonProperties(
 							"rotate_counter_clockwise",
-							"Remove a placed environment object",
-							new SetToolCommand(EnvTools.REMOVE))));
+							"Define a placed environment object",
+							new SetToolCommand(EnvTools.DEFINE))));
 
 	private final SubToolbarButtonDefinition[] buttons;
 	private final EditModes mode;

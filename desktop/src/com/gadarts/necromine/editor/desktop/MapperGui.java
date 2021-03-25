@@ -370,9 +370,13 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	}
 
 	@Override
-	public void nodeSelectedToSelectPlacedObjectsInIt(final List<? extends PlacedElement> elementsInTheNode,
-													  final ActionAnswer<PlacedElement> answer) {
+	public void onNodeSelectedToSelectPlacedObjectsInIt(final List<? extends PlacedElement> elementsInTheNode,
+														final ActionAnswer<PlacedElement> answer) {
 		openDialog(new SelectObjectInNodeDialog(elementsInTheNode, answer));
+	}
+
+	@Override
+	public void onSelectedEnvObjectToDefine(PlacedElement data) {
 	}
 
 
