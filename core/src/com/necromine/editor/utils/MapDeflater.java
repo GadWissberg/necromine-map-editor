@@ -1,18 +1,17 @@
 package com.necromine.editor.utils;
 
 import com.gadarts.necromine.assets.MapJsonKeys;
-import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElements;
+import com.necromine.editor.model.node.Node;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -68,15 +67,16 @@ public class MapDeflater {
 	}
 
 	private JsonObject createElementJsonObject(final PlacedElement e, final boolean addFacingDirection) {
-		JsonObject charJsonObject = new JsonObject();
-		charJsonObject.addProperty(MapJsonKeys.ROW, e.getNode().getRow());
-		charJsonObject.addProperty(MapJsonKeys.COL, e.getNode().getCol());
+		JsonObject jsonObject = new JsonObject();
+		Node node = e.getNode();
+		jsonObject.addProperty(MapJsonKeys.ROW, node.getRow());
+		jsonObject.addProperty(MapJsonKeys.COL, node.getCol());
+		jsonObject.addProperty(MapJsonKeys.HEIGHT, e.getHeight());
 		if (addFacingDirection) {
-			charJsonObject.addProperty(MapJsonKeys.DIRECTION, e.getFacingDirection().ordinal());
+			jsonObject.addProperty(MapJsonKeys.DIRECTION, e.getFacingDirection().ordinal());
 		}
-		ElementDefinition definition = e.getDefinition();
-		Optional.ofNullable(definition).ifPresent(d -> charJsonObject.addProperty(MapJsonKeys.TYPE, d.ordinal()));
-		return charJsonObject;
+		Optional.ofNullable(e.getDefinition()).ifPresent(d -> jsonObject.addProperty(MapJsonKeys.TYPE, d.ordinal()));
+		return jsonObject;
 	}
 
 	private JsonObject createTilesData(final GameMap map) {

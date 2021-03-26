@@ -8,7 +8,6 @@ import com.gadarts.necromine.assets.MapJsonKeys;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.MapNodesTypes;
-import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.google.gson.Gson;
@@ -20,6 +19,7 @@ import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedCharacter;
 import com.necromine.editor.model.elements.PlacedElement;
+import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
 import com.necromine.editor.model.elements.PlacedElementCreation;
 import com.necromine.editor.model.elements.PlacedElements;
 import com.necromine.editor.model.node.Node;
@@ -31,6 +31,7 @@ import java.io.Reader;
 import java.util.*;
 import java.util.stream.IntStream;
 
+import static com.gadarts.necromine.assets.MapJsonKeys.*;
 import static com.gadarts.necromine.model.characters.Direction.SOUTH;
 
 @RequiredArgsConstructor
@@ -49,9 +50,9 @@ public class MapInflater {
 					inflateElements(input, mode, placedElements);
 				}
 			});
-			JsonObject tilesJsonObject = input.getAsJsonObject(MapJsonKeys.TILES);
+			JsonObject tilesJsonObject = input.getAsJsonObject(TILES);
 			map.setNodes(inflateTiles(tilesJsonObject, initializedTiles));
-			JsonElement ambient = input.get(MapJsonKeys.AMBIENT);
+			JsonElement ambient = input.get(AMBIENT);
 			Optional.ofNullable(ambient).ifPresent(a -> map.setAmbientLight(a.getAsFloat()));
 			inflateHeights(tilesJsonObject, map, wallCreator);
 		} catch (final IOException e) {
@@ -60,14 +61,14 @@ public class MapInflater {
 	}
 
 	private void inflateHeights(final JsonObject tilesJsonObject, final GameMap map, final WallCreator wallCreator) {
-		JsonElement heights = tilesJsonObject.get(MapJsonKeys.HEIGHTS);
+		JsonElement heights = tilesJsonObject.get(HEIGHTS);
 		if (heights != null) {
 			heights.getAsJsonArray().forEach(nodeJsonElement -> {
 				JsonObject nodeJsonObject = nodeJsonElement.getAsJsonObject();
-				int row = nodeJsonObject.get(MapJsonKeys.ROW).getAsInt();
-				int col = nodeJsonObject.get(MapJsonKeys.COL).getAsInt();
+				int row = nodeJsonObject.get(ROW).getAsInt();
+				int col = nodeJsonObject.get(COL).getAsInt();
 				MapNodeData mapNodeData = map.getNodes()[row][col];
-				mapNodeData.lift(nodeJsonObject.get(MapJsonKeys.HEIGHT).getAsFloat());
+				mapNodeData.lift(nodeJsonObject.get(HEIGHT).getAsFloat());
 				inflateWalls(nodeJsonObject, mapNodeData, map, wallCreator);
 			});
 		}
@@ -81,7 +82,7 @@ public class MapInflater {
 		int row = mapNodeData.getRow();
 		int col = mapNodeData.getCol();
 		Model wallModel = wallCreator.getWallModel();
-		Optional.ofNullable(node.get(MapJsonKeys.EAST)).ifPresent(east -> {
+		Optional.ofNullable(node.get(EAST)).ifPresent(east -> {
 			mapNodeData.setEastWall(WallCreator.createEastWall(
 					mapNodeData,
 					wallModel,
@@ -99,7 +100,7 @@ public class MapInflater {
 			));
 			WallCreator.adjustWallBetweenNorthAndSouth(nodes[row + 1][col], mapNodeData);
 		});
-		Optional.ofNullable(node.get(MapJsonKeys.WEST)).ifPresent(west -> {
+		Optional.ofNullable(node.get(WEST)).ifPresent(west -> {
 			mapNodeData.setWestWall(WallCreator.createWestWall(
 					mapNodeData,
 					wallModel,
@@ -108,7 +109,7 @@ public class MapInflater {
 			));
 			WallCreator.adjustWallBetweenEastAndWest(mapNodeData, nodes[row][col - 1], true);
 		});
-		Optional.ofNullable(node.get(MapJsonKeys.NORTH)).ifPresent(north -> {
+		Optional.ofNullable(node.get(NORTH)).ifPresent(north -> {
 			mapNodeData.setNorthWall(WallCreator.createNorthWall(
 					mapNodeData,
 					wallModel,
@@ -120,20 +121,21 @@ public class MapInflater {
 	}
 
 	private void inflateElements(final JsonObject input,
-								 final EditModes mode, final PlacedElements placedElements) {
+								 final EditModes mode,
+								 final PlacedElements placedElements) {
 		List<? extends PlacedElement> placedElementsList = placedElements.getPlacedObjects().get(mode);
 		placedElementsList.clear();
 		inflateElements(
 				(List<PlacedElement>) placedElementsList,
 				mode.getDefinitions(),
 				input.get(mode.name().toLowerCase()).getAsJsonArray(),
-				mode.getCreationProcess(), assetsManager);
+				mode.getCreationProcess());
 	}
 
 	private void inflateCharacters(final JsonObject input,
 								   final PlacedElements placedElements,
 								   final GameAssetsManager assetsManager) {
-		JsonObject charactersJsonObject = input.get(MapJsonKeys.CHARACTERS).getAsJsonObject();
+		JsonObject charactersJsonObject = input.get(CHARACTERS).getAsJsonObject();
 		List<? extends PlacedElement> placedCharacters = placedElements.getPlacedObjects().get(EditModes.CHARACTERS);
 		placedCharacters.clear();
 		Arrays.stream(CharacterTypes.values()).forEach(type -> {
@@ -144,7 +146,7 @@ public class MapInflater {
 						(List<PlacedElement>) placedCharacters,
 						type.getDefinitions(),
 						charactersArray,
-						(def, node, dir, am) -> new PlacedCharacter((CharacterDefinition) def, node, assetsManager, dir), assetsManager);
+						(params, am) -> new PlacedCharacter(params, assetsManager));
 			}
 		});
 	}
@@ -152,26 +154,30 @@ public class MapInflater {
 	private void inflateElements(final List<PlacedElement> placedElements,
 								 final ElementDefinition[] definitions,
 								 final JsonArray elementsJsonArray,
-								 final PlacedElementCreation creation, final GameAssetsManager assetsManager) {
+								 final PlacedElementCreation creation) {
 		elementsJsonArray.forEach(characterJsonObject -> {
 			JsonObject json = characterJsonObject.getAsJsonObject();
-			Direction direction = SOUTH;
-			if (json.has(MapJsonKeys.DIRECTION)) {
-				direction = Direction.values()[json.get(MapJsonKeys.DIRECTION).getAsInt()];
-			}
-			Node node = new Node(json.get(MapJsonKeys.ROW).getAsInt(), json.get(MapJsonKeys.COL).getAsInt());
-			ElementDefinition definition = null;
-			if (definitions != null) {
-				definition = definitions[json.get(MapJsonKeys.TYPE).getAsInt()];
-			}
-			placedElements.add(creation.create(definition, node, direction, assetsManager));
+			PlacedElementParameters parameters = inflateElementParameters(definitions, json);
+			placedElements.add(creation.create(parameters, assetsManager));
 		});
 	}
 
+	private PlacedElementParameters inflateElementParameters(final ElementDefinition[] definitions,
+															 final JsonObject json) {
+		Direction dir = json.has(DIRECTION) ? Direction.values()[json.get(DIRECTION).getAsInt()] : SOUTH;
+		float height = json.has(HEIGHT) ? json.get(HEIGHT).getAsFloat() : 0;
+		Node node = new Node(json.get(ROW).getAsInt(), json.get(COL).getAsInt());
+		ElementDefinition definition = null;
+		if (definitions != null) {
+			definition = definitions[json.get(TYPE).getAsInt()];
+		}
+		return new PlacedElementParameters(definition, dir, node, height);
+	}
+
 	private MapNodeData[][] inflateTiles(final JsonObject tilesJsonObject, final Set<MapNodeData> initializedTiles) {
-		int width = tilesJsonObject.get(MapJsonKeys.WIDTH).getAsInt();
-		int depth = tilesJsonObject.get(MapJsonKeys.DEPTH).getAsInt();
-		String matrix = tilesJsonObject.get(MapJsonKeys.MATRIX).getAsString();
+		int width = tilesJsonObject.get(WIDTH).getAsInt();
+		int depth = tilesJsonObject.get(DEPTH).getAsInt();
+		String matrix = tilesJsonObject.get(MATRIX).getAsString();
 		MapNodeData[][] inputMap = new MapNodeData[depth][width];
 		initializedTiles.clear();
 		byte[] matrixByte = Base64.getDecoder().decode(matrix.getBytes());

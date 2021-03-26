@@ -7,8 +7,5 @@ import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.node.Node;
 
 public interface PlacedElementCreation {
-	PlacedElement create(final ElementDefinition definition,
-						 final Node node,
-						 final Direction direction,
-						 final GameAssetsManager assetsManager);
+	PlacedElement create(final PlacedElement.PlacedElementParameters parameters, final GameAssetsManager assetsManager);
 }

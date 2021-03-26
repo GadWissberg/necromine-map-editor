@@ -6,6 +6,7 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.actions.PlaceElementAction;
+import com.necromine.editor.model.elements.PlacedModelElement.PlacedModelElementParameters;
 import com.necromine.editor.model.elements.PlacedPickup;
 import com.necromine.editor.model.node.Node;
 
@@ -24,20 +25,21 @@ public class PlacePickupAction extends PlaceElementAction<PlacedPickup, ItemDefi
 
 
 	@Override
-	protected void addElementToList(PlacedPickup element) {
+	protected void addElementToList(final PlacedPickup element) {
 		placedElements.add(element);
 	}
 
 	@Override
-	protected void placeElementInCorrectHeight(PlacedPickup element, MapNodeData tile) {
+	protected void placeElementInCorrectHeight(final PlacedPickup element, final MapNodeData tile) {
 		element.getModelInstance().transform.translate(0, tile.getHeight(), 0);
 	}
 
 	@Override
-	protected PlacedPickup createElement(MapNodeData tile) {
+	protected PlacedPickup createElement(final MapNodeData node) {
 		PlacedPickup result = null;
-		if (tile != null) {
-			result = new PlacedPickup(tile.getRow(), tile.getCol(), elementDefinition, assetsManager);
+		if (node != null) {
+			PlacedModelElementParameters parameters = new PlacedModelElementParameters(elementDefinition, new Node(node), 0);
+			result = new PlacedPickup(parameters, assetsManager);
 		}
 		return result;
 	}

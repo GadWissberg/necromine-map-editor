@@ -3,14 +3,10 @@ package com.necromine.editor.mode;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterTypes;
-import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.gadarts.necromine.model.pickups.WeaponsDefinitions;
 import com.necromine.editor.EntriesDisplayTypes;
-import com.necromine.editor.model.elements.PlacedElementCreation;
 import com.necromine.editor.TreeSection;
-import com.necromine.editor.model.elements.PlacedEnvObject;
-import com.necromine.editor.model.elements.PlacedLight;
-import com.necromine.editor.model.elements.PlacedPickup;
+import com.necromine.editor.model.elements.*;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -27,15 +23,14 @@ public enum EditModes implements EditorMode {
 			new TreeSection("Enemies", CharacterTypes.ENEMY.getDefinitions(), "character")),
 
 	ENVIRONMENT("Environment Objects", EntriesDisplayTypes.TREE, EnvironmentDefinitions.values(),
-			(def, node, dir, assetsManager) -> new PlacedEnvObject((EnvironmentDefinitions) def, node, assetsManager, dir),
+			(params, assetsManager) -> new PlacedEnvObject(new PlacedModelElement.PlacedModelElementParameters(params), assetsManager),
 			new TreeSection("Environment", EnvironmentDefinitions.values(), "env")),
 
 	PICKUPS("Pick-Ups", EntriesDisplayTypes.TREE, WeaponsDefinitions.values(),
-			(def, node, dir, am) -> new PlacedPickup(node.getRow(), node.getCol(), (ItemDefinition) def, am),
+			(params, am) -> new PlacedPickup(new PlacedModelElement.PlacedModelElementParameters(params), am),
 			new TreeSection("Weapons", Arrays.stream(WeaponsDefinitions.values()).filter(def -> def.getModelDefinition() != null).collect(Collectors.toList()).toArray(new ElementDefinition[0]), "pickup")),
 
-	LIGHTS("Lights", true,
-			(def, node, dir, assetsManager) -> new PlacedLight(node.getRow(), node.getCol(), def, assetsManager));
+	LIGHTS("Lights", true, PlacedLight::new);
 
 
 	private final TreeSection[] treeSections;

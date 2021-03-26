@@ -9,6 +9,7 @@ import com.necromine.editor.MapEditor;
 import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.PlaceElementAction;
 import com.necromine.editor.model.elements.PlacedEnvObject;
+import com.necromine.editor.model.elements.PlacedModelElement.PlacedModelElementParameters;
 import com.necromine.editor.model.node.Node;
 
 import java.util.List;
@@ -47,7 +48,12 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 
 	@Override
 	protected PlacedEnvObject createElement(final MapNodeData tile) {
-		return new PlacedEnvObject(selectedEnvObject, node, assetsManager, elementDirection);
+		PlacedModelElementParameters parameters = new PlacedModelElementParameters(
+				selectedEnvObject,
+				elementDirection,
+				node,
+				0);
+		return new PlacedEnvObject(parameters, assetsManager);
 	}
 
 	private void applyOnMap() {
