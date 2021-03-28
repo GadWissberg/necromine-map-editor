@@ -7,7 +7,6 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.model.elements.PlacedElement;
-import com.necromine.editor.model.node.Node;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,10 +17,10 @@ public abstract class PlaceElementAction<T extends PlacedElement, S extends Elem
 	protected final Direction elementDirection;
 	protected final S elementDefinition;
 	protected final List<T> placedElements;
-	protected final Node node;
+	protected final MapNodeData node;
 
 	public PlaceElementAction(final GameMap map,
-							  final Node node,
+							  final MapNodeData node,
 							  final GameAssetsManager assetsManager,
 							  final Direction elementDirection,
 							  final S elementDefinition,

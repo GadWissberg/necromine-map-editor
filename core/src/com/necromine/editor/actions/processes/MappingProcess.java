@@ -4,14 +4,14 @@ package com.necromine.editor.actions.processes;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.MappingAction;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 import lombok.Getter;
 
 @Getter
 public abstract class MappingProcess<T extends MappingProcess.FinishProcessParameters> extends MappingAction {
-    final Node srcNode;
+    final FlatNode srcNode;
 
-    public MappingProcess(final GameMap map, final Node srcNode) {
+    public MappingProcess(final GameMap map, final FlatNode srcNode) {
         super(map);
         this.srcNode = srcNode;
     }

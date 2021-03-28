@@ -10,7 +10,6 @@ import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.PlaceElementAction;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.elements.PlacedModelElement.PlacedModelElementParameters;
-import com.necromine.editor.model.node.Node;
 
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 
 	public PlaceEnvObjectAction(final GameMap map,
 								final List<PlacedEnvObject> placedEnvObjects,
-								final Node node,
+								final MapNodeData node,
 								final EnvironmentDefinitions definition,
 								final GameAssetsManager assetsManager,
 								final Direction selectedObjectDirection) {

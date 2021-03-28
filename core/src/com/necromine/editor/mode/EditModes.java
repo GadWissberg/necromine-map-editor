@@ -18,19 +18,29 @@ import static com.necromine.editor.EntriesDisplayTypes.NONE;
 public enum EditModes implements EditorMode {
 	TILES("Tiles", EntriesDisplayTypes.GALLERY),
 
-	CHARACTERS("Characters", EntriesDisplayTypes.TREE, true,
+	CHARACTERS("Characters",
+			EntriesDisplayTypes.TREE,
+			true,
+			null,
+			PlacedCharacter::new,
 			new TreeSection("Player", CharacterTypes.PLAYER.getDefinitions(), "character"),
 			new TreeSection("Enemies", CharacterTypes.ENEMY.getDefinitions(), "character")),
 
-	ENVIRONMENT("Environment Objects", EntriesDisplayTypes.TREE, EnvironmentDefinitions.values(),
+	ENVIRONMENT("Environment Objects",
+			EntriesDisplayTypes.TREE,
+			EnvironmentDefinitions.values(),
 			(params, assetsManager) -> new PlacedEnvObject(new PlacedModelElement.PlacedModelElementParameters(params), assetsManager),
 			new TreeSection("Environment", EnvironmentDefinitions.values(), "env")),
 
-	PICKUPS("Pick-Ups", EntriesDisplayTypes.TREE, WeaponsDefinitions.values(),
+	PICKUPS("Pick-Ups",
+			EntriesDisplayTypes.TREE,
+			WeaponsDefinitions.values(),
 			(params, am) -> new PlacedPickup(new PlacedModelElement.PlacedModelElementParameters(params), am),
 			new TreeSection("Weapons", Arrays.stream(WeaponsDefinitions.values()).filter(def -> def.getModelDefinition() != null).collect(Collectors.toList()).toArray(new ElementDefinition[0]), "pickup")),
 
-	LIGHTS("Lights", true, PlacedLight::new);
+	LIGHTS("Lights",
+			true,
+			PlacedLight::new);
 
 
 	private final TreeSection[] treeSections;

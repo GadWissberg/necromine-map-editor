@@ -4,7 +4,7 @@ import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.GalleryButton;
 import com.gadarts.necromine.editor.desktop.GuiUtils;
 import com.necromine.editor.GuiEventsSubscriber;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 
 import java.awt.*;
@@ -21,7 +21,7 @@ public class WallTilingDialog extends DialogPane {
 	private final NodeWallsDefinitions definitions;
 	private final File assetsFolderLocation;
 	private final GuiEventsSubscriber guiEventsSubscriber;
-	private final Node node;
+	private final FlatNode node;
 	private GalleryButton eastImageButton;
 	private GalleryButton southImageButton;
 	private GalleryButton westImageButton;
@@ -29,7 +29,7 @@ public class WallTilingDialog extends DialogPane {
 
 	public WallTilingDialog(final File assetsFolderLocation,
 							final GuiEventsSubscriber guiEventsSubscriber,
-							final Node node,
+							final FlatNode node,
 							final NodeWallsDefinitions definitions) {
 		this.definitions = definitions;
 		this.assetsFolderLocation = assetsFolderLocation;

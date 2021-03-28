@@ -30,7 +30,7 @@ import com.necromine.editor.model.elements.PlacedElements;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.elements.PlacedLight;
 import com.necromine.editor.model.elements.PlacedPickup;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.utils.Utils;
 import lombok.RequiredArgsConstructor;
 
@@ -190,7 +190,7 @@ public class MapRenderer {
         ActionsHandler actionsHandler = handlers.getActionsHandler();
         MappingProcess<? extends MappingProcess.FinishProcessParameters> p = actionsHandler.getCurrentProcess();
         if (p instanceof PlaceTilesProcess || p instanceof SelectTilesForLiftProcess) {
-            Node srcNode = p.getSrcNode();
+            FlatNode srcNode = p.getSrcNode();
             handlers.getCursorHandler().renderRectangleMarking(
                     srcNode.getRow(),
                     srcNode.getCol(),

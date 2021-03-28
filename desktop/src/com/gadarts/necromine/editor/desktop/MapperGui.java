@@ -29,7 +29,7 @@ import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedEnvObject;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 import org.lwjgl.openal.AL;
 
@@ -364,7 +364,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 
 	@Override
 	public void onTileSelectedUsingWallTilingTool(final int row, final int col, final NodeWallsDefinitions definitions) {
-		openDialog(new WallTilingDialog(assetsFolderLocation, guiEventsSubscriber, new Node(row, col), definitions));
+		openDialog(new WallTilingDialog(assetsFolderLocation, guiEventsSubscriber, new FlatNode(row, col), definitions));
 	}
 
 	private void openDialog(final DialogPane pane) {
@@ -373,7 +373,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 
 	@Override
 	public void onTilesSelectedForLifting(final int srcRow, final int srcCol, final int dstRow, final int dstCol) {
-		openDialog(new TilesLiftDialog(new Node(srcRow, srcCol), new Node(dstRow, dstCol), guiEventsSubscriber));
+		openDialog(new TilesLiftDialog(new FlatNode(srcRow, srcCol), new FlatNode(dstRow, dstCol), guiEventsSubscriber));
 	}
 
 	@Override

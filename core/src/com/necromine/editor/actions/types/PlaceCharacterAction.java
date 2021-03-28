@@ -11,7 +11,6 @@ import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.PlaceElementAction;
 import com.necromine.editor.model.elements.PlacedCharacter;
 import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
-import com.necromine.editor.model.node.Node;
 
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class PlaceCharacterAction extends PlaceElementAction<PlacedCharacter, Ch
 
 	public PlaceCharacterAction(final GameMap map,
 								final List<PlacedCharacter> placedElements,
-								final Node node,
+								final MapNodeData node,
 								final CharacterDefinition selectedCharacter,
 								final GameAssetsManager assetsManager,
 								final Direction selectedCharacterDirection) {

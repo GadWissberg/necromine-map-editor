@@ -3,7 +3,7 @@ package com.necromine.editor;
 import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedEnvObject;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 
 import java.util.HashSet;
@@ -21,7 +21,7 @@ public class MapManagerEventsNotifier {
 		subscribers.add(subscriber);
 	}
 
-	public void tilesSelectedForLifting(final Node src, final int dstRow, final int dstCol) {
+	public void tilesSelectedForLifting(final FlatNode src, final int dstRow, final int dstCol) {
 		subscribers.forEach(subscriber -> subscriber.onTilesSelectedForLifting(src.getRow(), src.getCol(), dstRow, dstCol));
 	}
 

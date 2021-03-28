@@ -8,7 +8,6 @@ import com.necromine.editor.GameMap;
 import com.necromine.editor.actions.PlaceElementAction;
 import com.necromine.editor.model.elements.PlacedModelElement.PlacedModelElementParameters;
 import com.necromine.editor.model.elements.PlacedPickup;
-import com.necromine.editor.model.node.Node;
 
 import java.util.List;
 
@@ -16,7 +15,7 @@ public class PlacePickupAction extends PlaceElementAction<PlacedPickup, ItemDefi
 
 	public PlacePickupAction(final GameMap map,
 							 final List<PlacedPickup> placedPickups,
-							 final Node node,
+							 final MapNodeData node,
 							 final ItemDefinition itemDefinition,
 							 final GameAssetsManager assetsManager,
 							 final Direction facingDirection) {
@@ -38,7 +37,7 @@ public class PlacePickupAction extends PlaceElementAction<PlacedPickup, ItemDefi
 	protected PlacedPickup createElement(final MapNodeData node) {
 		PlacedPickup result = null;
 		if (node != null) {
-			PlacedModelElementParameters parameters = new PlacedModelElementParameters(elementDefinition, new Node(node), 0);
+			PlacedModelElementParameters parameters = new PlacedModelElementParameters(elementDefinition, node, 0);
 			result = new PlacedPickup(parameters, assetsManager);
 		}
 		return result;

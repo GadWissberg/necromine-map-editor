@@ -1,12 +1,11 @@
 package com.necromine.editor.actions;
 
 import com.gadarts.necromine.WallCreator;
-import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.MapNodeData;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.actions.processes.SelectTilesForLiftProcess;
 import com.necromine.editor.actions.processes.MappingProcess;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 
 import java.util.Set;
 
@@ -14,7 +13,7 @@ public final class ProcessBuilder {
     private static final ProcessBuilder builder = new ProcessBuilder();
     private static MappingProcess<? extends MappingProcess.FinishProcessParameters> current;
 
-    public static ProcessBuilder begin(final GameMap map, final Node src) {
+    public static ProcessBuilder begin(final GameMap map, final FlatNode src) {
         current = new SelectTilesForLiftProcess(map, src);
         return builder;
     }

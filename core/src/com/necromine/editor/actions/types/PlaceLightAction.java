@@ -10,7 +10,6 @@ import com.necromine.editor.GameMap;
 import com.necromine.editor.actions.PlaceElementAction;
 import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
 import com.necromine.editor.model.elements.PlacedLight;
-import com.necromine.editor.model.node.Node;
 
 import java.util.List;
 
@@ -18,7 +17,7 @@ public class PlaceLightAction extends PlaceElementAction<PlacedLight, ElementDef
 
 	public PlaceLightAction(final GameMap map,
 							final List<PlacedLight> placedElements,
-							final Node node,
+							final MapNodeData node,
 							final ElementDefinition selectedCharacter,
 							final GameAssetsManager assetsManager) {
 		super(map, node, assetsManager, Direction.SOUTH, selectedCharacter, placedElements);

@@ -5,7 +5,7 @@ import com.gadarts.necromine.model.MapNodeData;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.MappingAction;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -65,8 +65,8 @@ public class LiftTilesAction extends MappingAction {
 	@RequiredArgsConstructor
 	@Getter
 	public static class Parameters {
-		private final Node srcNode;
-		private final Node dstNode;
+		private final FlatNode srcNode;
+		private final FlatNode dstNode;
 		private final float value;
 		private final WallCreator wallCreator;
 	}

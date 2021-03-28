@@ -11,7 +11,6 @@ import com.necromine.editor.GameMap;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElements;
-import com.necromine.editor.model.node.Node;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -50,7 +49,9 @@ public class MapDeflater {
 								  final boolean addFacingDirection,
 								  final PlacedElements placedElements) {
 		JsonArray jsonArray = new JsonArray();
-		placedElements.getPlacedObjects().get(mode).forEach(element -> jsonArray.add(createElementJsonObject(element, addFacingDirection)));
+		placedElements.getPlacedObjects()
+				.get(mode)
+				.forEach(element -> jsonArray.add(createElementJsonObject(element, addFacingDirection)));
 		output.add(mode.name().toLowerCase(), jsonArray);
 	}
 
@@ -68,7 +69,7 @@ public class MapDeflater {
 
 	private JsonObject createElementJsonObject(final PlacedElement e, final boolean addFacingDirection) {
 		JsonObject jsonObject = new JsonObject();
-		Node node = e.getNode();
+		MapNodeData node = e.getNode();
 		jsonObject.addProperty(MapJsonKeys.ROW, node.getRow());
 		jsonObject.addProperty(MapJsonKeys.COL, node.getCol());
 		jsonObject.addProperty(MapJsonKeys.HEIGHT, e.getHeight());

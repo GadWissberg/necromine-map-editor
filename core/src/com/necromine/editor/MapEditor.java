@@ -37,10 +37,9 @@ import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.CharacterDecal;
-import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElements;
 import com.necromine.editor.model.elements.PlacedEnvObject;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 import com.necromine.editor.utils.MapDeflater;
 import com.necromine.editor.utils.MapInflater;
@@ -297,7 +296,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	}
 
 	@Override
-	public void onTilesLift(final Node src, final Node dst, final float value) {
+	public void onTilesLift(final FlatNode src, final FlatNode dst, final float value) {
 		handlers.getActionsHandler().onTilesLift(src, dst, value);
 	}
 

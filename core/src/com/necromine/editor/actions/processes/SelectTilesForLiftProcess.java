@@ -4,7 +4,7 @@ import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.model.MapNodeData;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapManagerEventsNotifier;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,7 +17,7 @@ public class SelectTilesForLiftProcess extends MappingProcess<SelectTilesForLift
     private WallCreator wallCreator;
     private Set<MapNodeData> initializedTiles;
 
-    public SelectTilesForLiftProcess(final GameMap map, final Node src) {
+    public SelectTilesForLiftProcess(final GameMap map, final FlatNode src) {
         super(map, src);
     }
 

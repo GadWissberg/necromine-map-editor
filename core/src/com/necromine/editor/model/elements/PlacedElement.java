@@ -1,8 +1,8 @@
 package com.necromine.editor.model.elements;
 
 import com.gadarts.necromine.model.ElementDefinition;
+import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
-import com.necromine.editor.model.node.Node;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -14,7 +14,7 @@ public class PlacedElement {
 
 	private final ElementDefinition definition;
 	private final Direction facingDirection;
-	private final Node node;
+	private final MapNodeData node;
 	@Setter
 	private float height;
 
@@ -35,10 +35,10 @@ public class PlacedElement {
 	public static class PlacedElementParameters {
 		protected final ElementDefinition definition;
 		private final Direction facingDirection;
-		private final Node node;
+		private final MapNodeData node;
 		private final float height;
 
-		public PlacedElementParameters(final ElementDefinition definition, final Node node, final float height) {
+		public PlacedElementParameters(final ElementDefinition definition, final MapNodeData node, final float height) {
 			this.definition = definition;
 			this.node = node;
 			this.height = height;

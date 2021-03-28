@@ -9,19 +9,19 @@ import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElements;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class RemoveElementAction extends MappingAction implements AnswerSubscriber<PlacedElement> {
 	private final PlacedElements placedElements;
-	private final Node node;
+	private final FlatNode node;
 	private final EditModes mode;
 
 	public RemoveElementAction(final GameMap map,
 							   final PlacedElements placedElements,
-							   final Node node,
+							   final FlatNode node,
 							   final EditModes mode) {
 		super(map);
 		this.placedElements = placedElements;
@@ -47,7 +47,7 @@ public class RemoveElementAction extends MappingAction implements AnswerSubscrib
 	private void removePlacedObject(final MapManagerEventsNotifier eventsNotifier) {
 		List<? extends PlacedElement> placedElementsList = this.placedElements.getPlacedObjects().get(mode);
 		List<? extends PlacedElement> elementsInTheNode = placedElementsList.stream()
-				.filter(placedElement -> placedElement.getNode().equals(node))
+				.filter(placedElement -> node.equals(placedElement.getNode()))
 				.collect(Collectors.toList());
 		if (elementsInTheNode.size() == 1) {
 			placedElementsList.remove(elementsInTheNode.get(0));

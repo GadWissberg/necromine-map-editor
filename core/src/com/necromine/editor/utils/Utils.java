@@ -1,6 +1,5 @@
 package com.necromine.editor.utils;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -18,7 +17,7 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.*;
 import com.necromine.editor.model.elements.CharacterDecal;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 
 import java.util.HashMap;
 
@@ -33,7 +32,7 @@ public class Utils {
 
 	public static CharacterDecal createCharacterDecal(final GameAssetsManager assetsManager,
 													  final CharacterDefinition definition,
-													  final Node node,
+													  final FlatNode node,
 													  final Direction selectedCharacterDirection) {
 		String idle = SpriteType.IDLE.name() + "_" + selectedCharacterDirection.name().toLowerCase();
 		TextureAtlas atlas = assetsManager.getAtlas(definition.getAtlasDefinition());

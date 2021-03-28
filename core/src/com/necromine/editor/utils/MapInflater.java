@@ -17,12 +17,10 @@ import com.google.gson.JsonObject;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.mode.EditModes;
-import com.necromine.editor.model.elements.PlacedCharacter;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
-import com.necromine.editor.model.elements.PlacedElementCreation;
 import com.necromine.editor.model.elements.PlacedElements;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 import lombok.RequiredArgsConstructor;
 
 import java.io.FileReader;
@@ -40,21 +38,23 @@ public class MapInflater {
 	private final CursorHandler cursorHandler;
 	private final Set<MapNodeData> initializedTiles;
 	private final Gson gson = new Gson();
+	private GameMap map;
 
 	public void inflateMap(final GameMap map, final PlacedElements placedElements, final WallCreator wallCreator) {
+		this.map = map;
 		try (Reader reader = new FileReader("test_map.json")) {
 			JsonObject input = gson.fromJson(reader, JsonObject.class);
-			inflateCharacters(input, placedElements, assetsManager);
-			Arrays.stream(EditModes.values()).forEach(mode -> {
-				if (mode.getCreationProcess() != null) {
-					inflateElements(input, mode, placedElements);
-				}
-			});
 			JsonObject tilesJsonObject = input.getAsJsonObject(TILES);
 			map.setNodes(inflateTiles(tilesJsonObject, initializedTiles));
+			inflateHeights(tilesJsonObject, map, wallCreator);
+			inflateCharacters(input, placedElements);
+			Arrays.stream(EditModes.values()).forEach(mode -> {
+				if (mode.getDefinitions() != null) {
+					inflateElements(input, mode, placedElements, map);
+				}
+			});
 			JsonElement ambient = input.get(AMBIENT);
 			Optional.ofNullable(ambient).ifPresent(a -> map.setAmbientLight(a.getAsFloat()));
-			inflateHeights(tilesJsonObject, map, wallCreator);
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
@@ -122,19 +122,19 @@ public class MapInflater {
 
 	private void inflateElements(final JsonObject input,
 								 final EditModes mode,
-								 final PlacedElements placedElements) {
+								 final PlacedElements placedElements,
+								 final GameMap map) {
 		List<? extends PlacedElement> placedElementsList = placedElements.getPlacedObjects().get(mode);
 		placedElementsList.clear();
 		inflateElements(
 				(List<PlacedElement>) placedElementsList,
-				mode.getDefinitions(),
+				mode,
 				input.get(mode.name().toLowerCase()).getAsJsonArray(),
-				mode.getCreationProcess());
+				map);
 	}
 
 	private void inflateCharacters(final JsonObject input,
-								   final PlacedElements placedElements,
-								   final GameAssetsManager assetsManager) {
+								   final PlacedElements placedElements) {
 		JsonObject charactersJsonObject = input.get(CHARACTERS).getAsJsonObject();
 		List<? extends PlacedElement> placedCharacters = placedElements.getPlacedObjects().get(EditModes.CHARACTERS);
 		placedCharacters.clear();
@@ -144,29 +144,41 @@ public class MapInflater {
 				JsonArray charactersArray = charactersJsonObject.get(typeName).getAsJsonArray();
 				inflateElements(
 						(List<PlacedElement>) placedCharacters,
-						type.getDefinitions(),
+						EditModes.CHARACTERS,
 						charactersArray,
-						(params, am) -> new PlacedCharacter(params, assetsManager));
+						type.getDefinitions());
 			}
 		});
 	}
 
 	private void inflateElements(final List<PlacedElement> placedElements,
-								 final ElementDefinition[] definitions,
+								 final EditModes mode,
 								 final JsonArray elementsJsonArray,
-								 final PlacedElementCreation creation) {
+								 final GameMap map) {
 		elementsJsonArray.forEach(characterJsonObject -> {
 			JsonObject json = characterJsonObject.getAsJsonObject();
-			PlacedElementParameters parameters = inflateElementParameters(definitions, json);
-			placedElements.add(creation.create(parameters, assetsManager));
+			PlacedElementParameters parameters = inflateElementParameters(mode.getDefinitions(), json, map);
+			placedElements.add(mode.getCreationProcess().create(parameters, assetsManager));
+		});
+	}
+
+	private void inflateElements(final List<PlacedElement> placedElements,
+								 final EditModes mode,
+								 final JsonArray elementsJsonArray,
+								 final ElementDefinition[] defs) {
+		elementsJsonArray.forEach(characterJsonObject -> {
+			JsonObject json = characterJsonObject.getAsJsonObject();
+			PlacedElementParameters parameters = inflateElementParameters(defs, json, map);
+			placedElements.add(mode.getCreationProcess().create(parameters, assetsManager));
 		});
 	}
 
 	private PlacedElementParameters inflateElementParameters(final ElementDefinition[] definitions,
-															 final JsonObject json) {
+															 final JsonObject json,
+															 final GameMap map) {
 		Direction dir = json.has(DIRECTION) ? Direction.values()[json.get(DIRECTION).getAsInt()] : SOUTH;
 		float height = json.has(HEIGHT) ? json.get(HEIGHT).getAsFloat() : 0;
-		Node node = new Node(json.get(ROW).getAsInt(), json.get(COL).getAsInt());
+		MapNodeData node = map.getNodes()[json.get(ROW).getAsInt()][json.get(COL).getAsInt()];
 		ElementDefinition definition = null;
 		if (definitions != null) {
 			definition = definitions[json.get(TYPE).getAsInt()];
@@ -183,14 +195,14 @@ public class MapInflater {
 		byte[] matrixByte = Base64.getDecoder().decode(matrix.getBytes());
 		IntStream.range(0, depth)
 				.forEach(row -> IntStream.range(0, width)
-						.forEach(col -> inflateTile(width, matrixByte, inputMap, new Node(row, col))));
+						.forEach(col -> inflateTile(width, matrixByte, inputMap, new FlatNode(row, col))));
 		return inputMap;
 	}
 
 	private void inflateTile(final int mapWidth,
 							 final byte[] matrix,
 							 final MapNodeData[][] inputMap,
-							 final Node node) {
+							 final FlatNode node) {
 		int row = node.getRow();
 		int col = node.getCol();
 		byte tileId = matrix[row * mapWidth + col % mapWidth];

@@ -6,20 +6,20 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class Node {
+public class FlatNode {
 	public static final int MAX_HEIGHT = 10;
 
 	private final int row;
 	private final int col;
 	private final float height;
 
-	public Node(final int row, final int col) {
+	public FlatNode(final int row, final int col) {
 		this.row = row;
 		this.col = col;
 		this.height = 0;
 	}
 
-	public Node(final MapNodeData node) {
+	public FlatNode(final MapNodeData node) {
 		this.row = node.getRow();
 		this.col = node.getCol();
 		this.height = node.getHeight();
@@ -29,7 +29,7 @@ public class Node {
 		return this.row == row && this.col == col;
 	}
 
-	public boolean equals(final Node node) {
+	public boolean equals(final FlatNode node) {
 		return equals(node.getRow(), node.getCol());
 	}
 
