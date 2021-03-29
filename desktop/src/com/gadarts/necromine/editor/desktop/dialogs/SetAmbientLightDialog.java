@@ -10,7 +10,6 @@ public class SetAmbientLightDialog extends DialogPane {
 	public static final int MAXIMUM = 1;
 	private static final String LABEL_AMBIENT = "Ambient: ";
 	private static final float STEP_SIZE = 0.1f;
-	private static final int SPINNER_WIDTH = 50;
 	private final float current;
 	private final GuiEventsSubscriber guiEventsSubscriber;
 
@@ -24,7 +23,6 @@ public class SetAmbientLightDialog extends DialogPane {
 	void initializeView(final GridBagConstraints c) {
 		c.gridx = 0;
 		addLabel(c, LABEL_AMBIENT);
-		c.gridy--;
 		JSpinner spinner = addValueSpinner(c);
 		c.gridx = 0;
 		c.gridy++;
@@ -36,10 +34,7 @@ public class SetAmbientLightDialog extends DialogPane {
 
 	private JSpinner addValueSpinner(final GridBagConstraints c) {
 		c.gridx++;
-		JSpinner spinner = addSpinner(current, MAXIMUM, STEP_SIZE, c);
-		Dimension preferredSize = spinner.getPreferredSize();
-		spinner.setPreferredSize(new Dimension(SPINNER_WIDTH, preferredSize.height));
-		return spinner;
+		return addSpinner(current, MAXIMUM, STEP_SIZE, c);
 	}
 
 	@Override

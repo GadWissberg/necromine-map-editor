@@ -8,7 +8,7 @@ import com.necromine.editor.GameMap;
 import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.PlaceElementAction;
 import com.necromine.editor.model.elements.PlacedEnvObject;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.elements.PlacedModelElement.PlacedModelElementParameters;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 
 	public PlaceEnvObjectAction(final GameMap map,
 								final List<PlacedEnvObject> placedEnvObjects,
-								final Node node,
+								final MapNodeData node,
 								final EnvironmentDefinitions definition,
 								final GameAssetsManager assetsManager,
 								final Direction selectedObjectDirection) {
@@ -29,28 +29,29 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 	}
 
 	@Override
-	public void execute(MapManagerEventsNotifier eventsNotifier) {
+	public void execute(final MapManagerEventsNotifier eventsNotifier) {
 		super.execute(eventsNotifier);
 		applyOnMap();
 	}
 
 	@Override
-	protected void addElementToList(PlacedEnvObject element) {
+	protected void addElementToList(final PlacedEnvObject element) {
 		placedEnvObjects.add(element);
 	}
 
 	@Override
-	protected void placeElementInCorrectHeight(PlacedEnvObject element, MapNodeData tile) {
+	protected void placeElementInCorrectHeight(final PlacedEnvObject element, final MapNodeData tile) {
 		element.getModelInstance().transform.translate(0, node.getHeight(), 0);
 	}
 
 	@Override
-	protected PlacedEnvObject createElement(MapNodeData tile) {
-		return new PlacedEnvObject(
+	protected PlacedEnvObject createElement(final MapNodeData tile) {
+		PlacedModelElementParameters parameters = new PlacedModelElementParameters(
 				selectedEnvObject,
+				elementDirection,
 				node,
-				assetsManager,
-				elementDirection);
+				0);
+		return new PlacedEnvObject(parameters, assetsManager);
 	}
 
 	private void applyOnMap() {

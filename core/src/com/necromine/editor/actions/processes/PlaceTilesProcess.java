@@ -5,7 +5,7 @@ import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.MapNodesTypes;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapManagerEventsNotifier;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 
@@ -16,7 +16,7 @@ public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessPar
     private final GameAssetsManager assetsManager;
     private final Set<MapNodeData> initializedTiles;
 
-    public PlaceTilesProcess(final Node srcNode,
+    public PlaceTilesProcess(final FlatNode srcNode,
                              final GameAssetsManager assetsManager,
                              final Set<MapNodeData> initializedTiles,
                              final GameMap map) {

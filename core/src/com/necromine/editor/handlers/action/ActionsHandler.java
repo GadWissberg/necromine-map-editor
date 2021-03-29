@@ -21,29 +21,16 @@ import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.actions.ProcessBuilder;
-import com.necromine.editor.actions.processes.MappingProcess;
-import com.necromine.editor.actions.processes.PlaceTilesFinishProcessParameters;
-import com.necromine.editor.actions.processes.PlaceTilesProcess;
-import com.necromine.editor.actions.processes.SelectTilesForLiftFinishProcessParameters;
-import com.necromine.editor.actions.processes.SelectTilesForLiftProcess;
-import com.necromine.editor.actions.types.ActionBuilder;
-import com.necromine.editor.actions.types.PlaceCharacterAction;
-import com.necromine.editor.actions.types.PlaceEnvObjectAction;
-import com.necromine.editor.actions.types.PlaceLightAction;
-import com.necromine.editor.actions.types.PlacePickupAction;
-import com.necromine.editor.actions.types.RemoveElementAction;
+import com.necromine.editor.actions.processes.*;
+import com.necromine.editor.actions.types.*;
 import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.mode.tools.TilesTools;
-import com.necromine.editor.model.elements.PlacedCharacter;
-import com.necromine.editor.model.elements.PlacedElement;
-import com.necromine.editor.model.elements.PlacedEnvObject;
-import com.necromine.editor.model.elements.PlacedLight;
-import com.necromine.editor.model.elements.PlacedPickup;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.elements.*;
+import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 import lombok.Getter;
 import lombok.Setter;
@@ -88,7 +75,7 @@ public class ActionsHandler {
 		int row = (int) position.z;
 		int col = (int) position.x;
 		PlaceTilesProcess placeTilesProcess = new PlaceTilesProcess(
-				new Node(row, col),
+				new FlatNode(row, col),
 				assetsManager,
 				initializedTiles,
 				data.getMap());
@@ -116,7 +103,9 @@ public class ActionsHandler {
 					}
 					return true;
 				} else if (mode == EditModes.ENVIRONMENT && currentProcess == null) {
-					if (tool == EnvTools.DEFINE) {
+					if (tool == EnvTools.BRUSH && selectedElement != null) {
+						placeEnvObject(map, assetsManager);
+					} else if (tool == EnvTools.DEFINE) {
 						defineSelectedEnvObject();
 					}
 					return true;
@@ -127,8 +116,6 @@ public class ActionsHandler {
 					if (mode == EditModes.CHARACTERS) {
 						placeCharacter(map, assetsManager);
 						return true;
-					} else if (mode == EditModes.ENVIRONMENT) {
-						placeEnvObject(map, assetsManager);
 					} else if (mode == EditModes.PICKUPS) {
 						placePickup(map, assetsManager);
 						return true;
@@ -137,7 +124,7 @@ public class ActionsHandler {
 			}
 		} else if (button == Input.Buttons.RIGHT) {
 			if (mode instanceof EditModes) {
-				if (tool == TilesTools.BRUSH) {
+				if (tool == TilesTools.BRUSH || tool == EnvTools.BRUSH) {
 					return removeElementByMode();
 				}
 			}
@@ -148,11 +135,22 @@ public class ActionsHandler {
 	private void defineSelectedEnvObject() {
 		MapNodeData mapNodeData = getMapNodeDataFromCursor();
 		List<? extends PlacedElement> list = this.data.getPlacedElements().getPlacedObjects().get(MapEditor.getMode());
-		List<? extends PlacedElement> elementsInTheNode = list.stream()
+		List<PlacedElement> elementsInTheNode = list.stream()
 				.filter(placedElement -> placedElement.getNode().equals(mapNodeData))
 				.collect(Collectors.toList());
+		int size = elementsInTheNode.size();
+		if (size == 1) {
+			eventsNotifier.selectedEnvObjectToDefine((PlacedEnvObject) elementsInTheNode.get(0));
+		} else if (size > 1) {
+			defineSelectedEnvObjectsInNode(mapNodeData, elementsInTheNode);
+		}
+	}
+
+	private void defineSelectedEnvObjectsInNode(final MapNodeData mapNodeData,
+												final List<PlacedElement> elementsInTheNode) {
 		if (mapNodeData != null) {
-			ActionAnswer<PlacedElement> answer = new ActionAnswer<>(eventsNotifier::selectedEnvObjectToDefine);
+			ActionAnswer<PlacedElement> answer = new ActionAnswer<>(data ->
+					eventsNotifier.selectedEnvObjectToDefine((PlacedEnvObject) data));
 			eventsNotifier.nodeSelectedToSelectObjectsInIt(elementsInTheNode, answer);
 		}
 	}
@@ -179,7 +177,7 @@ public class ActionsHandler {
 		RemoveElementAction action = new RemoveElementAction(
 				data.getMap(),
 				data.getPlacedElements(),
-				new Node((int) position.z, (int) position.x),
+				new FlatNode((int) position.z, (int) position.x),
 				(EditModes) MapEditor.getMode());
 		executeAction(action);
 		return true;
@@ -194,7 +192,7 @@ public class ActionsHandler {
 		PlaceEnvObjectAction action = new PlaceEnvObjectAction(
 				map,
 				(List<PlacedEnvObject>) data.getPlacedElements().getPlacedObjects().get(EditModes.ENVIRONMENT),
-				new Node(map.getNodes()[row][col]),
+				map.getNodes()[row][col],
 				(EnvironmentDefinitions) selectedElement,
 				am,
 				cursorSelectionModel.getFacingDirection());
@@ -210,7 +208,7 @@ public class ActionsHandler {
 		PlacePickupAction action = new PlacePickupAction(
 				map,
 				(List<PlacedPickup>) data.getPlacedElements().getPlacedObjects().get(EditModes.PICKUPS),
-				new Node(map.getNodes()[row][col]),
+				map.getNodes()[row][col],
 				(ItemDefinition) selectedElement,
 				am,
 				cursorSelectionModel.getFacingDirection());
@@ -225,7 +223,7 @@ public class ActionsHandler {
 		PlaceLightAction action = new PlaceLightAction(
 				map,
 				(List<PlacedLight>) data.getPlacedElements().getPlacedObjects().get(EditModes.LIGHTS),
-				new Node(map.getNodes()[row][col]),
+				map.getNodes()[row][col],
 				selectedElement,
 				am);
 		executeAction(action);
@@ -237,7 +235,7 @@ public class ActionsHandler {
 		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
-		Node src = new Node(row, col);
+		FlatNode src = new FlatNode(row, col);
 		currentProcess = ProcessBuilder.begin(data.getMap(), src)
 				.liftTiles(direction, wallCreator, initializedTiles)
 				.finish();
@@ -253,7 +251,7 @@ public class ActionsHandler {
 		PlaceCharacterAction action = new PlaceCharacterAction(
 				map,
 				(List<PlacedCharacter>) data.getPlacedElements().getPlacedObjects().get(EditModes.CHARACTERS),
-				new Node(map.getNodes()[row][col]),
+				map.getNodes()[row][col],
 				(CharacterDefinition) selectedElement,
 				am,
 				cursorHandler.getCursorCharacterDecal().getSpriteDirection());
@@ -342,8 +340,12 @@ public class ActionsHandler {
 		});
 	}
 
-	public void onTilesLift(final Node src, final Node dst, final float value) {
-		ActionBuilder.begin(data.getMap()).liftTiles(src, dst, value, services.getWallCreator()).finish().execute(eventsNotifier);
+	public void onTilesLift(final FlatNode src, final FlatNode dst, final float value) {
+		LiftTilesAction.Parameters params = new LiftTilesAction.Parameters(src, dst, value, services.getWallCreator());
+		ActionFactory.liftTiles(data.getMap(), params).execute(eventsNotifier);
 	}
 
+	public void onEnvObjectDefined(final PlacedEnvObject element, final float height) {
+		ActionFactory.defineEnvObject(data.getMap(), element, height).execute(eventsNotifier);
+	}
 }

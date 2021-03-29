@@ -10,7 +10,7 @@ import com.necromine.editor.GameMap;
 import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.PlaceElementAction;
 import com.necromine.editor.model.elements.PlacedCharacter;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
 
 import java.util.List;
 
@@ -20,7 +20,7 @@ public class PlaceCharacterAction extends PlaceElementAction<PlacedCharacter, Ch
 
 	public PlaceCharacterAction(final GameMap map,
 								final List<PlacedCharacter> placedElements,
-								final Node node,
+								final MapNodeData node,
 								final CharacterDefinition selectedCharacter,
 								final GameAssetsManager assetsManager,
 								final Direction selectedCharacterDirection) {
@@ -28,17 +28,17 @@ public class PlaceCharacterAction extends PlaceElementAction<PlacedCharacter, Ch
 	}
 
 	@Override
-	public void execute(MapManagerEventsNotifier eventsNotifier) {
+	public void execute(final MapManagerEventsNotifier eventsNotifier) {
 		super.execute(eventsNotifier);
 	}
 
 	@Override
-	protected void addElementToList(PlacedCharacter element) {
+	protected void addElementToList(final PlacedCharacter element) {
 		placedElements.add(element);
 	}
 
 	@Override
-	protected void placeElementInCorrectHeight(PlacedCharacter element, MapNodeData tile) {
+	protected void placeElementInCorrectHeight(final PlacedCharacter element, final MapNodeData tile) {
 		Decal decal = element.getCharacterDecal().getDecal();
 		Vector3 position = decal.getPosition();
 		decal.setPosition(position.x, BILLBOARD_Y + tile.getHeight(), position.z);
@@ -46,14 +46,11 @@ public class PlaceCharacterAction extends PlaceElementAction<PlacedCharacter, Ch
 
 
 	@Override
-	protected PlacedCharacter createElement(MapNodeData tile) {
+	protected PlacedCharacter createElement(final MapNodeData tile) {
 		PlacedCharacter result = null;
 		if (tile != null) {
-			result = new PlacedCharacter(
-					elementDefinition,
-					node,
-					assetsManager,
-					elementDirection);
+			PlacedElementParameters parameters = new PlacedElementParameters(elementDefinition, elementDirection, node, 0);
+			result = new PlacedCharacter(parameters, assetsManager);
 		}
 		return result;
 	}

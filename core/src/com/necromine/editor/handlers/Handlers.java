@@ -47,6 +47,8 @@ public class Handlers implements Disposable {
 		batchHandler.createBatches(camera);
 		viewAuxHandler.createModels(levelSize);
 		cursorHandler.createCursors(assetsManager, tileModel);
+		viewAuxHandler.createModels();
+		cursorHandler.createCursors(assetsManager, tileModel, map);
 		createActionsHandler(placedElements, wallCreator);
 	}
 

@@ -20,19 +20,19 @@ public enum SubToolbarsDefinitions {
 							"brush",
 							"Place Tiles",
 							new SetToolCommand(TilesTools.BRUSH),
-							Constants.TILE_TOOL)),
+							Constants.TOOL)),
 			new SubToolbarButtonDefinition(
 					new ToolbarButtonProperties(
 							"staircase",
 							"Set Tile Height",
 							new SetToolCommand(TilesTools.LIFT),
-							Constants.TILE_TOOL)),
+							Constants.TOOL)),
 			new SubToolbarButtonDefinition(
 					new ToolbarButtonProperties(
 							"wall",
 							"Tile Walls",
 							new SetToolCommand(TilesTools.WALL_TILING),
-							Constants.TILE_TOOL))),
+							Constants.TOOL))),
 
 	CHARACTERS(EditModes.CHARACTERS,
 			new SubToolbarButtonDefinition(
@@ -49,6 +49,19 @@ public enum SubToolbarsDefinitions {
 	ENVIRONMENT(EditModes.ENVIRONMENT,
 			new SubToolbarButtonDefinition(
 					new ToolbarButtonProperties(
+							"brush",
+							"Place environment objects",
+							new SetToolCommand(EnvTools.BRUSH),
+							Constants.TOOL)),
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
+							"define",
+							"Define a placed environment object",
+							new SetToolCommand(EnvTools.DEFINE),
+							Constants.TOOL)),
+			new SubToolbarButtonDefinition(),
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
 							"rotate_clockwise",
 							"Rotate Object Clock-Wise",
 							new RotateSelectionCommand(RotateSelectionCommand.CLOCKWISE))),
@@ -56,13 +69,7 @@ public enum SubToolbarsDefinitions {
 					new ToolbarButtonProperties(
 							"rotate_counter_clockwise",
 							"Rotate Object Counter Clock-Wise",
-							new RotateSelectionCommand(RotateSelectionCommand.COUNTER_CLOCKWISE))),
-			new SubToolbarButtonDefinition(),
-			new SubToolbarButtonDefinition(
-					new ToolbarButtonProperties(
-							"rotate_counter_clockwise",
-							"Define a placed environment object",
-							new SetToolCommand(EnvTools.DEFINE))));
+							new RotateSelectionCommand(RotateSelectionCommand.COUNTER_CLOCKWISE))));
 
 	private final SubToolbarButtonDefinition[] buttons;
 	private final EditModes mode;
@@ -80,6 +87,6 @@ public enum SubToolbarsDefinitions {
 	}
 
 	private static class Constants {
-		public static final String TILE_TOOL = "tile_tool";
+		public static final String TOOL = "tool";
 	}
 }

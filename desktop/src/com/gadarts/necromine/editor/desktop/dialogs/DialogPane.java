@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 public abstract class DialogPane extends JPanel {
 	private static final int PADDING = 10;
 	private static final String BUTTON_LABEL_OK = "OK";
+	private static final int SPINNER_WIDTH = 50;
 
 	public DialogPane() {
 		setLayout(new GridBagLayout());
@@ -39,6 +40,8 @@ public abstract class DialogPane extends JPanel {
 		SpinnerModel model = new SpinnerNumberModel(value, 0, maximum, step);
 		JSpinner jSpinner = new JSpinner(model);
 		add(jSpinner, c);
+		Dimension preferredSize = jSpinner.getPreferredSize();
+		jSpinner.setPreferredSize(new Dimension(SPINNER_WIDTH, preferredSize.height));
 		return jSpinner;
 	}
 
@@ -50,6 +53,5 @@ public abstract class DialogPane extends JPanel {
 
 	protected void addLabel(final GridBagConstraints c, final String label) {
 		add(new JLabel(label), c);
-		c.gridy += 1;
 	}
 }

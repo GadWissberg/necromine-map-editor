@@ -25,7 +25,7 @@ import com.necromine.editor.MapEditor;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.model.elements.CharacterDecal;
-import com.necromine.editor.model.node.Node;
+import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
@@ -108,10 +108,10 @@ public class CursorHandler implements Disposable {
 		updateCursorOfDecalMode(x, z, mode);
 	}
 
-	public void createCursors(final GameAssetsManager assetsManager, final Model tileModel) {
+	public void createCursors(final GameAssetsManager assetsManager, final Model tileModel, final GameMap map) {
 		this.cursorTileModel = tileModel;
 		createCursorTile();
-		createCursorCharacterDecal(assetsManager);
+		createCursorCharacterDecal(assetsManager, map);
 		createCursorSimpleDecal(assetsManager);
 	}
 
@@ -156,11 +156,11 @@ public class CursorHandler implements Disposable {
 		}
 	}
 
-	private void createCursorCharacterDecal(final GameAssetsManager assetsManager) {
+	private void createCursorCharacterDecal(final GameAssetsManager assetsManager, final GameMap map) {
 		cursorCharacterDecal = Utils.createCharacterDecal(
 				assetsManager,
 				CharacterTypes.PLAYER.getDefinitions()[0],
-				new Node(0, 0),
+				new FlatNode(0,0),
 				SOUTH);
 		Color color = cursorCharacterDecal.getDecal().getColor();
 		cursorCharacterDecal.getDecal().setColor(color.r, color.g, color.b, CURSOR_OPACITY);

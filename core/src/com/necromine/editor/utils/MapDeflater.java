@@ -1,7 +1,6 @@
 package com.necromine.editor.utils;
 
 import com.gadarts.necromine.assets.MapJsonKeys;
-import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
@@ -49,7 +48,9 @@ public class MapDeflater {
 								  final boolean addFacingDirection,
 								  final PlacedElements placedElements) {
 		JsonArray jsonArray = new JsonArray();
-		placedElements.getPlacedObjects().get(mode).forEach(element -> jsonArray.add(createElementJsonObject(element, addFacingDirection)));
+		placedElements.getPlacedObjects()
+				.get(mode)
+				.forEach(element -> jsonArray.add(createElementJsonObject(element, addFacingDirection)));
 		output.add(mode.name().toLowerCase(), jsonArray);
 	}
 
@@ -66,15 +67,16 @@ public class MapDeflater {
 	}
 
 	private JsonObject createElementJsonObject(final PlacedElement e, final boolean addFacingDirection) {
-		JsonObject charJsonObject = new JsonObject();
-		charJsonObject.addProperty(MapJsonKeys.ROW, e.getNode().getRow());
-		charJsonObject.addProperty(MapJsonKeys.COL, e.getNode().getCol());
+		JsonObject jsonObject = new JsonObject();
+		MapNodeData node = e.getNode();
+		jsonObject.addProperty(MapJsonKeys.ROW, node.getRow());
+		jsonObject.addProperty(MapJsonKeys.COL, node.getCol());
+		jsonObject.addProperty(MapJsonKeys.HEIGHT, e.getHeight());
 		if (addFacingDirection) {
-			charJsonObject.addProperty(MapJsonKeys.DIRECTION, e.getFacingDirection().ordinal());
+			jsonObject.addProperty(MapJsonKeys.DIRECTION, e.getFacingDirection().ordinal());
 		}
-		ElementDefinition definition = e.getDefinition();
-		Optional.ofNullable(definition).ifPresent(d -> charJsonObject.addProperty(MapJsonKeys.TYPE, d.ordinal()));
-		return charJsonObject;
+		Optional.ofNullable(e.getDefinition()).ifPresent(d -> jsonObject.addProperty(MapJsonKeys.TYPE, d.ordinal()));
+		return jsonObject;
 	}
 
 	private JsonObject createTilesData(final GameMap map) {

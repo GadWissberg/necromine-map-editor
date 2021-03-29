@@ -8,8 +8,8 @@ import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.actions.PlaceElementAction;
+import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
 import com.necromine.editor.model.elements.PlacedLight;
-import com.necromine.editor.model.node.Node;
 
 import java.util.List;
 
@@ -17,29 +17,29 @@ public class PlaceLightAction extends PlaceElementAction<PlacedLight, ElementDef
 
 	public PlaceLightAction(final GameMap map,
 							final List<PlacedLight> placedElements,
-							final Node node,
+							final MapNodeData node,
 							final ElementDefinition selectedCharacter,
 							final GameAssetsManager assetsManager) {
 		super(map, node, assetsManager, Direction.SOUTH, selectedCharacter, placedElements);
 	}
 
 	@Override
-	protected void addElementToList(PlacedLight element) {
+	protected void addElementToList(final PlacedLight element) {
 		placedElements.add(element);
 	}
 
 	@Override
-	protected void placeElementInCorrectHeight(PlacedLight element, MapNodeData tile) {
+	protected void placeElementInCorrectHeight(final PlacedLight element, final MapNodeData tile) {
 		Decal decal = element.getDecal();
 		Vector3 position = decal.getPosition();
 		decal.setPosition(position.x, tile.getHeight(), position.z);
 	}
 
 	@Override
-	protected PlacedLight createElement(MapNodeData tile) {
+	protected PlacedLight createElement(final MapNodeData tile) {
 		PlacedLight result = null;
 		if (tile != null) {
-			result = new PlacedLight(node.getRow(), node.getCol(), elementDefinition, assetsManager);
+			result = new PlacedLight(new PlacedElementParameters(elementDefinition, node, 0), assetsManager);
 		}
 		return result;
 	}
