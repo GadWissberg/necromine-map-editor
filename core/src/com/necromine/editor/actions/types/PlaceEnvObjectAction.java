@@ -5,7 +5,6 @@ import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapEditor;
 import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.PlaceElementAction;
 import com.necromine.editor.model.elements.PlacedEnvObject;
@@ -65,12 +64,12 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 	}
 
 	private void applyOnNode(final int row, final int col) {
-		int currentRow = Math.min(Math.max(node.getRow() + row, 0), MapEditor.LEVEL_SIZE);
-		int currentCol = Math.min(Math.max(node.getCol() + col, 0), MapEditor.LEVEL_SIZE);
-		MapNodeData[][] tiles = map.getNodes();
-		MapNodeData mapNodeData = tiles[currentRow][currentCol];
+		MapNodeData[][] nodes = map.getNodes();
+		int currentRow = Math.min(Math.max(node.getRow() + row, 0), nodes.length);
+		int currentCol = Math.min(Math.max(node.getCol() + col, 0), nodes[0].length);
+		MapNodeData mapNodeData = nodes[currentRow][currentCol];
 		if (mapNodeData == null) {
-			tiles[currentRow][currentCol] = new MapNodeData(currentRow, currentCol, selectedEnvObject.getNodeType());
+			nodes[currentRow][currentCol] = new MapNodeData(currentRow, currentCol, selectedEnvObject.getNodeType());
 		} else {
 			mapNodeData.setMapNodeType(selectedEnvObject.getNodeType());
 		}

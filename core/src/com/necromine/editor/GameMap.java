@@ -4,12 +4,16 @@ import com.gadarts.necromine.model.MapNodeData;
 import lombok.Getter;
 import lombok.Setter;
 
-import static com.necromine.editor.MapEditor.LEVEL_SIZE;
+import java.awt.*;
 
 @Getter
 @Setter
 public class GameMap {
 	private float ambientLight;
 
-	private MapNodeData[][] nodes = new MapNodeData[LEVEL_SIZE][LEVEL_SIZE];
+	private MapNodeData[][] nodes;
+
+	public GameMap(final Dimension dimension) {
+		nodes = new MapNodeData[dimension.width][dimension.height];
+	}
 }

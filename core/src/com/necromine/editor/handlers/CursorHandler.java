@@ -19,7 +19,9 @@ import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
-import com.necromine.editor.*;
+import com.necromine.editor.CursorSelectionModel;
+import com.necromine.editor.GameMap;
+import com.necromine.editor.MapEditor;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.model.elements.CharacterDecal;
@@ -31,7 +33,6 @@ import lombok.Setter;
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 import static com.gadarts.necromine.model.characters.Direction.NORTH;
 import static com.gadarts.necromine.model.characters.Direction.SOUTH;
-import static com.necromine.editor.MapEditor.LEVEL_SIZE;
 
 @Getter
 @Setter
@@ -69,9 +70,10 @@ public class CursorHandler implements Disposable {
 											  final GameMap map) {
 		if (highlighter != null) {
 			Vector3 collisionPoint = Utils.castRayTowardsPlane(screenX, screenY, camera);
-			int x = MathUtils.clamp((int) collisionPoint.x, 0, LEVEL_SIZE - 1);
-			int z = MathUtils.clamp((int) collisionPoint.z, 0, LEVEL_SIZE - 1);
-			MapNodeData mapNodeData = map.getNodes()[z][x];
+			MapNodeData[][] nodes = map.getNodes();
+			int x = MathUtils.clamp((int) collisionPoint.x, 0, nodes[0].length - 1);
+			int z = MathUtils.clamp((int) collisionPoint.z, 0, nodes.length - 1);
+			MapNodeData mapNodeData = nodes[z][x];
 			highlighter.transform.setTranslation(x, (mapNodeData != null ? mapNodeData.getHeight() : 0) + 0.01f, z);
 			updateCursorAdditionals(x, z, MapEditor.getMode());
 			return true;

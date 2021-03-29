@@ -17,6 +17,8 @@ import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.model.elements.PlacedElements;
 import lombok.Getter;
 
+import java.awt.*;
+
 @Getter
 public class Handlers implements Disposable {
 	private final ViewAuxHandler viewAuxHandler = new ViewAuxHandler();
@@ -25,22 +27,25 @@ public class Handlers implements Disposable {
 	private final GameAssetsManager assetsManager;
 	private final GameMap map;
 	private final MapManagerEventsNotifier eventsNotifier;
+	private final PlacedElements placedElements;
 	private ActionsHandler actionsHandler;
 
 	public Handlers(final GameAssetsManager assetsManager,
 					final GameMap map,
-					final MapManagerEventsNotifier eventsNotifier) {
+					final MapManagerEventsNotifier eventsNotifier,
+					final PlacedElements placedElements) {
 		this.assetsManager = assetsManager;
 		this.map = map;
 		this.eventsNotifier = eventsNotifier;
+		this.placedElements = placedElements;
 	}
 
 	public void onCreate(final Model tileModel,
-						 final PlacedElements placedElements,
 						 final Camera camera,
-						 final WallCreator wallCreator) {
+						 final WallCreator wallCreator,
+						 final Dimension levelSize) {
 		batchHandler.createBatches(camera);
-		viewAuxHandler.createModels();
+		viewAuxHandler.createModels(levelSize);
 		cursorHandler.createCursors(assetsManager, tileModel);
 		createActionsHandler(placedElements, wallCreator);
 	}

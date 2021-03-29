@@ -6,7 +6,6 @@ import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.necromine.editor.GameMap;
@@ -22,7 +21,6 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static com.necromine.editor.MapEditor.LEVEL_SIZE;
 import static com.necromine.editor.MapEditor.TARGET_VERSION;
 
 
@@ -81,13 +79,16 @@ public class MapDeflater {
 
 	private JsonObject createTilesData(final GameMap map) {
 		JsonObject tiles = new JsonObject();
-		addMapSize(tiles);
-		byte[] matrix = new byte[LEVEL_SIZE * LEVEL_SIZE];
+		addMapSize(tiles, map);
+		MapNodeData[][] nodes = map.getNodes();
+		int numberOfRows = nodes.length;
+		int numberOfCols = nodes[0].length;
+		byte[] matrix = new byte[numberOfRows * numberOfCols];
 		JsonArray heights = new JsonArray();
-		IntStream.range(0, LEVEL_SIZE).forEach(row ->
-				IntStream.range(0, LEVEL_SIZE).forEach(col -> {
-					MapNodeData mapNodeData = map.getNodes()[row][col];
-					int index = row * (LEVEL_SIZE) + col;
+		IntStream.range(0, numberOfRows).forEach(row ->
+				IntStream.range(0, numberOfCols).forEach(col -> {
+					MapNodeData mapNodeData = nodes[row][col];
+					int index = row * (numberOfCols) + col;
 					if (mapNodeData != null && mapNodeData.getTextureDefinition() != null) {
 						addHeight(mapNodeData, heights);
 						matrix[index] = (byte) (mapNodeData.getTextureDefinition().ordinal() + 1);
@@ -103,9 +104,10 @@ public class MapDeflater {
 		return tiles;
 	}
 
-	private void addMapSize(final JsonObject tiles) {
-		tiles.addProperty(MapJsonKeys.WIDTH, LEVEL_SIZE);
-		tiles.addProperty(MapJsonKeys.DEPTH, LEVEL_SIZE);
+	private void addMapSize(final JsonObject tiles, final GameMap map) {
+		MapNodeData[][] nodes = map.getNodes();
+		tiles.addProperty(MapJsonKeys.WIDTH, nodes[0].length);
+		tiles.addProperty(MapJsonKeys.DEPTH, nodes.length);
 	}
 
 	private void addHeight(final MapNodeData node, final JsonArray heights) {

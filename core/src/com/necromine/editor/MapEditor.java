@@ -45,6 +45,7 @@ import com.necromine.editor.utils.MapInflater;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -64,11 +65,11 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	/**
 	 * The rate of the cursor flicker animation.
 	 */
-	public static final int LEVEL_SIZE = 20;
 	public static final Vector3 auxVector3_1 = new Vector3();
 	public static final int TARGET_VERSION = 5;
 	private static final float NEAR = 0.01f;
 	private static final float CAMERA_HEIGHT = 6;
+	private static final int DEFAULT_LEVEL_SIZE = 20;
 
 	@Getter
 	private static EditorMode mode = EditModes.TILES;
@@ -81,7 +82,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	private final GameAssetsManager assetsManager;
 	private final PlacedElements placedElements = new PlacedElements();
 	private final Vector2 lastMouseTouchPosition = new Vector2();
-	private final GameMap map = new GameMap();
+	private final GameMap map = new GameMap(new Dimension(DEFAULT_LEVEL_SIZE, DEFAULT_LEVEL_SIZE));
 	private final Handlers handlers;
 	private final MapInflater inflater;
 	private final MapDeflater deflater = new MapDeflater();
@@ -97,7 +98,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		VIEWPORT_WIDTH = width / 50;
 		VIEWPORT_HEIGHT = height / 50;
 		assetsManager = new GameAssetsManager(assetsLocation.replace('\\', '/') + '/');
-		handlers = new Handlers(assetsManager, map, eventsNotifier);
+		handlers = new Handlers(assetsManager, map, eventsNotifier, placedElements);
 		CursorHandler cursorHandler = handlers.getCursorHandler();
 		cursorHandler.setCursorSelectionModel(new CursorSelectionModel(assetsManager));
 		inflater = new MapInflater(assetsManager, cursorHandler, placedElements.getPlacedTiles());
@@ -109,10 +110,10 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	public void create() {
 		wallCreator = new WallCreator(assetsManager);
 		camera = createCamera();
-		renderer = new MapRenderer(assetsManager, handlers, camera);
+		renderer = new MapRenderer(assetsManager, handlers, camera, placedElements);
 		initializeGameFiles();
 		tileModel = createRectModel();
-		handlers.onCreate(tileModel, placedElements, camera, wallCreator);
+		handlers.onCreate(tileModel, camera, wallCreator, new Dimension(DEFAULT_LEVEL_SIZE, DEFAULT_LEVEL_SIZE));
 		initializeInput();
 	}
 

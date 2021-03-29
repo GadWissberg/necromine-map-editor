@@ -11,14 +11,13 @@ import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 
-import static com.necromine.editor.MapEditor.LEVEL_SIZE;
-
+import java.awt.*;
 
 public class ViewAuxHandler implements Disposable {
 	private static final Color GRID_COLOR = Color.GRAY;
 
-	private final static Vector3 auxVector3_1 = new Vector3();
-	private final static Vector3 auxVector3_2 = new Vector3();
+	private static final Vector3 auxVector3_1 = new Vector3();
+	private static final Vector3 auxVector3_2 = new Vector3();
 	private ModelInstance axisModelInstanceX;
 	private Model axisModelX;
 	private Model axisModelY;
@@ -72,18 +71,18 @@ public class ViewAuxHandler implements Disposable {
 		gridModel.dispose();
 	}
 
-	public void createModels() {
+	public void createModels(final Dimension levelSize) {
 		createAxis();
-		createGrid();
+		createGrid(levelSize);
 	}
 
-	private void createGrid() {
+	private void createGrid(final Dimension levelSize) {
 		ModelBuilder builder = new ModelBuilder();
 		Material material = new Material(ColorAttribute.createDiffuse(GRID_COLOR));
 		int attributes = VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal;
-		gridModel = builder.createLineGrid(LEVEL_SIZE, LEVEL_SIZE, 1, 1, material, attributes);
+		gridModel = builder.createLineGrid(levelSize.width, levelSize.height, 1, 1, material, attributes);
 		gridModelInstance = new ModelInstance(gridModel);
-		gridModelInstance.transform.translate(LEVEL_SIZE / 2f, 0.01f, LEVEL_SIZE / 2f);
+		gridModelInstance.transform.translate(levelSize.width / 2f, 0.01f, levelSize.height / 2f);
 	}
 
 }
