@@ -14,12 +14,12 @@ import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.Wall;
 import com.gadarts.necromine.model.characters.Direction;
-import com.necromine.editor.handlers.action.ActionsHandler;
-import com.necromine.editor.handlers.CursorHandler;
-import com.necromine.editor.actions.processes.SelectTilesForLiftProcess;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.actions.processes.PlaceTilesProcess;
+import com.necromine.editor.actions.processes.SelectTilesForLiftProcess;
+import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.handlers.Handlers;
+import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.tools.EnvTools;
@@ -40,19 +40,19 @@ import java.util.Set;
 
 @RequiredArgsConstructor
 public class MapRenderer {
-    private final static Vector3 auxVector3_1 = new Vector3();
-    private final static Matrix4 auxMatrix = new Matrix4();
-    private final static Vector2 auxVector2_1 = new Vector2();
-    private final GameAssetsManager assetsManager;
-    private final Handlers handlers;
-    private final OrthographicCamera camera;
+	private static final Vector3 auxVector3_1 = new Vector3();
+	private static final Matrix4 auxMatrix = new Matrix4();
+	private static final Vector2 auxVector2_1 = new Vector2();
+	private final GameAssetsManager assetsManager;
+	private final Handlers handlers;
+	private final OrthographicCamera camera;
 
-    public void draw(final EditorMode mode, final PlacedElements placedElements, final Set<MapNodeData> initializedTiles, final ElementDefinition selectedElement) {
-        int sam = Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0;
-        Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | sam);
-        renderModels(initializedTiles, placedElements, mode, selectedElement);
-        renderDecals(handlers, mode, placedElements);
+	public void draw(final EditorMode mode, final PlacedElements placedElements, final Set<MapNodeData> initializedTiles, final ElementDefinition selectedElement) {
+		int sam = Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0;
+		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | sam);
+		renderModels(initializedTiles, placedElements, mode, selectedElement);
+		renderDecals(handlers, mode, placedElements);
     }
 
     private void renderDecals(final Handlers handlers, final EditorMode mode, final PlacedElements placedElements) {

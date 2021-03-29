@@ -111,7 +111,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	public void create() {
 		wallCreator = new WallCreator(assetsManager);
 		camera = createCamera();
-		renderer = new MapRenderer(assetsManager, handlers, camera, placedElements);
+		renderer = new MapRenderer(assetsManager, handlers, camera);
 		initializeGameFiles();
 		tileModel = createRectModel();
 		handlers.onCreate(tileModel, camera, wallCreator, new Dimension(DEFAULT_LEVEL_SIZE, DEFAULT_LEVEL_SIZE));
