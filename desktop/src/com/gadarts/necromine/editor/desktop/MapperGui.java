@@ -350,7 +350,9 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		} else if (propertyName.equals(Events.REQUEST_TO_LOAD.name())) {
 			guiEventsSubscriber.onLoadMapRequested();
 		} else if (propertyName.equals(Events.REQUEST_TO_OPEN_AMBIENT_LIGHT_DIALOG.name())) {
-			openDialog(new SetAmbientLightDialog(guiEventsSubscriber.onAmbientLightValueRequest(), guiEventsSubscriber));
+			openDialog(new SetAmbientLightDialog(guiEventsSubscriber.getAmbientLightValue(), guiEventsSubscriber));
+		} else if (propertyName.equals(Events.REQUEST_TO_OPEN_MAP_SIZE_DIALOG.name())) {
+			openDialog(new SetMapSizeDialog(guiEventsSubscriber.getMapSize(), guiEventsSubscriber));
 		}
 	}
 

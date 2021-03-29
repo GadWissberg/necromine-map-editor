@@ -12,6 +12,8 @@ import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 
+import java.awt.*;
+
 public interface GuiEventsSubscriber {
 	void onTileSelected(Assets.FloorsTextures texture);
 
@@ -37,9 +39,13 @@ public interface GuiEventsSubscriber {
 
 	void onTilesLift(FlatNode src, FlatNode dst, float value);
 
-	float onAmbientLightValueRequest();
+	float getAmbientLightValue();
 
 	void onAmbientLightValueSet(float value);
 
 	void onEnvObjectDefined(PlacedEnvObject element, float height);
+
+	void onMapSizeSet(int width, int depth);
+
+	Dimension getMapSize();
 }

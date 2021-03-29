@@ -83,11 +83,11 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	private final GameAssetsManager assetsManager;
 	private final PlacedElements placedElements = new PlacedElements();
 	private final Vector2 lastMouseTouchPosition = new Vector2();
-	private final GameMap map = new GameMap(new Dimension(DEFAULT_LEVEL_SIZE, DEFAULT_LEVEL_SIZE));
 	private final Handlers handlers;
 	private final MapInflater inflater;
 	private final MapDeflater deflater = new MapDeflater();
 	private final MapManagerEventsNotifier eventsNotifier = new MapManagerEventsNotifier();
+	private GameMap map = new GameMap(new Dimension(DEFAULT_LEVEL_SIZE, DEFAULT_LEVEL_SIZE));
 	private WallCreator wallCreator;
 	private MapRenderer renderer;
 	private OrthographicCamera camera;
@@ -302,7 +302,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	}
 
 	@Override
-	public float onAmbientLightValueRequest() {
+	public float getAmbientLightValue() {
 		return map.getAmbientLight();
 	}
 
@@ -314,6 +314,20 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	@Override
 	public void onEnvObjectDefined(final PlacedEnvObject element, final float height) {
 		handlers.getActionsHandler().onEnvObjectDefined(element, height);
+	}
+
+	@Override
+	public void onMapSizeSet(final int width, final int depth) {
+		if (this.map.getNodes().length == depth && this.map.getNodes()[0].length == width) return;
+		Dimension dimension = new Dimension(width, depth);
+		map.resetSize(dimension);
+		handlers.getViewAuxHandler().createModels(dimension);
+	}
+
+	@Override
+	public Dimension getMapSize() {
+		MapNodeData[][] nodes = map.getNodes();
+		return new Dimension(nodes.length, nodes[0].length);
 	}
 
 

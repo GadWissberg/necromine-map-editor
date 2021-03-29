@@ -64,7 +64,12 @@ public enum ToolbarDefinition implements ToolbarButtonDefinition {
 	AMBIENT_LIGHT(new ToolbarButtonProperties(
 			"ambient_light",
 			"Set Ambient Light",
-			EditMenuItemsDefinitions.SET_AMBIENT_LIGHT));
+			EditMenuItemsDefinitions.SET_AMBIENT_LIGHT)),
+
+	MAP_SIZE(new ToolbarButtonProperties(
+			"size",
+			"Set Map Size",
+			EditMenuItemsDefinitions.SET_MAP_SIZE));
 
 	private final ToolbarButtonProperties toolbarButtonProperties;
 
