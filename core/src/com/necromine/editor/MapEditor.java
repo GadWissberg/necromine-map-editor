@@ -69,7 +69,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	public static final Vector3 auxVector3_1 = new Vector3();
 	public static final int TARGET_VERSION = 5;
 	private static final float NEAR = 0.01f;
-	private static final float CAMERA_HEIGHT = 6;
+	private static final float CAMERA_HEIGHT = 14;
 	private static final int DEFAULT_LEVEL_SIZE = 20;
 
 	@Getter
@@ -167,8 +167,9 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		cam.near = NEAR;
 		cam.far = FAR;
 		cam.update();
-		cam.position.set(4, CAMERA_HEIGHT, 4);
+		cam.position.set(4, 6, 4);
 		cam.lookAt(auxVector3_1.setZero());
+		cam.position.set(4, CAMERA_HEIGHT, 4);
 		return cam;
 	}
 
@@ -276,7 +277,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public void onLoadMapRequested() {
-		inflater.inflateMap(map, placedElements, wallCreator);
+		inflater.inflateMap(map, placedElements, wallCreator, handlers.getViewAuxHandler());
 	}
 
 	@Override

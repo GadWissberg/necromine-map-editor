@@ -16,6 +16,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.handlers.CursorHandler;
+import com.necromine.editor.handlers.ViewAuxHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
@@ -23,13 +24,32 @@ import com.necromine.editor.model.elements.PlacedElements;
 import com.necromine.editor.model.node.FlatNode;
 import lombok.RequiredArgsConstructor;
 
+import java.awt.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 
-import static com.gadarts.necromine.assets.MapJsonKeys.*;
+import static com.gadarts.necromine.assets.MapJsonKeys.AMBIENT;
+import static com.gadarts.necromine.assets.MapJsonKeys.CHARACTERS;
+import static com.gadarts.necromine.assets.MapJsonKeys.COL;
+import static com.gadarts.necromine.assets.MapJsonKeys.DEPTH;
+import static com.gadarts.necromine.assets.MapJsonKeys.DIRECTION;
+import static com.gadarts.necromine.assets.MapJsonKeys.EAST;
+import static com.gadarts.necromine.assets.MapJsonKeys.HEIGHT;
+import static com.gadarts.necromine.assets.MapJsonKeys.HEIGHTS;
+import static com.gadarts.necromine.assets.MapJsonKeys.MATRIX;
+import static com.gadarts.necromine.assets.MapJsonKeys.NORTH;
+import static com.gadarts.necromine.assets.MapJsonKeys.ROW;
+import static com.gadarts.necromine.assets.MapJsonKeys.TILES;
+import static com.gadarts.necromine.assets.MapJsonKeys.TYPE;
+import static com.gadarts.necromine.assets.MapJsonKeys.WEST;
+import static com.gadarts.necromine.assets.MapJsonKeys.WIDTH;
 import static com.gadarts.necromine.model.characters.Direction.SOUTH;
 
 @RequiredArgsConstructor
@@ -40,12 +60,15 @@ public class MapInflater {
 	private final Gson gson = new Gson();
 	private GameMap map;
 
-	public void inflateMap(final GameMap map, final PlacedElements placedElements, final WallCreator wallCreator) {
+	public void inflateMap(final GameMap map,
+						   final PlacedElements placedElements,
+						   final WallCreator wallCreator,
+						   final ViewAuxHandler viewAuxHandler) {
 		this.map = map;
 		try (Reader reader = new FileReader("test_map.json")) {
 			JsonObject input = gson.fromJson(reader, JsonObject.class);
 			JsonObject tilesJsonObject = input.getAsJsonObject(TILES);
-			map.setNodes(inflateTiles(tilesJsonObject, initializedTiles));
+			map.setNodes(inflateTiles(tilesJsonObject, initializedTiles, viewAuxHandler));
 			inflateHeights(tilesJsonObject, map, wallCreator);
 			inflateCharacters(input, placedElements);
 			Arrays.stream(EditModes.values()).forEach(mode -> {
@@ -186,9 +209,12 @@ public class MapInflater {
 		return new PlacedElementParameters(definition, dir, node, height);
 	}
 
-	private MapNodeData[][] inflateTiles(final JsonObject tilesJsonObject, final Set<MapNodeData> initializedTiles) {
+	private MapNodeData[][] inflateTiles(final JsonObject tilesJsonObject,
+										 final Set<MapNodeData> initializedTiles,
+										 final ViewAuxHandler viewAuxHandler) {
 		int width = tilesJsonObject.get(WIDTH).getAsInt();
 		int depth = tilesJsonObject.get(DEPTH).getAsInt();
+		viewAuxHandler.createModels(new Dimension(width, depth));
 		String matrix = tilesJsonObject.get(MATRIX).getAsString();
 		MapNodeData[][] inputMap = new MapNodeData[depth][width];
 		initializedTiles.clear();
