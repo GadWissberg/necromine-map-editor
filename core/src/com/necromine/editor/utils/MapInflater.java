@@ -21,6 +21,7 @@ import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
 import com.necromine.editor.model.elements.PlacedElements;
+import com.necromine.editor.model.elements.PlacedLight;
 import com.necromine.editor.model.node.FlatNode;
 import lombok.RequiredArgsConstructor;
 
@@ -72,7 +73,7 @@ public class MapInflater {
 			inflateHeights(tilesJsonObject, map, wallCreator);
 			inflateCharacters(input, placedElements);
 			Arrays.stream(EditModes.values()).forEach(mode -> {
-				if (mode.getDefinitions() != null) {
+				if (!mode.isSkipGenericElementLoading()) {
 					inflateElements(input, mode, placedElements, map);
 				}
 			});
@@ -232,13 +233,16 @@ public class MapInflater {
 		int row = node.getRow();
 		int col = node.getCol();
 		byte tileId = matrix[row * mapWidth + col % mapWidth];
+		MapNodeData tile;
 		if (tileId != 0) {
 			Assets.FloorsTextures textureDefinition = Assets.FloorsTextures.values()[tileId - 1];
-			MapNodeData tile = new MapNodeData(cursorHandler.getCursorTileModel(), node.getRow(), node.getCol(), MapNodesTypes.PASSABLE_NODE);
+			tile = new MapNodeData(cursorHandler.getCursorTileModel(), row, col, MapNodesTypes.PASSABLE_NODE);
 			Utils.initializeTile(tile, textureDefinition, assetsManager);
-			inputMap[row][col] = tile;
 			initializedTiles.add(tile);
+		} else {
+			tile = new MapNodeData(row, col, MapNodesTypes.PASSABLE_NODE);
 		}
+		inputMap[row][col] = tile;
 	}
 
 }

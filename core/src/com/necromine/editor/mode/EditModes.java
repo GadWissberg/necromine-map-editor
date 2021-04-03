@@ -16,12 +16,13 @@ import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
 @Getter
 public enum EditModes implements EditorMode {
-	TILES("Tiles", EntriesDisplayTypes.GALLERY),
+	TILES("Tiles", true, EntriesDisplayTypes.GALLERY),
 
 	CHARACTERS("Characters",
 			EntriesDisplayTypes.TREE,
 			true,
 			null,
+			true,
 			PlacedCharacter::new,
 			new TreeSection("Player", CharacterTypes.PLAYER.getDefinitions(), "character"),
 			new TreeSection("Enemies", CharacterTypes.ENEMY.getDefinitions(), "character")),
@@ -49,20 +50,14 @@ public enum EditModes implements EditorMode {
 	private final boolean decalCursor;
 	private final PlacedElementCreation creationProcess;
 	private final ElementDefinition[] definitions;
+	private final boolean skipGenericElementLoading;
 
 	EditModes(final String displayName, final boolean decalCursor, final PlacedElementCreation creation) {
-		this(displayName, NONE, decalCursor, null, creation, (TreeSection[]) null);
+		this(displayName, NONE, decalCursor, null, false, creation, (TreeSection[]) null);
 	}
 
-	EditModes(final String displayName, final EntriesDisplayTypes type) {
-		this(displayName, type, false);
-	}
-
-	EditModes(final String displayName,
-			  final EntriesDisplayTypes entriesDisplay,
-			  final boolean decalCursor,
-			  final TreeSection... treeSections) {
-		this(displayName, entriesDisplay, decalCursor, null, null, treeSections);
+	EditModes(final String displayName, final boolean skipGenericElementLoading, final EntriesDisplayTypes type) {
+		this(displayName, type, false, null, skipGenericElementLoading, null);
 	}
 
 	EditModes(final String displayName,
@@ -70,13 +65,14 @@ public enum EditModes implements EditorMode {
 			  final ElementDefinition[] definitions,
 			  final PlacedElementCreation creation,
 			  final TreeSection... treeSections) {
-		this(displayName, entriesDisplay, false, definitions, creation, treeSections);
+		this(displayName, entriesDisplay, false, definitions, false, creation, treeSections);
 	}
 
 	EditModes(final String displayName,
 			  final EntriesDisplayTypes entriesDisplay,
 			  final boolean decalCursor,
 			  final ElementDefinition[] definitions,
+			  final boolean skipGenericElementLoading,
 			  final PlacedElementCreation creation,
 			  final TreeSection... treeSections) {
 		this.entriesDisplayTypes = entriesDisplay;
@@ -84,6 +80,7 @@ public enum EditModes implements EditorMode {
 		this.displayName = displayName;
 		this.decalCursor = decalCursor;
 		this.creationProcess = creation;
+		this.skipGenericElementLoading = skipGenericElementLoading;
 		this.definitions = definitions;
 	}
 

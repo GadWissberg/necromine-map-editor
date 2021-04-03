@@ -8,10 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.ElementDefinition;
-import com.gadarts.necromine.model.EnvironmentDefinitions;
-import com.gadarts.necromine.model.MapNodeData;
-import com.gadarts.necromine.model.Wall;
+import com.gadarts.necromine.model.*;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.CursorSelectionModel;
@@ -189,10 +186,16 @@ public class ActionsHandler {
 		Vector3 position = cursorSelectionModel.getModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
+		MapNodeData[][] nodes = map.getNodes();
+		MapNodeData node = nodes[row][col];
+		if (node == null) {
+			node = new MapNodeData(row, col, MapNodesTypes.PASSABLE_NODE);
+			nodes[row][col] = node;
+		}
 		PlaceEnvObjectAction action = new PlaceEnvObjectAction(
 				map,
 				(List<PlacedEnvObject>) data.getPlacedElements().getPlacedObjects().get(EditModes.ENVIRONMENT),
-				map.getNodes()[row][col],
+				node,
 				(EnvironmentDefinitions) selectedElement,
 				am,
 				cursorSelectionModel.getFacingDirection());

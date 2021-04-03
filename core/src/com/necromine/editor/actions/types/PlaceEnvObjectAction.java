@@ -68,11 +68,12 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 		MapNodeData[][] nodes = map.getNodes();
 		int currentRow = Math.min(Math.max(node.getRow() + row, 0), nodes.length);
 		int currentCol = Math.min(Math.max(node.getCol() + col, 0), nodes[0].length);
-		MapNodeData mapNodeData = nodes[currentRow][currentCol];
-		if (mapNodeData == null) {
-			nodes[currentRow][currentCol] = new MapNodeData(currentRow, currentCol, selectedEnvObject.getNodeType());
-		} else {
-			mapNodeData.setMapNodeType(selectedEnvObject.getNodeType());
+		if (currentRow < nodes.length && currentCol < nodes[0].length) {
+			if (nodes[currentRow][currentCol] == null) {
+				nodes[currentRow][currentCol] = new MapNodeData(currentRow, currentCol, selectedEnvObject.getNodeType());
+			} else {
+				nodes[currentRow][currentCol].setMapNodeType(selectedEnvObject.getNodeType());
+			}
 		}
 	}
 
