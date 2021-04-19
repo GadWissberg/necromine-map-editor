@@ -16,6 +16,7 @@ import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.*;
+import com.necromine.editor.actions.processes.ApplyActionOnTilesRegion;
 import com.necromine.editor.model.elements.CharacterDecal;
 import com.necromine.editor.model.node.FlatNode;
 
@@ -81,4 +82,17 @@ public class Utils {
 	}
 
 
+	public static void applyOnRegionOfTiles(final FlatNode srcNode,
+											final FlatNode dstNode,
+											final ApplyActionOnTilesRegion runnable) {
+		int srcRow = srcNode.getRow();
+		int srcCol = srcNode.getCol();
+		int dstRow = dstNode.getRow();
+		int dstCol = dstNode.getCol();
+		for (int col = Math.min(dstCol, srcCol); col <= Math.max(dstCol, srcCol); col++) {
+			for (int row = Math.min(dstRow, srcRow); row <= Math.max(dstRow, srcRow); row++) {
+				runnable.run(row, col);
+			}
+		}
+	}
 }

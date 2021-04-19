@@ -17,7 +17,6 @@ import com.necromine.editor.MapEditor;
 import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.actions.MappingAction;
-import com.necromine.editor.actions.ProcessBuilder;
 import com.necromine.editor.actions.processes.*;
 import com.necromine.editor.actions.types.*;
 import com.necromine.editor.handlers.CursorHandler;
@@ -29,6 +28,7 @@ import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.*;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
+import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -82,8 +82,7 @@ public class ActionsHandler {
 
 	public boolean onTouchDown(final GameAssetsManager assetsManager,
 							   final Set<MapNodeData> initializedTiles,
-							   final int button,
-							   final MapManagerEventsNotifier eventsNotifier) {
+							   final int button) {
 		EditorMode mode = MapEditor.getMode();
 		Class<? extends EditorMode> modeClass = mode.getClass();
 		EditorTool tool = MapEditor.getTool();
@@ -96,7 +95,7 @@ public class ActionsHandler {
 					} else if (tool == TilesTools.LIFT) {
 						beginSelectingTileForLiftProcess(1, services.getWallCreator(), initializedTiles);
 					} else if (tool == TilesTools.WALL_TILING) {
-						tileWall(eventsNotifier);
+						beginSelectingTilesForWallTiling();
 					}
 					return true;
 				} else if (mode == EditModes.ENVIRONMENT && currentProcess == null) {
@@ -157,16 +156,6 @@ public class ActionsHandler {
 		int row = (int) cursorPosition.z;
 		int col = (int) cursorPosition.x;
 		return data.getMap().getNodes()[row][col];
-	}
-
-	private void tileWall(final MapManagerEventsNotifier eventsNotifier) {
-		Vector3 cursorPosition = services.getCursorHandler().getHighlighter().transform.getTranslation(auxVector);
-		int row = (int) cursorPosition.z;
-		int col = (int) cursorPosition.x;
-		MapNodeData mapNodeData = data.getMap().getNodes()[row][col];
-		if (mapNodeData != null) {
-			eventsNotifier.tileSelectedUsingWallTilingTool(row, col, new NodeWallsDefinitions(mapNodeData));
-		}
 	}
 
 	private boolean removeElementByMode() {
@@ -236,13 +225,19 @@ public class ActionsHandler {
 													 final WallCreator wallCreator,
 													 final Set<MapNodeData> initializedTiles) {
 		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
-		int row = (int) position.z;
-		int col = (int) position.x;
-		FlatNode src = new FlatNode(row, col);
-		currentProcess = ProcessBuilder.begin(data.getMap(), src)
-				.liftTiles(direction, wallCreator, initializedTiles)
-				.finish();
+		FlatNode src = new FlatNode((int) position.z, (int) position.x);
+		SelectTilesForLiftProcess current = new SelectTilesForLiftProcess(data.getMap(), src);
+		current.setDirection(direction);
+		current.setWallCreator(wallCreator);
+		current.setInitializedTiles(initializedTiles);
+		currentProcess = current;
 		return true;
+	}
+
+	private void beginSelectingTilesForWallTiling() {
+		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
+		FlatNode src = new FlatNode((int) position.z, (int) position.x);
+		currentProcess = new SelectTilesForWallTilingProcess(data.getMap(), src);
 	}
 
 	private void placeCharacter(final GameMap map,
@@ -281,20 +276,25 @@ public class ActionsHandler {
 		} else if (currentProcess instanceof SelectTilesForLiftProcess) {
 			SelectTilesForLiftProcess currentProcess = (SelectTilesForLiftProcess) this.currentProcess;
 			currentProcess.finish(new SelectTilesForLiftFinishProcessParameters(dstRow, dstCol, services.getEventsNotifier()));
+		} else if (currentProcess instanceof SelectTilesForWallTilingProcess) {
+			SelectTilesForWallTilingProcess currentProcess = (SelectTilesForWallTilingProcess) this.currentProcess;
+			currentProcess.finish(new SelectTilesForWallTilingFinishProcessParameters(dstRow, dstCol, services.getEventsNotifier()));
 		}
 		this.currentProcess = null;
 	}
 
 	public void onNodeWallsDefined(final NodeWallsDefinitions defs,
-								   final int row,
-								   final int col,
+								   final FlatNode src,
+								   final FlatNode dst,
 								   final GameAssetsManager am) {
-		MapNodeData[][] nodes = data.getMap().getNodes();
-		MapNodeData node = nodes[row][col];
-		defineEast(defs, nodes[row][col + 1], am, node);
-		defineSouth(defs, nodes[row + 1][col], am, node);
-		defineWest(defs, nodes[row][col - 1], am, node);
-		defineNorth(defs, nodes[row - 1][col], am, node);
+		Utils.applyOnRegionOfTiles(src, dst, (row, col) -> {
+			MapNodeData[][] nodes = data.getMap().getNodes();
+			MapNodeData node = nodes[row][col];
+			defineEast(defs, nodes[row][col + 1], am, node);
+			defineSouth(defs, nodes[row + 1][col], am, node);
+			defineWest(defs, nodes[row][col - 1], am, node);
+			defineNorth(defs, nodes[row - 1][col], am, node);
+		});
 	}
 
 	private void defineNorth(final NodeWallsDefinitions defs,
@@ -334,7 +334,7 @@ public class ActionsHandler {
 							final Wall neighborWall,
 							final Assets.FloorsTextures texture) {
 		Wall wall = Optional.ofNullable(selectedWall).orElse(neighborWall);
-		Optional.ofNullable(wall).ifPresent(w -> {
+		Optional.ofNullable(wall).flatMap(w -> Optional.ofNullable(texture)).ifPresent(t -> {
 			Material material = wall.getModelInstance().materials.get(0);
 			wall.setDefinition(texture);
 			TextureAttribute textureAttribute = (TextureAttribute) material.get(TextureAttribute.Diffuse);

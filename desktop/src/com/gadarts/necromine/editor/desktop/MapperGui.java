@@ -6,12 +6,7 @@ import com.gadarts.necromine.editor.desktop.dialogs.*;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.menu.definitions.Menus;
-import com.gadarts.necromine.editor.desktop.toolbar.RadioToolBarButton;
-import com.gadarts.necromine.editor.desktop.toolbar.SubToolbarsDefinitions;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolBarButton;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonDefinition;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonProperties;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarDefinition;
+import com.gadarts.necromine.editor.desktop.toolbar.*;
 import com.gadarts.necromine.editor.desktop.tree.EditorTree;
 import com.gadarts.necromine.editor.desktop.tree.ResourcesTreeCellRenderer;
 import com.gadarts.necromine.model.ElementDefinition;
@@ -30,7 +25,6 @@ import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.node.FlatNode;
-import com.necromine.editor.model.node.NodeWallsDefinitions;
 import org.lwjgl.openal.AL;
 
 import javax.imageio.ImageIO;
@@ -38,21 +32,13 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
@@ -364,13 +350,14 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 						() -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
 	}
 
-	@Override
-	public void onTileSelectedUsingWallTilingTool(final int row, final int col, final NodeWallsDefinitions definitions) {
-		openDialog(new WallTilingDialog(assetsFolderLocation, guiEventsSubscriber, new FlatNode(row, col), definitions));
-	}
 
 	private void openDialog(final DialogPane pane) {
 		GuiUtils.openNewDialog(this, pane);
+	}
+
+	@Override
+	public void onTileSelectedUsingWallTilingTool(final FlatNode src, final FlatNode dst) {
+		openDialog(new WallTilingDialog(assetsFolderLocation, guiEventsSubscriber, src, dst));
 	}
 
 	@Override

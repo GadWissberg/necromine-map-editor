@@ -9,18 +9,22 @@ import lombok.Getter;
 
 @Getter
 public abstract class MappingProcess<T extends MappingProcess.FinishProcessParameters> extends MappingAction {
-    final FlatNode srcNode;
+	final FlatNode srcNode;
+	final boolean requiresRegionSelectionCursor;
 
-    public MappingProcess(final GameMap map, final FlatNode srcNode) {
-        super(map);
-        this.srcNode = srcNode;
-    }
+	public MappingProcess(final GameMap map,
+						  final FlatNode srcNode,
+						  final boolean requiresRegionSelectionCursor) {
+		super(map);
+		this.srcNode = srcNode;
+		this.requiresRegionSelectionCursor = requiresRegionSelectionCursor;
+	}
 
-    @Override
+	@Override
 	public abstract void execute(MapManagerEventsNotifier eventsNotifier);
 
-    abstract void finish(T params);
+	abstract void finish(T params);
 
-    public abstract static class FinishProcessParameters {
-    }
+	public abstract static class FinishProcessParameters {
+	}
 }

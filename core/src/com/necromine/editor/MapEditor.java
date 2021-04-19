@@ -87,7 +87,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	private final MapInflater inflater;
 	private final MapDeflater deflater = new MapDeflater();
 	private final MapManagerEventsNotifier eventsNotifier = new MapManagerEventsNotifier();
-	private GameMap map = new GameMap(new Dimension(DEFAULT_LEVEL_SIZE, DEFAULT_LEVEL_SIZE));
+	private final GameMap map = new GameMap(new Dimension(DEFAULT_LEVEL_SIZE, DEFAULT_LEVEL_SIZE));
 	private WallCreator wallCreator;
 	private MapRenderer renderer;
 	private OrthographicCamera camera;
@@ -293,8 +293,8 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	}
 
 	@Override
-	public void onNodeWallsDefined(final NodeWallsDefinitions definitions, final int row, final int col) {
-		handlers.getActionsHandler().onNodeWallsDefined(definitions, row, col, assetsManager);
+	public void onNodeWallsDefined(final NodeWallsDefinitions definitions, final FlatNode src, final FlatNode dst) {
+		handlers.getActionsHandler().onNodeWallsDefined(definitions, src, dst, assetsManager);
 	}
 
 	@Override
@@ -355,7 +355,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 			lastMouseTouchPosition.set(screenX, screenY);
 		}
 		Set<MapNodeData> placedTiles = placedElements.getPlacedTiles();
-		return handlers.getActionsHandler().onTouchDown(assetsManager, placedTiles, button, eventsNotifier);
+		return handlers.getActionsHandler().onTouchDown(assetsManager, placedTiles, button);
 	}
 
 	@Override

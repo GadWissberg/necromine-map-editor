@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop.dialogs;
 
-import com.gadarts.necromine.assets.Assets;
+import com.gadarts.necromine.assets.Assets.FloorsTextures;
 import com.gadarts.necromine.editor.desktop.GalleryButton;
 import com.gadarts.necromine.editor.desktop.GuiUtils;
 import com.necromine.editor.GuiEventsSubscriber;
@@ -11,17 +11,16 @@ import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 
 public class WallTilingDialog extends DialogPane {
 	private static final String LABEL_EAST = "East Wall:";
 	private static final String LABEL_SOUTH = "South Wall:";
 	private static final String LABEL_WEST = "West Wall:";
 	private static final String LABEL_NORTH = "North Wall:";
-	private final NodeWallsDefinitions definitions;
 	private final File assetsFolderLocation;
 	private final GuiEventsSubscriber guiEventsSubscriber;
-	private final FlatNode node;
+	private final FlatNode src;
+	private final FlatNode dst;
 	private GalleryButton eastImageButton;
 	private GalleryButton southImageButton;
 	private GalleryButton westImageButton;
@@ -29,12 +28,12 @@ public class WallTilingDialog extends DialogPane {
 
 	public WallTilingDialog(final File assetsFolderLocation,
 							final GuiEventsSubscriber guiEventsSubscriber,
-							final FlatNode node,
-							final NodeWallsDefinitions definitions) {
-		this.definitions = definitions;
+							final FlatNode src,
+							final FlatNode dst) {
 		this.assetsFolderLocation = assetsFolderLocation;
 		this.guiEventsSubscriber = guiEventsSubscriber;
-		this.node = node;
+		this.src = src;
+		this.dst = dst;
 		init();
 	}
 
@@ -45,11 +44,11 @@ public class WallTilingDialog extends DialogPane {
 		addOkButton(c, e -> {
 			guiEventsSubscriber.onNodeWallsDefined(
 					new NodeWallsDefinitions(
-							eastImageButton.getTextureDefinition(),
-							southImageButton.getTextureDefinition(),
-							westImageButton.getTextureDefinition(),
-							northImageButton.getTextureDefinition()),
-					node.getRow(), node.getCol());
+							eastImageButton.getTextureDefinition() != FloorsTextures.FLOOR_PAVEMENT_0 ? eastImageButton.getTextureDefinition() : null,
+							southImageButton.getTextureDefinition() != FloorsTextures.FLOOR_PAVEMENT_0 ? southImageButton.getTextureDefinition() : null,
+							westImageButton.getTextureDefinition() != FloorsTextures.FLOOR_PAVEMENT_0 ? westImageButton.getTextureDefinition() : null,
+							northImageButton.getTextureDefinition() != FloorsTextures.FLOOR_PAVEMENT_0 ? northImageButton.getTextureDefinition() : null),
+					src, dst);
 			closeDialog();
 		});
 	}
@@ -61,20 +60,19 @@ public class WallTilingDialog extends DialogPane {
 	private void addImageButtons(final File assetsFolderLocation,
 								 final GridBagConstraints c) {
 		c.gridy = 0;
-		eastImageButton = addImageButton(assetsFolderLocation, c, definitions.getEast());
-		southImageButton = addImageButton(assetsFolderLocation, c, definitions.getSouth());
-		westImageButton = addImageButton(assetsFolderLocation, c, definitions.getWest());
-		northImageButton = addImageButton(assetsFolderLocation, c, definitions.getNorth());
+		eastImageButton = addImageButton(assetsFolderLocation, c);
+		southImageButton = addImageButton(assetsFolderLocation, c);
+		westImageButton = addImageButton(assetsFolderLocation, c);
+		northImageButton = addImageButton(assetsFolderLocation, c);
 	}
 
 	private GalleryButton addImageButton(final File assetsLocation,
-										 final GridBagConstraints c,
-										 final Assets.FloorsTextures texture) {
+										 final GridBagConstraints c) {
 		GalleryButton button = null;
 		try {
 			button = GuiUtils.createTextureImageButton(
 					assetsLocation,
-					Optional.ofNullable(texture).orElse(Assets.FloorsTextures.FLOOR_PAVEMENT_0));
+					FloorsTextures.FLOOR_PAVEMENT_0);
 			GalleryButton finalButton = button;
 			button.addItemListener(itemEvent -> {
 				if (itemEvent.getStateChange() == ItemEvent.SELECTED) {

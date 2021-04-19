@@ -35,7 +35,7 @@ public interface GuiEventsSubscriber {
 
 	void onToolSet(EditorTool tool);
 
-	void onNodeWallsDefined(NodeWallsDefinitions definitions, int row, int col);
+	void onNodeWallsDefined(NodeWallsDefinitions definitions, FlatNode row, FlatNode col);
 
 	void onTilesLift(FlatNode src, FlatNode dst, float value);
 

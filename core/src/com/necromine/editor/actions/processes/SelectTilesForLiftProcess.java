@@ -18,7 +18,7 @@ public class SelectTilesForLiftProcess extends MappingProcess<SelectTilesForLift
     private Set<MapNodeData> initializedTiles;
 
     public SelectTilesForLiftProcess(final GameMap map, final FlatNode src) {
-        super(map, src);
+        super(map, src, true);
     }
 
     @Override

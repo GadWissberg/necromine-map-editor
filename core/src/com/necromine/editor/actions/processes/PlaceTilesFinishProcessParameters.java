@@ -6,10 +6,17 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
-public class PlaceTilesFinishProcessParameters extends MappingProcess.FinishProcessParameters {
-	private final int dstRow;
-	private final int dstCol;
+public class PlaceTilesFinishProcessParameters extends SelectTilesFinishProcessParameters {
 	private final Assets.FloorsTextures selectedTile;
 	private final Model tileModel;
+
+
+	public PlaceTilesFinishProcessParameters(final int dstRow,
+											 final int dstCol,
+											 final Assets.FloorsTextures selectedTile,
+											 final Model tileModel) {
+		super(dstRow, dstCol);
+		this.selectedTile = selectedTile;
+		this.tileModel = tileModel;
+	}
 }
