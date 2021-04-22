@@ -6,7 +6,15 @@ import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.pickups.WeaponsDefinitions;
 import com.necromine.editor.EntriesDisplayTypes;
 import com.necromine.editor.TreeSection;
-import com.necromine.editor.model.elements.*;
+import com.necromine.editor.mode.tools.EditorTool;
+import com.necromine.editor.mode.tools.EnvTools;
+import com.necromine.editor.mode.tools.TilesTools;
+import com.necromine.editor.model.elements.PlacedCharacter;
+import com.necromine.editor.model.elements.PlacedElementCreation;
+import com.necromine.editor.model.elements.PlacedEnvObject;
+import com.necromine.editor.model.elements.PlacedLight;
+import com.necromine.editor.model.elements.PlacedModelElement;
+import com.necromine.editor.model.elements.PlacedPickup;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -16,7 +24,7 @@ import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
 @Getter
 public enum EditModes implements EditorMode {
-	TILES("Tiles", true, EntriesDisplayTypes.GALLERY),
+	TILES("Tiles", true, EntriesDisplayTypes.GALLERY, TilesTools.values()),
 
 	CHARACTERS("Characters",
 			EntriesDisplayTypes.TREE,
@@ -24,6 +32,7 @@ public enum EditModes implements EditorMode {
 			null,
 			true,
 			PlacedCharacter::new,
+			null,
 			new TreeSection("Player", CharacterTypes.PLAYER.getDefinitions(), "character"),
 			new TreeSection("Enemies", CharacterTypes.ENEMY.getDefinitions(), "character")),
 
@@ -31,12 +40,14 @@ public enum EditModes implements EditorMode {
 			EntriesDisplayTypes.TREE,
 			EnvironmentDefinitions.values(),
 			(params, assetsManager) -> new PlacedEnvObject(new PlacedModelElement.PlacedModelElementParameters(params), assetsManager),
+			EnvTools.values(),
 			new TreeSection("Environment", EnvironmentDefinitions.values(), "env")),
 
 	PICKUPS("Pick-Ups",
 			EntriesDisplayTypes.TREE,
 			WeaponsDefinitions.values(),
 			(params, am) -> new PlacedPickup(new PlacedModelElement.PlacedModelElementParameters(params), am),
+			null,
 			new TreeSection("Weapons", Arrays.stream(WeaponsDefinitions.values()).filter(def -> def.getModelDefinition() != null).collect(Collectors.toList()).toArray(new ElementDefinition[0]), "pickup")),
 
 	LIGHTS("Lights",
@@ -51,21 +62,40 @@ public enum EditModes implements EditorMode {
 	private final PlacedElementCreation creationProcess;
 	private final ElementDefinition[] definitions;
 	private final boolean skipGenericElementLoading;
+	private final EditorTool[] tools;
 
 	EditModes(final String displayName, final boolean decalCursor, final PlacedElementCreation creation) {
-		this(displayName, NONE, decalCursor, null, false, creation, (TreeSection[]) null);
+		this(displayName,
+				NONE,
+				decalCursor,
+				null,
+				false,
+				creation,
+				null,
+				(TreeSection[]) null);
 	}
 
-	EditModes(final String displayName, final boolean skipGenericElementLoading, final EntriesDisplayTypes type) {
-		this(displayName, type, false, null, skipGenericElementLoading, null);
+	EditModes(final String displayName,
+			  final boolean skipGenericElementLoading,
+			  final EntriesDisplayTypes type,
+			  final EditorTool[] tools) {
+		this(displayName, type, false, null, skipGenericElementLoading, null, tools);
 	}
 
 	EditModes(final String displayName,
 			  final EntriesDisplayTypes entriesDisplay,
 			  final ElementDefinition[] definitions,
 			  final PlacedElementCreation creation,
+			  final EditorTool[] tools,
 			  final TreeSection... treeSections) {
-		this(displayName, entriesDisplay, false, definitions, false, creation, treeSections);
+		this(displayName,
+				entriesDisplay,
+				false,
+				definitions,
+				false,
+				creation,
+				tools,
+				treeSections);
 	}
 
 	EditModes(final String displayName,
@@ -74,14 +104,16 @@ public enum EditModes implements EditorMode {
 			  final ElementDefinition[] definitions,
 			  final boolean skipGenericElementLoading,
 			  final PlacedElementCreation creation,
+			  final EditorTool[] tools,
 			  final TreeSection... treeSections) {
 		this.entriesDisplayTypes = entriesDisplay;
-		this.treeSections = treeSections;
 		this.displayName = displayName;
 		this.decalCursor = decalCursor;
 		this.creationProcess = creation;
 		this.skipGenericElementLoading = skipGenericElementLoading;
 		this.definitions = definitions;
+		this.tools = tools;
+		this.treeSections = treeSections;
 	}
 
 }
