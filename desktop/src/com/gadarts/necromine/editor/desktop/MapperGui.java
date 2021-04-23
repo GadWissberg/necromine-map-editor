@@ -1,6 +1,8 @@
 package com.gadarts.necromine.editor.desktop;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.dialogs.DefineEnvObjectDialog;
 import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
@@ -121,7 +123,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 
 	protected JToolBar addToolBar(final ToolbarButtonDefinition[] toolbarOptions,
 								  final Container container,
-								  final String constraints) {
+								  final String name) {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		Arrays.stream(toolbarOptions).forEach(option -> {
@@ -130,6 +132,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 				try {
 					jButton = createToolbarButtonOfMenuItem(option);
 					toolBar.add(jButton);
+					toolBar.setName(name);
 				} catch (final IOException e) {
 					e.printStackTrace();
 				}
@@ -137,7 +140,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 				toolBar.addSeparator();
 			}
 		});
-		container.add(toolBar, constraints);
+		container.add(toolBar, name);
 		return toolBar;
 	}
 
@@ -304,6 +307,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		String propertyName = evt.getPropertyName();
 		EditorMode mode = ModesHandler.getMode();
 		if (propertyName.equals(Events.MODE_SET_EDIT.name())) {
+			Gdx.app.log("!",""+ TimeUtils.millis());
 			int newModeIndex = (int) evt.getNewValue();
 			mode = EditModes.values()[newModeIndex];
 			EditModes editMode = (EditModes) mode;

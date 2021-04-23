@@ -47,11 +47,7 @@ import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * The world renderer.
@@ -211,11 +207,14 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	@Override
 	public void onEditModeSet(final EditModes mode) {
 		onModeSet(mode);
-		CursorHandler cursorHandler = handlers.getCursorHandler();
 		if (mode != EditModes.LIGHTS && mode != EditModes.PICKUPS) {
-			cursorHandler.setHighlighter(null);
+			if (mode != EditModes.TILES || selectedTile == null) {
+				handlers.getCursorHandler().setHighlighter(null);
+			} else {
+				onTileSelected(selectedTile);
+			}
 		} else {
-			cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+			handlers.getCursorHandler().setHighlighter(handlers.getCursorHandler().getCursorTileModelInstance());
 		}
 	}
 
@@ -287,7 +286,9 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		if (tool != TilesTools.BRUSH) {
 			cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
 		} else {
-			cursorHandler.setHighlighter(null);
+			if (selectedTile == null) {
+				cursorHandler.setHighlighter(null);
+			}
 		}
 		MapEditor.tool = tool;
 	}

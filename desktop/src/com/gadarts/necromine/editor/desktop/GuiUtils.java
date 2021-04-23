@@ -1,5 +1,6 @@
 package com.gadarts.necromine.editor.desktop;
 
+import com.badlogic.gdx.Gdx;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
 
@@ -73,5 +74,11 @@ public final class GuiUtils {
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
 		dialog.setVisible(true);
+	}
+
+	public static Component findByNameInPanel(final JPanel container, final String name) {
+		return Arrays.stream(container.getComponents())
+				.filter(component -> component.getName() != null && component.getName().equals(name))
+				.findFirst().orElse(null);
 	}
 }
