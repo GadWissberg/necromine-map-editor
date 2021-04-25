@@ -21,7 +21,6 @@ import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
 import com.necromine.editor.model.elements.PlacedElements;
-import com.necromine.editor.model.elements.PlacedLight;
 import com.necromine.editor.model.node.FlatNode;
 import lombok.RequiredArgsConstructor;
 
@@ -70,7 +69,7 @@ public class MapInflater {
 			JsonObject input = gson.fromJson(reader, JsonObject.class);
 			JsonObject tilesJsonObject = input.getAsJsonObject(TILES);
 			map.setNodes(inflateTiles(tilesJsonObject, initializedTiles, viewAuxHandler));
-			inflateHeights(tilesJsonObject, map, wallCreator);
+			inflateHeightsAndWalls(tilesJsonObject, map, wallCreator);
 			inflateCharacters(input, placedElements);
 			Arrays.stream(EditModes.values()).forEach(mode -> {
 				if (!mode.isSkipGenericElementLoading()) {
@@ -84,7 +83,9 @@ public class MapInflater {
 		}
 	}
 
-	private void inflateHeights(final JsonObject tilesJsonObject, final GameMap map, final WallCreator wallCreator) {
+	private void inflateHeightsAndWalls(final JsonObject tilesJsonObject,
+										final GameMap map,
+										final WallCreator wallCreator) {
 		JsonElement heights = tilesJsonObject.get(HEIGHTS);
 		if (heights != null) {
 			heights.getAsJsonArray().forEach(nodeJsonElement -> {
@@ -93,6 +94,12 @@ public class MapInflater {
 				int col = nodeJsonObject.get(COL).getAsInt();
 				MapNodeData mapNodeData = map.getNodes()[row][col];
 				mapNodeData.lift(nodeJsonObject.get(HEIGHT).getAsFloat());
+			});
+			heights.getAsJsonArray().forEach(nodeJsonElement -> {
+				JsonObject nodeJsonObject = nodeJsonElement.getAsJsonObject();
+				int row = nodeJsonObject.get(ROW).getAsInt();
+				int col = nodeJsonObject.get(COL).getAsInt();
+				MapNodeData mapNodeData = map.getNodes()[row][col];
 				inflateWalls(nodeJsonObject, mapNodeData, map, wallCreator);
 			});
 		}
@@ -103,44 +110,55 @@ public class MapInflater {
 							  final GameMap map,
 							  final WallCreator wallCreator) {
 		MapNodeData[][] nodes = map.getNodes();
-		int row = mapNodeData.getRow();
-		int col = mapNodeData.getCol();
 		Model wallModel = wallCreator.getWallModel();
+		float height = mapNodeData.getHeight();
 		Optional.ofNullable(node.get(EAST)).ifPresent(east -> {
-			mapNodeData.setEastWall(WallCreator.createEastWall(
-					mapNodeData,
-					wallModel,
-					assetsManager,
-					Assets.FloorsTextures.valueOf(east.getAsString())
-			));
-			WallCreator.adjustWallBetweenEastAndWest(nodes[row][col + 1], mapNodeData, true);
+			MapNodeData eastNode = nodes[mapNodeData.getRow()][mapNodeData.getCol() + 1];
+			if (height != eastNode.getHeight()) {
+				mapNodeData.setEastWall(WallCreator.createEastWall(
+						mapNodeData,
+						wallModel,
+						assetsManager,
+						Assets.FloorsTextures.valueOf(east.getAsString())
+				));
+				WallCreator.adjustWallBetweenEastAndWest(eastNode, mapNodeData, true);
+			}
 		});
 		Optional.ofNullable(node.get(MapJsonKeys.SOUTH)).ifPresent(south -> {
-			mapNodeData.setSouthWall(WallCreator.createSouthWall(
-					mapNodeData,
-					wallModel,
-					assetsManager,
-					Assets.FloorsTextures.valueOf(south.getAsString())
-			));
-			WallCreator.adjustWallBetweenNorthAndSouth(nodes[row + 1][col], mapNodeData);
+			MapNodeData southNode = nodes[mapNodeData.getRow() + 1][mapNodeData.getCol()];
+			if (height != southNode.getHeight()) {
+				mapNodeData.setSouthWall(WallCreator.createSouthWall(
+						mapNodeData,
+						wallModel,
+						assetsManager,
+						Assets.FloorsTextures.valueOf(south.getAsString())
+				));
+				WallCreator.adjustWallBetweenNorthAndSouth(southNode, mapNodeData);
+			}
 		});
 		Optional.ofNullable(node.get(WEST)).ifPresent(west -> {
-			mapNodeData.setWestWall(WallCreator.createWestWall(
-					mapNodeData,
-					wallModel,
-					assetsManager,
-					Assets.FloorsTextures.valueOf(west.getAsString())
-			));
-			WallCreator.adjustWallBetweenEastAndWest(mapNodeData, nodes[row][col - 1], true);
+			MapNodeData westNode = nodes[mapNodeData.getRow()][mapNodeData.getCol() - 1];
+			if (height != westNode.getHeight()) {
+				mapNodeData.setWestWall(WallCreator.createWestWall(
+						mapNodeData,
+						wallModel,
+						assetsManager,
+						Assets.FloorsTextures.valueOf(west.getAsString())
+				));
+				WallCreator.adjustWallBetweenEastAndWest(mapNodeData, westNode, true);
+			}
 		});
 		Optional.ofNullable(node.get(NORTH)).ifPresent(north -> {
-			mapNodeData.setNorthWall(WallCreator.createNorthWall(
-					mapNodeData,
-					wallModel,
-					assetsManager,
-					Assets.FloorsTextures.valueOf(north.getAsString())
-			));
-			WallCreator.adjustWallBetweenNorthAndSouth(mapNodeData, nodes[row - 1][col]);
+			MapNodeData northNode = nodes[mapNodeData.getRow() - 1][mapNodeData.getCol()];
+			if (height != northNode.getHeight()) {
+				mapNodeData.setNorthWall(WallCreator.createNorthWall(
+						mapNodeData,
+						wallModel,
+						assetsManager,
+						Assets.FloorsTextures.valueOf(north.getAsString())
+				));
+				WallCreator.adjustWallBetweenNorthAndSouth(mapNodeData, northNode);
+			}
 		});
 	}
 

@@ -307,7 +307,6 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		String propertyName = evt.getPropertyName();
 		EditorMode mode = ModesHandler.getMode();
 		if (propertyName.equals(Events.MODE_SET_EDIT.name())) {
-			Gdx.app.log("!",""+ TimeUtils.millis());
 			int newModeIndex = (int) evt.getNewValue();
 			mode = EditModes.values()[newModeIndex];
 			EditModes editMode = (EditModes) mode;
