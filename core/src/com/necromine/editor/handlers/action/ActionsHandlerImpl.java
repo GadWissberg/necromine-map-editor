@@ -38,7 +38,6 @@ import java.util.stream.Collectors;
 
 public class ActionsHandlerImpl implements ActionsHandler {
 	private static final Vector3 auxVector = new Vector3();
-
 	private final ActionHandlerRelatedData data;
 	private final ActionHandlerRelatedServices services;
 	private final MapManagerEventsNotifier eventsNotifier;
@@ -57,7 +56,11 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		this.eventsNotifier = eventsNotifier;
 	}
 
-
+	/**
+	 * Executes the given action/process.
+	 *
+	 * @param mappingAction The action to execute.
+	 */
 	public void executeAction(final MappingAction mappingAction) {
 		mappingAction.execute(eventsNotifier);
 		if (mappingAction.isProcess()) {
@@ -65,13 +68,12 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		}
 	}
 
+	@Override
 	public void beginTilePlacingProcess(final GameAssetsManager assetsManager,
 										final Set<MapNodeData> initializedTiles) {
 		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
-		int row = (int) position.z;
-		int col = (int) position.x;
 		PlaceTilesProcess placeTilesProcess = new PlaceTilesProcess(
-				new FlatNode(row, col),
+				new FlatNode((int) position.z, (int) position.x),
 				assetsManager,
 				initializedTiles,
 				data.getMap());
@@ -79,6 +81,15 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		placeTilesProcess.execute(eventsNotifier);
 	}
 
+	/**
+	 * Called when the mouse is pressed.
+	 *
+	 * @param assetsManager
+	 * @param initializedTiles
+	 * @param button
+	 * @return Whether an action is taken in response to this event.
+	 */
+	@SuppressWarnings("JavaDoc")
 	public boolean onTouchDown(final GameAssetsManager assetsManager,
 							   final Set<MapNodeData> initializedTiles,
 							   final int button) {
@@ -99,6 +110,8 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		return false;
 	}
 
+
+	@Override
 	public void defineSelectedEnvObject() {
 		MapNodeData mapNodeData = getMapNodeDataFromCursor();
 		List<? extends PlacedElement> list = this.data.getPlacedElements().getPlacedObjects().get(MapEditor.getMode());
@@ -140,6 +153,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		return true;
 	}
 
+	@Override
 	public void placeEnvObject(final GameAssetsManager am) {
 		GameMap map = data.getMap();
 		CursorSelectionModel cursorSelectionModel = services.getCursorHandler().getCursorSelectionModel();
@@ -162,6 +176,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		executeAction(action);
 	}
 
+	@Override
 	public void placePickup(final GameAssetsManager am) {
 		CursorSelectionModel cursorSelectionModel = services.getCursorHandler().getCursorSelectionModel();
 		Vector3 position = cursorSelectionModel.getModelInstance().transform.getTranslation(auxVector);
@@ -178,6 +193,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		executeAction(action);
 	}
 
+	@Override
 	public void placeLight(final GameAssetsManager am) {
 		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
@@ -192,6 +208,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		executeAction(action);
 	}
 
+	@Override
 	public boolean beginSelectingTileForLiftProcess(final int direction,
 													final Set<MapNodeData> initializedTiles) {
 		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
@@ -204,6 +221,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		return true;
 	}
 
+	@Override
 	public void beginSelectingTilesForWallTiling() {
 		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
 		FlatNode src = new FlatNode((int) position.z, (int) position.x);
@@ -215,6 +233,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		return selectedElement;
 	}
 
+	@Override
 	public void placeCharacter(final GameAssetsManager am) {
 		CursorHandler cursorHandler = services.getCursorHandler();
 		Vector3 position = cursorHandler.getCursorTileModelInstance().transform.getTranslation(auxVector);
@@ -231,6 +250,14 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		executeAction(action);
 	}
 
+	/**
+	 * Called when the mouse button is released.
+	 *
+	 * @param selectedTile
+	 * @param cursorTileModel
+	 * @return Whether an action taken in response to this event.
+	 */
+	@SuppressWarnings("JavaDoc")
 	public boolean onTouchUp(final Assets.FloorsTextures selectedTile,
 							 final Model cursorTileModel) {
 		boolean result = false;
@@ -258,17 +285,26 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		this.currentProcess = null;
 	}
 
+	/**
+	 * Called when a node's walls were defined.
+	 *
+	 * @param defs
+	 * @param src
+	 * @param dst
+	 * @param assetsManager
+	 */
+	@SuppressWarnings("JavaDoc")
 	public void onNodeWallsDefined(final NodeWallsDefinitions defs,
 								   final FlatNode src,
 								   final FlatNode dst,
-								   final GameAssetsManager am) {
+								   final GameAssetsManager assetsManager) {
 		Utils.applyOnRegionOfTiles(src, dst, (row, col) -> {
 			MapNodeData[][] nodes = data.getMap().getNodes();
 			MapNodeData node = nodes[row][col];
-			defineEast(defs, nodes[row][col + 1], am, node);
-			defineSouth(defs, nodes[row + 1][col], am, node);
-			defineWest(defs, nodes[row][col - 1], am, node);
-			defineNorth(defs, nodes[row - 1][col], am, node);
+			defineEast(defs, nodes[row][col + 1], assetsManager, node);
+			defineSouth(defs, nodes[row + 1][col], assetsManager, node);
+			defineWest(defs, nodes[row][col - 1], assetsManager, node);
+			defineNorth(defs, nodes[row - 1][col], assetsManager, node);
 		});
 	}
 
@@ -318,11 +354,26 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		});
 	}
 
+	/**
+	 * Called when tiles height was changed.
+	 *
+	 * @param src
+	 * @param dst
+	 * @param value
+	 */
+	@SuppressWarnings("JavaDoc")
 	public void onTilesLift(final FlatNode src, final FlatNode dst, final float value) {
 		LiftTilesAction.Parameters params = new LiftTilesAction.Parameters(src, dst, value, services.getWallCreator());
 		ActionFactory.liftTiles(data.getMap(), params).execute(eventsNotifier);
 	}
 
+	/**
+	 * Called when an environment object was defined.
+	 *
+	 * @param element
+	 * @param height
+	 */
+	@SuppressWarnings("JavaDoc")
 	public void onEnvObjectDefined(final PlacedEnvObject element, final float height) {
 		ActionFactory.defineEnvObject(data.getMap(), element, height).execute(eventsNotifier);
 	}

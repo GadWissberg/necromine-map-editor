@@ -27,7 +27,7 @@ public class SelectTilesForLiftProcess extends MappingProcess<SelectTilesForLift
     }
 
     @Override
-	public void execute(MapManagerEventsNotifier eventsNotifier) {
+	public void execute(final MapManagerEventsNotifier eventsNotifier) {
 
     }
 

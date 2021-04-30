@@ -1,6 +1,5 @@
 package com.gadarts.necromine.editor.desktop;
 
-import com.badlogic.gdx.Gdx;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
 

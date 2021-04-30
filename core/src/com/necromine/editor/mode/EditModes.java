@@ -10,16 +10,10 @@ import com.necromine.editor.EntriesDisplayTypes;
 import com.necromine.editor.TreeSection;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.handlers.action.ActionsHandler;
-import com.necromine.editor.handlers.action.ActionsHandlerImpl;
 import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.mode.tools.TilesTools;
-import com.necromine.editor.model.elements.PlacedCharacter;
-import com.necromine.editor.model.elements.PlacedElementCreation;
-import com.necromine.editor.model.elements.PlacedEnvObject;
-import com.necromine.editor.model.elements.PlacedLight;
-import com.necromine.editor.model.elements.PlacedModelElement;
-import com.necromine.editor.model.elements.PlacedPickup;
+import com.necromine.editor.model.elements.*;
 import lombok.Getter;
 
 import java.util.Arrays;
@@ -73,7 +67,7 @@ public enum EditModes implements EditorMode {
 	private final ElementDefinition[] definitions;
 	private final boolean skipGenericElementLoading;
 	private final EditorTool[] tools;
-	private OnTouchDownLeftEvent onTouchDownLeft;
+	private final OnTouchDownLeftEvent onTouchDownLeft;
 
 	EditModes(final String displayName,
 			  final boolean decalCursor,
