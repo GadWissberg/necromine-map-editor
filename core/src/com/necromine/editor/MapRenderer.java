@@ -17,7 +17,7 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.handlers.Handlers;
-import com.necromine.editor.handlers.action.ActionsHandler;
+import com.necromine.editor.handlers.action.ActionsHandlerImpl;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.tools.EnvTools;
@@ -183,7 +183,7 @@ public class MapRenderer {
 
 
 	private void renderExistingProcess() {
-		ActionsHandler actionsHandler = handlers.getActionsHandler();
+		ActionsHandlerImpl actionsHandler = handlers.getActionsHandler();
 		MappingProcess<? extends MappingProcess.FinishProcessParameters> p = actionsHandler.getCurrentProcess();
 		Optional.ofNullable(p).ifPresent(process -> {
 			if (p.isRequiresRegionSelectionCursor()) {

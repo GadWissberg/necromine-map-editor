@@ -13,7 +13,7 @@ import com.necromine.editor.GameMap;
 import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.handlers.action.ActionHandlerRelatedData;
 import com.necromine.editor.handlers.action.ActionHandlerRelatedServices;
-import com.necromine.editor.handlers.action.ActionsHandler;
+import com.necromine.editor.handlers.action.ActionsHandlerImpl;
 import com.necromine.editor.model.elements.PlacedElements;
 import lombok.Getter;
 
@@ -28,7 +28,7 @@ public class Handlers implements Disposable {
 	private final GameMap map;
 	private final MapManagerEventsNotifier eventsNotifier;
 	private final PlacedElements placedElements;
-	private ActionsHandler actionsHandler;
+	private ActionsHandlerImpl actionsHandler;
 
 	public Handlers(final GameAssetsManager assetsManager,
 					final GameMap map,
@@ -57,7 +57,7 @@ public class Handlers implements Disposable {
 				wallCreator,
 				eventsNotifier,
 				assetsManager);
-		actionsHandler = new ActionsHandler(data, services, eventsNotifier);
+		actionsHandler = new ActionsHandlerImpl(data, services, eventsNotifier);
 	}
 
 	@Override

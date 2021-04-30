@@ -7,11 +7,10 @@ import com.necromine.editor.handlers.action.ActionsHandler;
 
 import java.util.Set;
 
-public interface EditorMode {
-	int ordinal();
+public interface OnTouchDownLeftEvent {
 
-	void onTouchDownLeft(MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess,
-						 ActionsHandler tool,
-						 GameAssetsManager actionsHandler,
-						 Set<MapNodeData> initializedTiles);
+	boolean run(MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess,
+				ActionsHandler actionsHandler,
+				GameAssetsManager assetsManager,
+				Set<MapNodeData> initializedTiles);
 }

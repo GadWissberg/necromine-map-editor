@@ -2,9 +2,15 @@ package com.necromine.editor.mode;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.MapNodeData;
 import com.necromine.editor.CameraManipulation;
+import com.necromine.editor.actions.processes.MappingProcess;
+import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
+
+import java.util.Set;
 
 @Getter
 public enum CameraModes implements EditorMode {
@@ -32,4 +38,11 @@ public enum CameraModes implements EditorMode {
 		this.manipulation = cameraManipulation;
 	}
 
+	@Override
+	public void onTouchDownLeft(final MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess,
+								final ActionsHandler tool,
+								final GameAssetsManager actionsHandler,
+								final Set<MapNodeData> initializedTiles) {
+
+	}
 }

@@ -1,11 +1,16 @@
 package com.necromine.editor.mode;
 
+import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
+import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.pickups.WeaponsDefinitions;
 import com.necromine.editor.EntriesDisplayTypes;
 import com.necromine.editor.TreeSection;
+import com.necromine.editor.actions.processes.MappingProcess;
+import com.necromine.editor.handlers.action.ActionsHandler;
+import com.necromine.editor.handlers.action.ActionsHandlerImpl;
 import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.mode.tools.TilesTools;
@@ -18,13 +23,14 @@ import com.necromine.editor.model.elements.PlacedPickup;
 import lombok.Getter;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
 @Getter
 public enum EditModes implements EditorMode {
-	TILES("Tiles", true, EntriesDisplayTypes.GALLERY, TilesTools.values()),
+	TILES("Tiles", true, EntriesDisplayTypes.GALLERY, TilesTools.values(), new TilesOnTouchDownLeftEvent()),
 
 	CHARACTERS("Characters",
 			EntriesDisplayTypes.TREE,
@@ -33,6 +39,7 @@ public enum EditModes implements EditorMode {
 			true,
 			PlacedCharacter::new,
 			null,
+			new CharactersOnTouchDownLeftEvent(),
 			new TreeSection("Player", CharacterTypes.PLAYER.getDefinitions(), "character"),
 			new TreeSection("Enemies", CharacterTypes.ENEMY.getDefinitions(), "character")),
 
@@ -41,6 +48,7 @@ public enum EditModes implements EditorMode {
 			EnvironmentDefinitions.values(),
 			(params, assetsManager) -> new PlacedEnvObject(new PlacedModelElement.PlacedModelElementParameters(params), assetsManager),
 			EnvTools.values(),
+			new EnvOnTouchDownEventLeft(),
 			new TreeSection("Environment", EnvironmentDefinitions.values(), "env")),
 
 	PICKUPS("Pick-Ups",
@@ -48,11 +56,13 @@ public enum EditModes implements EditorMode {
 			WeaponsDefinitions.values(),
 			(params, am) -> new PlacedPickup(new PlacedModelElement.PlacedModelElementParameters(params), am),
 			null,
+			new PickupsOnTouchDownEventLeft(),
 			new TreeSection("Weapons", Arrays.stream(WeaponsDefinitions.values()).filter(def -> def.getModelDefinition() != null).collect(Collectors.toList()).toArray(new ElementDefinition[0]), "pickup")),
 
 	LIGHTS("Lights",
 			true,
-			PlacedLight::new);
+			PlacedLight::new,
+			new LightsOnTouchDownEventLeft());
 
 
 	private final TreeSection[] treeSections;
@@ -63,8 +73,12 @@ public enum EditModes implements EditorMode {
 	private final ElementDefinition[] definitions;
 	private final boolean skipGenericElementLoading;
 	private final EditorTool[] tools;
+	private OnTouchDownLeftEvent onTouchDownLeft;
 
-	EditModes(final String displayName, final boolean decalCursor, final PlacedElementCreation creation) {
+	EditModes(final String displayName,
+			  final boolean decalCursor,
+			  final PlacedElementCreation creation,
+			  final OnTouchDownLeftEvent onTouchDownLeftEvent) {
 		this(displayName,
 				NONE,
 				decalCursor,
@@ -72,14 +86,16 @@ public enum EditModes implements EditorMode {
 				false,
 				creation,
 				null,
+				onTouchDownLeftEvent,
 				(TreeSection[]) null);
 	}
 
 	EditModes(final String displayName,
 			  final boolean skipGenericElementLoading,
 			  final EntriesDisplayTypes type,
-			  final EditorTool[] tools) {
-		this(displayName, type, false, null, skipGenericElementLoading, null, tools);
+			  final EditorTool[] tools,
+			  final OnTouchDownLeftEvent onTouchDownLeftEvent) {
+		this(displayName, type, false, null, skipGenericElementLoading, null, tools, onTouchDownLeftEvent);
 	}
 
 	EditModes(final String displayName,
@@ -87,6 +103,7 @@ public enum EditModes implements EditorMode {
 			  final ElementDefinition[] definitions,
 			  final PlacedElementCreation creation,
 			  final EditorTool[] tools,
+			  final OnTouchDownLeftEvent onTouchDownLeftEvent,
 			  final TreeSection... treeSections) {
 		this(displayName,
 				entriesDisplay,
@@ -95,6 +112,7 @@ public enum EditModes implements EditorMode {
 				false,
 				creation,
 				tools,
+				onTouchDownLeftEvent,
 				treeSections);
 	}
 
@@ -105,6 +123,7 @@ public enum EditModes implements EditorMode {
 			  final boolean skipGenericElementLoading,
 			  final PlacedElementCreation creation,
 			  final EditorTool[] tools,
+			  final OnTouchDownLeftEvent onTouchDownLeftEvent,
 			  final TreeSection... treeSections) {
 		this.entriesDisplayTypes = entriesDisplay;
 		this.displayName = displayName;
@@ -113,7 +132,15 @@ public enum EditModes implements EditorMode {
 		this.skipGenericElementLoading = skipGenericElementLoading;
 		this.definitions = definitions;
 		this.tools = tools;
+		this.onTouchDownLeft = onTouchDownLeftEvent;
 		this.treeSections = treeSections;
 	}
 
+	@Override
+	public void onTouchDownLeft(final MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess,
+								final ActionsHandler actionsHandler,
+								final GameAssetsManager assetsManager,
+								final Set<MapNodeData> initializedTiles) {
+		onTouchDownLeft.run(currentProcess, actionsHandler, assetsManager, initializedTiles);
+	}
 }
