@@ -13,6 +13,7 @@ import com.necromine.editor.GameMap;
 import com.necromine.editor.MapManagerEventsNotifier;
 import com.necromine.editor.handlers.action.ActionHandlerRelatedData;
 import com.necromine.editor.handlers.action.ActionHandlerRelatedServices;
+import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.handlers.action.ActionsHandlerImpl;
 import com.necromine.editor.model.elements.PlacedElements;
 import lombok.Getter;
@@ -20,24 +21,20 @@ import lombok.Getter;
 import java.awt.*;
 
 @Getter
-public class Handlers implements Disposable {
+public class HandlersManager implements Disposable {
 	private final ViewAuxHandler viewAuxHandler = new ViewAuxHandler();
 	private final CursorHandler cursorHandler = new CursorHandler();
 	private final BatchHandler batchHandler = new BatchHandler();
-	private final GameAssetsManager assetsManager;
-	private final GameMap map;
-	private final MapManagerEventsNotifier eventsNotifier;
-	private final PlacedElements placedElements;
-	private ActionsHandlerImpl actionsHandler;
+	private final HandlersManagerRelatedData handlersManagerRelatedData;
+	private final HandlersManagerRelatedServices handlersManagerRelatedServices;
+	private ActionsHandler actionsHandler;
 
-	public Handlers(final GameAssetsManager assetsManager,
-					final GameMap map,
-					final MapManagerEventsNotifier eventsNotifier,
-					final PlacedElements placedElements) {
-		this.assetsManager = assetsManager;
-		this.map = map;
-		this.eventsNotifier = eventsNotifier;
-		this.placedElements = placedElements;
+	public HandlersManager(final GameAssetsManager assetsHandler,
+						   final GameMap map,
+						   final MapManagerEventsNotifier eventsNotifier,
+						   final PlacedElements placedElements) {
+		handlersManagerRelatedServices = new HandlersManagerRelatedServices(assetsHandler, eventsNotifier);
+		handlersManagerRelatedData = new HandlersManagerRelatedData(map, placedElements);
 	}
 
 	public void onCreate(final Model tileModel,
@@ -46,17 +43,19 @@ public class Handlers implements Disposable {
 						 final Dimension levelSize) {
 		batchHandler.createBatches(camera);
 		viewAuxHandler.createModels(levelSize);
-		cursorHandler.createCursors(assetsManager, tileModel, map);
-		createActionsHandler(placedElements, wallCreator);
+		GameAssetsManager assetsManager = handlersManagerRelatedServices.getAssetsManager();
+		cursorHandler.createCursors(assetsManager, tileModel, handlersManagerRelatedData.getMap());
+		createActionsHandler(handlersManagerRelatedData.getPlacedElements(), wallCreator);
 	}
 
 	private void createActionsHandler(final PlacedElements placedElements, final WallCreator wallCreator) {
-		ActionHandlerRelatedData data = new ActionHandlerRelatedData(map, placedElements);
+		ActionHandlerRelatedData data = new ActionHandlerRelatedData(handlersManagerRelatedData.getMap(), placedElements);
+		MapManagerEventsNotifier eventsNotifier = handlersManagerRelatedServices.getEventsNotifier();
 		ActionHandlerRelatedServices services = new ActionHandlerRelatedServices(
 				cursorHandler,
 				wallCreator,
 				eventsNotifier,
-				assetsManager);
+				getHandlersManagerRelatedServices().getAssetsManager());
 		actionsHandler = new ActionsHandlerImpl(data, services, eventsNotifier);
 	}
 

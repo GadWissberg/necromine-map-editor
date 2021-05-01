@@ -16,8 +16,8 @@ import com.gadarts.necromine.model.Wall;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.handlers.CursorHandler;
-import com.necromine.editor.handlers.Handlers;
-import com.necromine.editor.handlers.action.ActionsHandlerImpl;
+import com.necromine.editor.handlers.HandlersManager;
+import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.tools.EnvTools;
@@ -37,7 +37,7 @@ public class MapRenderer {
 	private static final Matrix4 auxMatrix = new Matrix4();
 	private static final Vector2 auxVector2_1 = new Vector2();
 	private final GameAssetsManager assetsManager;
-	private final Handlers handlers;
+	private final HandlersManager handlersManager;
 	private final OrthographicCamera camera;
 
 	public void draw(final EditorMode mode, final PlacedElements placedElements, final Set<MapNodeData> initializedTiles, final ElementDefinition selectedElement) {
@@ -45,45 +45,45 @@ public class MapRenderer {
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | sam);
 		renderModels(initializedTiles, placedElements, mode, selectedElement);
-		renderDecals(handlers, mode, placedElements);
+		renderDecals(handlersManager, mode, placedElements);
 	}
 
-	private void renderDecals(final Handlers handlers, final EditorMode mode, final PlacedElements placedElements) {
+	private void renderDecals(final HandlersManager handlersManager, final EditorMode mode, final PlacedElements placedElements) {
 		Gdx.gl.glDepthMask(false);
-		if (handlers.getCursorHandler().getHighlighter() != null && mode.getClass().equals(EditModes.class) && ((EditModes) mode).isDecalCursor()) {
-			renderCursorOfDecalMode(handlers, mode, camera);
+		if (handlersManager.getCursorHandler().getHighlighter() != null && mode.getClass().equals(EditModes.class) && ((EditModes) mode).isDecalCursor()) {
+			renderCursorOfDecalMode(handlersManager, mode, camera);
 		}
-		renderDecalPlacedElements(placedElements, handlers, camera);
-		handlers.getBatchHandler().getDecalBatch().flush();
+		renderDecalPlacedElements(placedElements, handlersManager, camera);
+		handlersManager.getBatchHandler().getDecalBatch().flush();
 		Gdx.gl.glDepthMask(true);
 	}
 
-	private void renderDecalPlacedElements(final PlacedElements placedElements, final Handlers handlers, final OrthographicCamera camera) {
+	private void renderDecalPlacedElements(final PlacedElements placedElements, final HandlersManager handlersManager, final OrthographicCamera camera) {
 		Map<EditModes, List<? extends PlacedElement>> placedObjects = placedElements.getPlacedObjects();
 		List<PlacedCharacter> placedCharacters = (List<PlacedCharacter>) placedObjects.get(EditModes.CHARACTERS);
 		for (PlacedCharacter character : placedCharacters) {
-			renderCharacter(character.getCharacterDecal(), character.getCharacterDecal().getSpriteDirection(), camera, handlers);
+			renderCharacter(character.getCharacterDecal(), character.getCharacterDecal().getSpriteDirection(), camera, handlersManager);
 		}
 		List<PlacedLight> placedLights = (List<PlacedLight>) placedObjects.get(EditModes.LIGHTS);
 		for (PlacedLight placedLight : placedLights) {
-			handlers.getBatchHandler().renderDecal(placedLight.getDecal(), camera);
+			handlersManager.getBatchHandler().renderDecal(placedLight.getDecal(), camera);
 		}
 	}
 
 
-	private void renderCursorOfDecalMode(final Handlers handlers, final EditorMode mode, final OrthographicCamera camera) {
-		CursorHandler cursorHandler = handlers.getCursorHandler();
+	private void renderCursorOfDecalMode(final HandlersManager handlersManager, final EditorMode mode, final OrthographicCamera camera) {
+		CursorHandler cursorHandler = handlersManager.getCursorHandler();
 		if (mode == EditModes.CHARACTERS) {
 			CharacterDecal cursorCharacterDecal = cursorHandler.getCursorCharacterDecal();
-			renderCharacter(cursorCharacterDecal, cursorCharacterDecal.getSpriteDirection(), camera, handlers);
+			renderCharacter(cursorCharacterDecal, cursorCharacterDecal.getSpriteDirection(), camera, handlersManager);
 		} else {
-			handlers.getBatchHandler().renderDecal(cursorHandler.getCursorSimpleDecal(), camera);
+			handlersManager.getBatchHandler().renderDecal(cursorHandler.getCursorSimpleDecal(), camera);
 		}
 	}
 
-	private void renderCharacter(final CharacterDecal characterDecal, final Direction facingDirection, final OrthographicCamera camera, final Handlers handlers) {
+	private void renderCharacter(final CharacterDecal characterDecal, final Direction facingDirection, final OrthographicCamera camera, final HandlersManager handlersManager) {
 		Utils.applyFrameSeenFromCameraForCharacterDecal(characterDecal, facingDirection, camera, assetsManager);
-		handlers.getBatchHandler().renderDecal(characterDecal.getDecal(), camera);
+		handlersManager.getBatchHandler().renderDecal(characterDecal.getDecal(), camera);
 	}
 
 
@@ -91,9 +91,9 @@ public class MapRenderer {
 							  final PlacedElements placedElements,
 							  final EditorMode mode,
 							  final ElementDefinition selectedElement) {
-		ModelBatch modelBatch = handlers.getBatchHandler().getModelBatch();
+		ModelBatch modelBatch = handlersManager.getBatchHandler().getModelBatch();
 		modelBatch.begin(camera);
-		handlers.getViewAuxHandler().renderAux(modelBatch);
+		handlersManager.getViewAuxHandler().renderAux(modelBatch);
 		renderCursor(mode, selectedElement);
 		renderExistingProcess();
 		renderModelPlacedElements(initializedTiles, placedElements);
@@ -112,7 +112,7 @@ public class MapRenderer {
 	private void renderTiles(final Set<MapNodeData> initializedTiles) {
 		for (MapNodeData tile : initializedTiles) {
 			if (tile.getModelInstance() != null) {
-				ModelBatch modelBatch = handlers.getBatchHandler().getModelBatch();
+				ModelBatch modelBatch = handlersManager.getBatchHandler().getModelBatch();
 				modelBatch.render(tile.getModelInstance());
 				renderWall(modelBatch, tile.getNorthWall());
 				renderWall(modelBatch, tile.getEastWall());
@@ -129,20 +129,20 @@ public class MapRenderer {
 	}
 
 	public void renderCursor(final EditorMode mode, final ElementDefinition selectedElement) {
-		ModelInstance highlighter = handlers.getCursorHandler().getHighlighter();
+		ModelInstance highlighter = handlersManager.getCursorHandler().getHighlighter();
 		if (highlighter == null) return;
 		if (MapEditor.getTool() != EnvTools.BRUSH) {
-			handlers.getBatchHandler().getModelBatch().render(highlighter);
+			handlersManager.getBatchHandler().getModelBatch().render(highlighter);
 		}
 		renderCursorObjectModel(selectedElement, mode);
 	}
 
 	private void renderCursorObjectModel(final ElementDefinition selectedElement, final EditorMode mode) {
-		CursorHandler cursorHandler = handlers.getCursorHandler();
+		CursorHandler cursorHandler = handlersManager.getCursorHandler();
 		if (selectedElement != null) {
 			if (mode == EditModes.ENVIRONMENT) {
 				EnvironmentDefinitions environmentDefinition = (EnvironmentDefinitions) selectedElement;
-				cursorHandler.renderModelCursorFloorGrid(environmentDefinition, handlers.getBatchHandler().getModelBatch());
+				cursorHandler.renderModelCursorFloorGrid(environmentDefinition, handlersManager.getBatchHandler().getModelBatch());
 				CursorSelectionModel cursorSelectionModel = cursorHandler.getCursorSelectionModel();
 				ModelInstance modelInstance = cursorSelectionModel.getModelInstance();
 				renderEnvObject(environmentDefinition, modelInstance, cursorSelectionModel.getFacingDirection());
@@ -165,7 +165,7 @@ public class MapRenderer {
 	private void renderPickup(final ModelInstance modelInstance) {
 		Matrix4 originalTransform = auxMatrix.set(modelInstance.transform);
 		modelInstance.transform.translate(0.5f, 0, 0.5f);
-		handlers.getBatchHandler().getModelBatch().render(modelInstance);
+		handlersManager.getBatchHandler().getModelBatch().render(modelInstance);
 		modelInstance.transform.set(originalTransform);
 	}
 
@@ -177,21 +177,21 @@ public class MapRenderer {
 		modelInstance.transform.rotate(Vector3.Y, -1 * facingDirection.getDirection(auxVector2_1).angleDeg());
 		modelInstance.transform.translate(definition.getOffset(auxVector3_1));
 		EnvironmentDefinitions.handleEvenSize(definition, modelInstance, facingDirection);
-		handlers.getBatchHandler().getModelBatch().render(modelInstance);
+		handlersManager.getBatchHandler().getModelBatch().render(modelInstance);
 		modelInstance.transform.set(originalTransform);
 	}
 
 
 	private void renderExistingProcess() {
-		ActionsHandlerImpl actionsHandler = handlers.getActionsHandler();
+		ActionsHandler actionsHandler = handlersManager.getActionsHandler();
 		MappingProcess<? extends MappingProcess.FinishProcessParameters> p = actionsHandler.getCurrentProcess();
 		Optional.ofNullable(p).ifPresent(process -> {
 			if (p.isRequiresRegionSelectionCursor()) {
 				FlatNode srcNode = p.getSrcNode();
-				handlers.getCursorHandler().renderRectangleMarking(
+				handlersManager.getCursorHandler().renderRectangleMarking(
 						srcNode.getRow(),
 						srcNode.getCol(),
-						handlers.getBatchHandler().getModelBatch());
+						handlersManager.getBatchHandler().getModelBatch());
 			}
 		});
 	}

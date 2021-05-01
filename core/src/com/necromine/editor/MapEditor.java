@@ -30,7 +30,7 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.characters.SpriteType;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.handlers.CursorHandler;
-import com.necromine.editor.handlers.Handlers;
+import com.necromine.editor.handlers.HandlersManager;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
@@ -79,7 +79,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	private final GameAssetsManager assetsManager;
 	private final PlacedElements placedElements = new PlacedElements();
 	private final Vector2 lastMouseTouchPosition = new Vector2();
-	private final Handlers handlers;
+	private final HandlersManager handlers;
 	private final MapInflater inflater;
 	private final MapDeflater deflater = new MapDeflater();
 	private final MapManagerEventsNotifier eventsNotifier = new MapManagerEventsNotifier();
@@ -95,7 +95,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		VIEWPORT_WIDTH = width / 50;
 		VIEWPORT_HEIGHT = height / 50;
 		assetsManager = new GameAssetsManager(assetsLocation.replace('\\', '/') + '/');
-		handlers = new Handlers(assetsManager, map, eventsNotifier, placedElements);
+		handlers = new HandlersManager(assetsManager, map, eventsNotifier, placedElements);
 		CursorHandler cursorHandler = handlers.getCursorHandler();
 		cursorHandler.setCursorSelectionModel(new CursorSelectionModel(assetsManager));
 		inflater = new MapInflater(assetsManager, cursorHandler, placedElements.getPlacedTiles());
