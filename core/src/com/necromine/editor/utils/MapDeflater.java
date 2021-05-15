@@ -30,7 +30,7 @@ public class MapDeflater {
 		JsonObject output = new JsonObject();
 		output.addProperty(MapJsonKeys.AMBIENT, map.getAmbientLight());
 		output.addProperty(MapJsonKeys.TARGET, TARGET_VERSION);
-		JsonObject tiles = createTilesData(map);
+		JsonObject tiles = createNodesData(map);
 		output.add(MapJsonKeys.TILES, tiles);
 		addCharacters(output, placedElements);
 		addElementsGroup(output, EditModes.ENVIRONMENT, true, placedElements);
@@ -79,7 +79,7 @@ public class MapDeflater {
 		return jsonObject;
 	}
 
-	private JsonObject createTilesData(final GameMap map) {
+	private JsonObject createNodesData(final GameMap map) {
 		JsonObject tiles = new JsonObject();
 		addMapSize(tiles, map);
 		MapNodeData[][] nodes = map.getNodes();
@@ -123,14 +123,20 @@ public class MapDeflater {
 		}
 	}
 
-	private void deflateWalls(final MapNodeData node, final JsonObject json) {
-		Optional.ofNullable(node.getEastWall())
-				.ifPresent(w -> json.addProperty(MapJsonKeys.EAST, w.getDefinition().getName()));
-		Optional.ofNullable(node.getSouthWall())
-				.ifPresent(w -> json.addProperty(MapJsonKeys.SOUTH, w.getDefinition().getName()));
-		Optional.ofNullable(node.getWestWall())
-				.ifPresent(w -> json.addProperty(MapJsonKeys.WEST, w.getDefinition().getName()));
-		Optional.ofNullable(node.getNorthWall())
-				.ifPresent(w -> json.addProperty(MapJsonKeys.NORTH, w.getDefinition().getName()));
+	private void deflateWalls(final MapNodeData node, final JsonObject output) {
+		Optional.ofNullable(node.getEastWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.EAST));
+		Optional.ofNullable(node.getSouthWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.SOUTH));
+		Optional.ofNullable(node.getWestWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.WEST));
+		Optional.ofNullable(node.getNorthWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.NORTH));
+	}
+
+	private void addWallDefinition(final JsonObject json, final com.gadarts.necromine.model.Wall w, final String side) {
+		if (w.getDefinition() == null) return;
+		String textureName = w.getDefinition().getName();
+		Float vScale = w.getVScale();
+		JsonObject jsonObject = new JsonObject();
+		jsonObject.addProperty(MapJsonKeys.TEXTURE, textureName);
+		Optional.ofNullable(vScale).ifPresent(v -> jsonObject.addProperty(MapJsonKeys.V_SCALE, vScale));
+		json.add(side, jsonObject);
 	}
 }

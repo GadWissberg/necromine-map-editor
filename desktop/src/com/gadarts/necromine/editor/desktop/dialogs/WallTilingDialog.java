@@ -6,7 +6,9 @@ import com.gadarts.necromine.editor.desktop.GuiUtils;
 import com.necromine.editor.GuiEventsSubscriber;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
+import com.necromine.editor.model.node.WallDefinition;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.File;
@@ -25,6 +27,10 @@ public class WallTilingDialog extends DialogPane {
 	private GalleryButton southImageButton;
 	private GalleryButton westImageButton;
 	private GalleryButton northImageButton;
+	private JSpinner eastWallVScale;
+	private JSpinner southWallVScale;
+	private JSpinner westWallVScale;
+	private JSpinner northWallVScale;
 
 	public WallTilingDialog(final File assetsFolderLocation,
 							final GuiEventsSubscriber guiEventsSubscriber,
@@ -41,16 +47,35 @@ public class WallTilingDialog extends DialogPane {
 	void initializeView(final GridBagConstraints c) {
 		addLabels(c);
 		addImageButtons(assetsFolderLocation, c);
+		c.gridx = 2;
+		addVScaleSelectors(c);
 		addOkButton(c, e -> {
 			guiEventsSubscriber.onNodeWallsDefined(
 					new NodeWallsDefinitions(
-							eastImageButton.getTextureDefinition() != FloorsTextures.FLOOR_PAVEMENT_0 ? eastImageButton.getTextureDefinition() : null,
-							southImageButton.getTextureDefinition() != FloorsTextures.FLOOR_PAVEMENT_0 ? southImageButton.getTextureDefinition() : null,
-							westImageButton.getTextureDefinition() != FloorsTextures.FLOOR_PAVEMENT_0 ? westImageButton.getTextureDefinition() : null,
-							northImageButton.getTextureDefinition() != FloorsTextures.FLOOR_PAVEMENT_0 ? northImageButton.getTextureDefinition() : null),
+							createWallDefinition(eastImageButton, eastWallVScale),
+							createWallDefinition(southImageButton, southWallVScale),
+							createWallDefinition(westImageButton, westWallVScale),
+							createWallDefinition(northImageButton, northWallVScale)),
 					src, dst);
 			closeDialog();
 		});
+	}
+
+	private WallDefinition createWallDefinition(final GalleryButton imageButton, final JSpinner vScaleSpinner) {
+		FloorsTextures def = imageButton.getTextureDefinition();
+		float vScale = ((Double) vScaleSpinner.getModel().getValue()).floatValue();
+		return new WallDefinition(def != FloorsTextures.FLOOR_PAVEMENT_0 ? def : null, vScale != 0 ? vScale : null);
+	}
+
+	private void addVScaleSelectors(final GridBagConstraints c) {
+		c.gridy = 0;
+		eastWallVScale = addSpinner(0, 10, 1, c);
+		c.gridy++;
+		southWallVScale = addSpinner(0, 10, 1, c);
+		c.gridy++;
+		westWallVScale = addSpinner(0, 10, 1, c);
+		c.gridy++;
+		northWallVScale = addSpinner(0, 10, 1, c);
 	}
 
 	public String getDialogTitle() {

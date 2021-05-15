@@ -29,6 +29,7 @@ public abstract class DialogPane extends JPanel {
 	abstract void initializeView(GridBagConstraints c);
 
 	protected Button addOkButton(final GridBagConstraints c, final ActionListener actionListener) {
+		c.gridy++;
 		c.gridwidth = 2;
 		Button ok = new Button(BUTTON_LABEL_OK);
 		ok.addActionListener(actionListener);

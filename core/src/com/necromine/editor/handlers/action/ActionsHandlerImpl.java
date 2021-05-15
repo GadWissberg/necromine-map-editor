@@ -27,6 +27,7 @@ import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.*;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
+import com.necromine.editor.model.node.WallDefinition;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
@@ -343,15 +344,28 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	private void defineWall(final GameAssetsManager assetsManager,
 							final Wall selectedWall,
 							final Wall neighborWall,
-							final Assets.FloorsTextures texture) {
+							final WallDefinition wallDefinition) {
 		Wall wall = Optional.ofNullable(selectedWall).orElse(neighborWall);
-		Optional.ofNullable(wall).flatMap(w -> Optional.ofNullable(texture)).ifPresent(t -> {
+		Optional.ofNullable(wall).flatMap(w -> Optional.ofNullable(wallDefinition)).ifPresent(t -> {
 			Material material = wall.getModelInstance().materials.get(0);
-			wall.setDefinition(texture);
-			TextureAttribute textureAttribute = (TextureAttribute) material.get(TextureAttribute.Diffuse);
-			textureAttribute.textureDescription.texture = assetsManager.getTexture(texture);
-			material.set(textureAttribute);
+			Float vScale = wallDefinition.getVScale();
+			wall.setVScale(vScale);
+			TextureAttribute textureAtt = (TextureAttribute) material.get(TextureAttribute.Diffuse);
+			defineWallTexture(assetsManager, wallDefinition, wall, textureAtt);
+			Optional.ofNullable(vScale).ifPresent(d -> textureAtt.scaleV = vScale);
+			material.set(textureAtt);
 		});
+	}
+
+	private TextureAttribute defineWallTexture(final GameAssetsManager assetsManager,
+											   final WallDefinition wallDefinition,
+											   final Wall wall,
+											   final TextureAttribute textureAtt) {
+		Assets.FloorsTextures texture = wallDefinition.getTexture();
+		wall.setDefinition(texture != null ? texture : wall.getDefinition());
+		Optional.ofNullable(texture)
+				.ifPresent(tex -> textureAtt.textureDescription.texture = assetsManager.getTexture(texture));
+		return textureAtt;
 	}
 
 	/**
