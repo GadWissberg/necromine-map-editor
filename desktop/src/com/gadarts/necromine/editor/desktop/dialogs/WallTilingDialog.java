@@ -64,7 +64,7 @@ public class WallTilingDialog extends DialogPane {
 	private WallDefinition createWallDefinition(final GalleryButton imageButton, final JSpinner vScaleSpinner) {
 		FloorsTextures def = imageButton.getTextureDefinition();
 		float vScale = ((Double) vScaleSpinner.getModel().getValue()).floatValue();
-		return new WallDefinition(def != FloorsTextures.FLOOR_PAVEMENT_0 ? def : null, vScale != 0 ? vScale : null);
+		return new WallDefinition(def != FloorsTextures.MISSING ? def : null, vScale != 0 ? vScale : null);
 	}
 
 	private void addVScaleSelectors(final GridBagConstraints c) {
@@ -97,7 +97,7 @@ public class WallTilingDialog extends DialogPane {
 		try {
 			button = GuiUtils.createTextureImageButton(
 					assetsLocation,
-					FloorsTextures.FLOOR_PAVEMENT_0);
+					FloorsTextures.MISSING);
 			GalleryButton finalButton = button;
 			button.addItemListener(itemEvent -> {
 				if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
