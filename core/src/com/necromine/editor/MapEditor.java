@@ -295,7 +295,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public void onNodeWallsDefined(final NodeWallsDefinitions definitions, final FlatNode src, final FlatNode dst) {
-		handlers.getActionsHandler().onNodeWallsDefined(definitions, src, dst, assetsManager);
+		handlers.getActionsHandler().onNodeWallsDefined(definitions, src, dst);
 	}
 
 	@Override

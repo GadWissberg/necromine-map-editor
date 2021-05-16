@@ -37,8 +37,7 @@ public interface ActionsHandler {
 
 	void onNodeWallsDefined(NodeWallsDefinitions definitions,
 							FlatNode src,
-							FlatNode dst,
-							GameAssetsManager assetsManager);
+							FlatNode dst);
 
 	void onTilesLift(FlatNode src, FlatNode dst, float value);
 

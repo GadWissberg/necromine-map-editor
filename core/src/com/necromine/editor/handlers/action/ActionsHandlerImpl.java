@@ -1,6 +1,7 @@
 package com.necromine.editor.handlers.action;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
@@ -292,29 +293,49 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	 * @param defs
 	 * @param src
 	 * @param dst
-	 * @param assetsManager
 	 */
 	@SuppressWarnings("JavaDoc")
 	public void onNodeWallsDefined(final NodeWallsDefinitions defs,
 								   final FlatNode src,
-								   final FlatNode dst,
-								   final GameAssetsManager assetsManager) {
+								   final FlatNode dst) {
+
 		Utils.applyOnRegionOfTiles(src, dst, (row, col) -> {
 			MapNodeData[][] nodes = data.getMap().getNodes();
-			MapNodeData node = nodes[row][col];
-			defineEast(defs, nodes[row][col + 1], assetsManager, node);
-			defineSouth(defs, nodes[row + 1][col], assetsManager, node);
-			defineWest(defs, nodes[row][col - 1], assetsManager, node);
-			defineNorth(defs, nodes[row - 1][col], assetsManager, node);
+			defineNodeEastAndWestWalls(defs, row, col, nodes);
+			defineNodeSouthAndNorthWalls(defs, row, col, nodes);
 		});
+	}
+
+	private void defineNodeSouthAndNorthWalls(final NodeWallsDefinitions defs,
+											  final int row,
+											  final int col,
+											  final MapNodeData[][] nodes) {
+		if (nodes.length - 1 > row) {
+			defineSouth(defs, nodes[row + 1][col], nodes[row][col]);
+		}
+		if (0 < row) {
+			defineNorth(defs, nodes[row - 1][col], nodes[row][col]);
+		}
+	}
+
+	private void defineNodeEastAndWestWalls(final NodeWallsDefinitions defs,
+											final int row,
+											final int col,
+											final MapNodeData[][] nodes) {
+		GameAssetsManager assetsManager = services.getAssetsManager();
+		if (nodes[0].length - 1 > col) {
+			defineEast(defs, nodes[row][col + 1], assetsManager, nodes[row][col]);
+		}
+		if (0 < col) {
+			defineWest(defs, nodes[row][col - 1], assetsManager, nodes[row][col]);
+		}
 	}
 
 	private void defineNorth(final NodeWallsDefinitions defs,
 							 final MapNodeData mapNodeData,
-							 final GameAssetsManager am,
 							 final MapNodeData node) {
 		Wall neighborWall = mapNodeData != null ? mapNodeData.getSouthWall() : null;
-		defineWall(am, node.getNorthWall(), neighborWall, defs.getNorth());
+		defineWall(node.getNorthWall(), neighborWall, defs.getNorth());
 	}
 
 	private void defineWest(final NodeWallsDefinitions defs,
@@ -322,15 +343,14 @@ public class ActionsHandlerImpl implements ActionsHandler {
 							final GameAssetsManager am,
 							final MapNodeData node) {
 		Wall neighborWall = mapNodeData != null ? mapNodeData.getEastWall() : null;
-		defineWall(am, node.getWestWall(), neighborWall, defs.getWest());
+		defineWall(node.getWestWall(), neighborWall, defs.getWest());
 	}
 
 	private void defineSouth(final NodeWallsDefinitions defs,
 							 final MapNodeData mapNodeData,
-							 final GameAssetsManager am,
 							 final MapNodeData node) {
 		Wall neighborWall = mapNodeData != null ? mapNodeData.getNorthWall() : null;
-		defineWall(am, node.getSouthWall(), neighborWall, defs.getSouth());
+		defineWall(node.getSouthWall(), neighborWall, defs.getSouth());
 	}
 
 	private void defineEast(final NodeWallsDefinitions defs,
@@ -338,11 +358,10 @@ public class ActionsHandlerImpl implements ActionsHandler {
 							final GameAssetsManager am,
 							final MapNodeData node) {
 		Wall neighborWall = neighborNode != null ? neighborNode.getWestWall() : null;
-		defineWall(am, node.getEastWall(), neighborWall, defs.getEast());
+		defineWall(node.getEastWall(), neighborWall, defs.getEast());
 	}
 
-	private void defineWall(final GameAssetsManager assetsManager,
-							final Wall selectedWall,
+	private void defineWall(final Wall selectedWall,
 							final Wall neighborWall,
 							final WallDefinition wallDefinition) {
 		Wall wall = Optional.ofNullable(selectedWall).orElse(neighborWall);
@@ -351,18 +370,18 @@ public class ActionsHandlerImpl implements ActionsHandler {
 			Float vScale = wallDefinition.getVScale();
 			wall.setVScale(vScale);
 			TextureAttribute textureAtt = (TextureAttribute) material.get(TextureAttribute.Diffuse);
-			defineWallTexture(assetsManager, wallDefinition, wall, textureAtt);
+			defineWallTexture(wallDefinition, wall, textureAtt);
 			Optional.ofNullable(vScale).ifPresent(d -> textureAtt.scaleV = vScale);
 			material.set(textureAtt);
 		});
 	}
 
-	private TextureAttribute defineWallTexture(final GameAssetsManager assetsManager,
-											   final WallDefinition wallDefinition,
+	private TextureAttribute defineWallTexture(final WallDefinition wallDefinition,
 											   final Wall wall,
 											   final TextureAttribute textureAtt) {
 		Assets.FloorsTextures texture = wallDefinition.getTexture();
 		wall.setDefinition(texture != null ? texture : wall.getDefinition());
+		GameAssetsManager assetsManager = services.getAssetsManager();
 		Optional.ofNullable(texture)
 				.ifPresent(tex -> textureAtt.textureDescription.texture = assetsManager.getTexture(texture));
 		return textureAtt;
