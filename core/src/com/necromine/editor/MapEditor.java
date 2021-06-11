@@ -67,6 +67,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	private static final float NEAR = 0.01f;
 	private static final float CAMERA_HEIGHT = 14;
 	private static final int DEFAULT_LEVEL_SIZE = 20;
+	private static final float[] CAMERA_START_POINT = {12F, CAMERA_HEIGHT, 12F};
 
 	@Getter
 	private static EditorMode mode = EditModes.TILES;
@@ -165,7 +166,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		cam.update();
 		cam.position.set(4, 6, 4);
 		cam.lookAt(auxVector3_1.setZero());
-		cam.position.set(4, CAMERA_HEIGHT, 4);
+		cam.position.set(CAMERA_START_POINT);
 		return cam;
 	}
 
