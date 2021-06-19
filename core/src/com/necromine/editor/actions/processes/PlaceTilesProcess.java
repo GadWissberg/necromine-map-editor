@@ -8,7 +8,10 @@ import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 
+import java.util.Optional;
 import java.util.Set;
+
+import static com.gadarts.necromine.model.MapNodesTypes.PASSABLE_NODE;
 
 @Getter
 public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessParameters> {
@@ -45,7 +48,11 @@ public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessPar
 
 	private void defineTile(final PlaceTilesFinishProcessParameters params, final int col, final int row) {
 		MapNodeData[][] tiles = map.getNodes();
-		MapNodeData tile = tiles[row][col];
+		MapNodeData tile = Optional.ofNullable(tiles[row][col]).orElseGet(() -> {
+			MapNodeData newNode = new MapNodeData(row, col, PASSABLE_NODE);
+			tiles[row][col] = newNode;
+			return newNode;
+		});
 		if (tile.getModelInstance() == null) {
 			tile.initializeModelInstance(params.getTileModel());
 		}
