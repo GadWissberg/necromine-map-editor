@@ -15,12 +15,12 @@ import java.util.Optional;
 
 public final class GuiUtils {
 	public static GalleryButton createTextureImageButton(final File assetsFolderLocation,
-														 final Assets.FloorsTextures texture) throws IOException {
+														 final Assets.SurfaceTextures texture) throws IOException {
 		return createTextureImageButton(assetsFolderLocation, texture, null);
 	}
 
 	static GalleryButton createTextureImageButton(final File assetsFolderLocation,
-												  final Assets.FloorsTextures texture,
+												  final Assets.SurfaceTextures texture,
 												  final ItemListener onClick) throws IOException {
 		ImageIcon imageIcon = loadImage(assetsFolderLocation, texture);
 		GalleryButton button = new GalleryButton(texture, imageIcon);
@@ -29,7 +29,7 @@ public final class GuiUtils {
 		return button;
 	}
 
-	public static ImageIcon loadImage(final File assetsFolderLocation, final Assets.FloorsTextures texture) throws IOException {
+	public static ImageIcon loadImage(final File assetsFolderLocation, final Assets.SurfaceTextures texture) throws IOException {
 		String path = assetsFolderLocation.getAbsolutePath() + File.separator + texture.getFilePath();
 		FileInputStream inputStream = new FileInputStream(path);
 		ImageIcon imageIcon = new ImageIcon(ImageIO.read(inputStream));
@@ -43,7 +43,7 @@ public final class GuiUtils {
 		JScrollPane jScrollPane = new JScrollPane(gallery);
 
 		ButtonGroup buttonGroup = new ButtonGroup();
-		Arrays.stream(Assets.FloorsTextures.values()).forEach(texture -> {
+		Arrays.stream(Assets.SurfaceTextures.values()).forEach(texture -> {
 			try {
 				GalleryButton button = GuiUtils.createTextureImageButton(assetsFolderLocation, texture, onClick);
 				buttonGroup.add(button);

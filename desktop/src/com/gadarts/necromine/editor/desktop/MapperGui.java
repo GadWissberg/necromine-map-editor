@@ -243,7 +243,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 				JScrollPane entitiesGallery = GuiUtils.createEntitiesGallery(assetsFolderLocation, itemEvent -> {
 					if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
 						Optional.ofNullable(guiEventsSubscriber).ifPresent(sub -> {
-							Assets.FloorsTextures texture = ((GalleryButton) itemEvent.getItem()).getTextureDefinition();
+							Assets.SurfaceTextures texture = ((GalleryButton) itemEvent.getItem()).getTextureDefinition();
 							sub.onTileSelected(texture);
 						});
 					}

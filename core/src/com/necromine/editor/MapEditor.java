@@ -88,7 +88,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	private WallCreator wallCreator;
 	private MapRenderer renderer;
 	private OrthographicCamera camera;
-	private Assets.FloorsTextures selectedTile;
+	private Assets.SurfaceTextures selectedTile;
 	private ElementDefinition selectedElement;
 	private Model tileModel;
 
@@ -200,7 +200,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	}
 
 	@Override
-	public void onTileSelected(final Assets.FloorsTextures texture) {
+	public void onTileSelected(final Assets.SurfaceTextures texture) {
 		selectedTile = texture;
 		handlers.onTileSelected();
 	}

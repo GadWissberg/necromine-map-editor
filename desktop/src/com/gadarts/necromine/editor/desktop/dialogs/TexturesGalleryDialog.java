@@ -22,7 +22,7 @@ public class TexturesGalleryDialog extends DialogPane {
 	@Override
 	void initializeView(final GridBagConstraints c) {
 		add(GuiUtils.createEntitiesGallery(assetsFolderLocation, itemEvent -> {
-			Assets.FloorsTextures texture = ((GalleryButton) itemEvent.getItem()).getTextureDefinition();
+			Assets.SurfaceTextures texture = ((GalleryButton) itemEvent.getItem()).getTextureDefinition();
 			onTextureSelected.run(texture);
 			closeDialog();
 		}));

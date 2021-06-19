@@ -122,7 +122,7 @@ public class MapInflater {
 						mapNodeData,
 						wallModel,
 						assetsManager,
-						Assets.FloorsTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
+						Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
 				float vScale = wallJsonObj.has(V_SCALE) ? wallJsonObj.get(V_SCALE).getAsFloat() : 0;
 				eastWall.setVScale(vScale);
 				mapNodeData.setEastWall(eastWall);
@@ -137,7 +137,7 @@ public class MapInflater {
 						mapNodeData,
 						wallModel,
 						assetsManager,
-						Assets.FloorsTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
+						Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
 				float vScale = wallJsonObj.has(V_SCALE) ? wallJsonObj.get(V_SCALE).getAsFloat() : 0;
 				southWall.setVScale(vScale);
 				mapNodeData.setSouthWall(southWall);
@@ -152,7 +152,7 @@ public class MapInflater {
 						mapNodeData,
 						wallModel,
 						assetsManager,
-						Assets.FloorsTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
+						Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
 				float vScale = wallJsonObj.has(V_SCALE) ? wallJsonObj.get(V_SCALE).getAsFloat() : 0;
 				westWall.setVScale(vScale);
 				mapNodeData.setWestWall(westWall);
@@ -167,7 +167,7 @@ public class MapInflater {
 						mapNodeData,
 						wallModel,
 						assetsManager,
-						Assets.FloorsTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
+						Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
 				float vScale = wallJsonObj.has(V_SCALE) ? wallJsonObj.get(V_SCALE).getAsFloat() : 0;
 				northWall.setVScale(vScale);
 				mapNodeData.setNorthWall(northWall);
@@ -267,7 +267,7 @@ public class MapInflater {
 		byte tileId = matrix[row * mapWidth + col % mapWidth];
 		MapNodeData tile;
 		if (tileId != 0) {
-			Assets.FloorsTextures textureDefinition = Assets.FloorsTextures.values()[tileId - 1];
+			Assets.SurfaceTextures textureDefinition = Assets.SurfaceTextures.values()[tileId - 1];
 			tile = new MapNodeData(cursorHandler.getCursorTileModel(), row, col, MapNodesTypes.PASSABLE_NODE);
 			Utils.initializeTile(tile, textureDefinition, assetsManager);
 			initializedTiles.add(tile);

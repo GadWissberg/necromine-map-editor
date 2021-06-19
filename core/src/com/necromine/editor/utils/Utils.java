@@ -66,7 +66,7 @@ public class Utils {
 	}
 
 	public static void initializeTile(final MapNodeData tile,
-									  final Assets.FloorsTextures selectedTile,
+									  final Assets.SurfaceTextures selectedTile,
 									  final GameAssetsManager assetsManager) {
 		tile.setTextureDefinition(selectedTile);
 		Material material = tile.getModelInstance().materials.get(0);

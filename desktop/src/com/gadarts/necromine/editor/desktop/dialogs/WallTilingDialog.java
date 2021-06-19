@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop.dialogs;
 
-import com.gadarts.necromine.assets.Assets.FloorsTextures;
+import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.GalleryButton;
 import com.gadarts.necromine.editor.desktop.GuiUtils;
 import com.necromine.editor.GuiEventsSubscriber;
@@ -62,9 +62,9 @@ public class WallTilingDialog extends DialogPane {
 	}
 
 	private WallDefinition createWallDefinition(final GalleryButton imageButton, final JSpinner vScaleSpinner) {
-		FloorsTextures def = imageButton.getTextureDefinition();
+		Assets.SurfaceTextures def = imageButton.getTextureDefinition();
 		float vScale = ((Double) vScaleSpinner.getModel().getValue()).floatValue();
-		return new WallDefinition(def != FloorsTextures.MISSING ? def : null, vScale != 0 ? vScale : null);
+		return new WallDefinition(def != Assets.SurfaceTextures.MISSING ? def : null, vScale != 0 ? vScale : null);
 	}
 
 	private void addVScaleSelectors(final GridBagConstraints c) {
@@ -97,7 +97,7 @@ public class WallTilingDialog extends DialogPane {
 		try {
 			button = GuiUtils.createTextureImageButton(
 					assetsLocation,
-					FloorsTextures.MISSING);
+					Assets.SurfaceTextures.MISSING);
 			GalleryButton finalButton = button;
 			button.addItemListener(itemEvent -> {
 				if (itemEvent.getStateChange() == ItemEvent.SELECTED) {

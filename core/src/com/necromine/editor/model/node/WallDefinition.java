@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @RequiredArgsConstructor
 public class WallDefinition {
-	private final Assets.FloorsTextures texture;
+	private final Assets.SurfaceTextures texture;
 	private final Float vScale;
 }

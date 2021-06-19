@@ -15,7 +15,7 @@ import com.necromine.editor.model.node.NodeWallsDefinitions;
 import java.awt.*;
 
 public interface GuiEventsSubscriber {
-	void onTileSelected(Assets.FloorsTextures texture);
+	void onTileSelected(Assets.SurfaceTextures texture);
 
 	void onEditModeSet(EditModes mode);
 

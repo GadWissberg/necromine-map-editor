@@ -260,7 +260,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	 * @return Whether an action taken in response to this event.
 	 */
 	@SuppressWarnings("JavaDoc")
-	public boolean onTouchUp(final Assets.FloorsTextures selectedTile,
+	public boolean onTouchUp(final Assets.SurfaceTextures selectedTile,
 							 final Model cursorTileModel) {
 		boolean result = false;
 		if (currentProcess != null) {
@@ -270,7 +270,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		return result;
 	}
 
-	private void finishProcess(final Assets.FloorsTextures selectedTile, final Model cursorTileModel) {
+	private void finishProcess(final Assets.SurfaceTextures selectedTile, final Model cursorTileModel) {
 		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int dstRow = (int) position.z;
 		int dstCol = (int) position.x;
@@ -379,7 +379,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	private TextureAttribute defineWallTexture(final WallDefinition wallDefinition,
 											   final Wall wall,
 											   final TextureAttribute textureAtt) {
-		Assets.FloorsTextures texture = wallDefinition.getTexture();
+		Assets.SurfaceTextures texture = wallDefinition.getTexture();
 		wall.setDefinition(texture != null ? texture : wall.getDefinition());
 		GameAssetsManager assetsManager = services.getAssetsManager();
 		Optional.ofNullable(texture)
