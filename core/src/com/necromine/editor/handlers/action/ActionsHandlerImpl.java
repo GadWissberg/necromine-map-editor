@@ -1,7 +1,6 @@
 package com.necromine.editor.handlers.action;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g3d.Material;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
