@@ -1,7 +1,9 @@
 package com.necromine.editor.utils;
 
 import com.gadarts.necromine.assets.MapJsonKeys;
+import com.gadarts.necromine.model.Coords;
 import com.gadarts.necromine.model.MapNodeData;
+import com.gadarts.necromine.model.NodeWalls;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.google.gson.Gson;
@@ -69,8 +71,9 @@ public class MapDeflater {
 	private JsonObject createElementJsonObject(final PlacedElement e, final boolean addFacingDirection) {
 		JsonObject jsonObject = new JsonObject();
 		MapNodeData node = e.getNode();
-		jsonObject.addProperty(MapJsonKeys.ROW, node.getRow());
-		jsonObject.addProperty(MapJsonKeys.COL, node.getCol());
+		Coords coords = node.getCoords();
+		jsonObject.addProperty(MapJsonKeys.ROW, coords.getRow());
+		jsonObject.addProperty(MapJsonKeys.COL, coords.getCol());
 		jsonObject.addProperty(MapJsonKeys.HEIGHT, e.getHeight());
 		if (addFacingDirection) {
 			jsonObject.addProperty(MapJsonKeys.DIRECTION, e.getFacingDirection().ordinal());
@@ -115,8 +118,9 @@ public class MapDeflater {
 	private void addHeight(final MapNodeData node, final JsonArray heights) {
 		if (node.getHeight() > 0) {
 			JsonObject json = new JsonObject();
-			json.addProperty(MapJsonKeys.ROW, node.getRow());
-			json.addProperty(MapJsonKeys.COL, node.getCol());
+			Coords coords = node.getCoords();
+			json.addProperty(MapJsonKeys.ROW, coords.getRow());
+			json.addProperty(MapJsonKeys.COL, coords.getCol());
 			json.addProperty(MapJsonKeys.HEIGHT, node.getHeight());
 			deflateWalls(node, json);
 			heights.add(json);
@@ -124,10 +128,11 @@ public class MapDeflater {
 	}
 
 	private void deflateWalls(final MapNodeData node, final JsonObject output) {
-		Optional.ofNullable(node.getEastWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.EAST));
-		Optional.ofNullable(node.getSouthWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.SOUTH));
-		Optional.ofNullable(node.getWestWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.WEST));
-		Optional.ofNullable(node.getNorthWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.NORTH));
+		NodeWalls walls = node.getWalls();
+		Optional.ofNullable(walls.getEastWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.EAST));
+		Optional.ofNullable(walls.getSouthWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.SOUTH));
+		Optional.ofNullable(walls.getWestWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.WEST));
+		Optional.ofNullable(walls.getNorthWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.NORTH));
 	}
 
 	private void addWallDefinition(final JsonObject json, final com.gadarts.necromine.model.Wall w, final String side) {

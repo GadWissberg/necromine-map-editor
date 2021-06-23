@@ -5,10 +5,7 @@ import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.assets.MapJsonKeys;
-import com.gadarts.necromine.model.ElementDefinition;
-import com.gadarts.necromine.model.MapNodeData;
-import com.gadarts.necromine.model.MapNodesTypes;
-import com.gadarts.necromine.model.Wall;
+import com.gadarts.necromine.model.*;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.google.gson.Gson;
@@ -107,26 +104,27 @@ public class MapInflater {
 		MapNodeData[][] nodes = map.getNodes();
 		Model wallModel = wallCreator.getWallModel();
 		float height = mapNodeData.getHeight();
+		Coords coords = mapNodeData.getCoords();
 		Optional.ofNullable(node.get(EAST)).ifPresent(east -> {
-			MapNodeData eastNode = nodes[mapNodeData.getRow()][mapNodeData.getCol() + 1];
+			MapNodeData eastNode = nodes[coords.getRow()][coords.getCol() + 1];
 			if (height != eastNode.getHeight()) {
 				inflateEastWall(mapNodeData, wallModel, east, eastNode);
 			}
 		});
 		Optional.ofNullable(node.get(MapJsonKeys.SOUTH)).ifPresent(south -> {
-			MapNodeData southNode = nodes[mapNodeData.getRow() + 1][mapNodeData.getCol()];
+			MapNodeData southNode = nodes[coords.getRow() + 1][coords.getCol()];
 			if (height != southNode.getHeight()) {
 				inflateSouthWall(mapNodeData, wallModel, south, southNode);
 			}
 		});
 		Optional.ofNullable(node.get(WEST)).ifPresent(west -> {
-			MapNodeData westNode = nodes[mapNodeData.getRow()][mapNodeData.getCol() - 1];
+			MapNodeData westNode = nodes[coords.getRow()][coords.getCol() - 1];
 			if (height != westNode.getHeight()) {
 				inflateWestWall(mapNodeData, wallModel, west, westNode);
 			}
 		});
 		Optional.ofNullable(node.get(NORTH)).ifPresent(north -> {
-			MapNodeData northNode = nodes[mapNodeData.getRow() - 1][mapNodeData.getCol()];
+			MapNodeData northNode = nodes[coords.getRow() - 1][coords.getCol()];
 			if (height != northNode.getHeight()) {
 				inflateNorthWall(mapNodeData, wallModel, north, northNode);
 			}
@@ -143,7 +141,7 @@ public class MapInflater {
 				wallModel,
 				assetsManager,
 				Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
-		mapNodeData.setNorthWall(northWall);
+		mapNodeData.getWalls().setNorthWall(northWall);
 		WallCreator.adjustWallBetweenNorthAndSouth(mapNodeData, northNode, defineVScale(wallJsonObj, northWall));
 	}
 
@@ -157,7 +155,7 @@ public class MapInflater {
 				wallModel,
 				assetsManager,
 				Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
-		mapNodeData.setWestWall(westWall);
+		mapNodeData.getWalls().setWestWall(westWall);
 		WallCreator.adjustWallBetweenEastAndWest(mapNodeData, westNode, true, defineVScale(wallJsonObj, westWall));
 	}
 
@@ -171,7 +169,7 @@ public class MapInflater {
 				wallModel,
 				assetsManager,
 				Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
-		mapNodeData.setSouthWall(southWall);
+		mapNodeData.getWalls().setSouthWall(southWall);
 		WallCreator.adjustWallBetweenNorthAndSouth(southNode, mapNodeData, defineVScale(wallJsonObj, southWall));
 	}
 
@@ -185,7 +183,7 @@ public class MapInflater {
 				wallModel,
 				assetsManager,
 				Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
-		mapNodeData.setEastWall(eastWall);
+		mapNodeData.getWalls().setEastWall(eastWall);
 		WallCreator.adjustWallBetweenEastAndWest(eastNode, mapNodeData, true, defineVScale(wallJsonObj, eastWall));
 	}
 

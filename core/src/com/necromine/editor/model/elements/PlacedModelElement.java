@@ -2,6 +2,7 @@ package com.necromine.editor.model.elements;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.Coords;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.ModelElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;
@@ -17,7 +18,8 @@ public abstract class PlacedModelElement extends PlacedElement {
 		super(params);
 		this.modelInstance = new ModelInstance(assetsManager.getModel(params.getModelDefinition().getModelDefinition()));
 		MapNodeData node = params.getNode();
-		modelInstance.transform.setTranslation(node.getCol(), node.getHeight() + params.getHeight(), node.getRow());
+		Coords coords = node.getCoords();
+		modelInstance.transform.setTranslation(coords.getCol(), node.getHeight() + params.getHeight(), coords.getRow());
 	}
 
 	@Getter

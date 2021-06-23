@@ -333,31 +333,31 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	private void defineNorth(final NodeWallsDefinitions defs,
 							 final MapNodeData mapNodeData,
 							 final MapNodeData node) {
-		Wall neighborWall = mapNodeData != null ? mapNodeData.getSouthWall() : null;
-		defineWall(node.getNorthWall(), neighborWall, defs.getNorth());
+		Wall neighborWall = mapNodeData != null ? mapNodeData.getWalls().getSouthWall() : null;
+		defineWall(node.getWalls().getNorthWall(), neighborWall, defs.getNorth());
 	}
 
 	private void defineWest(final NodeWallsDefinitions defs,
 							final MapNodeData mapNodeData,
 							final GameAssetsManager am,
 							final MapNodeData node) {
-		Wall neighborWall = mapNodeData != null ? mapNodeData.getEastWall() : null;
-		defineWall(node.getWestWall(), neighborWall, defs.getWest());
+		Wall neighborWall = mapNodeData != null ? mapNodeData.getWalls().getEastWall() : null;
+		defineWall(node.getWalls().getWestWall(), neighborWall, defs.getWest());
 	}
 
 	private void defineSouth(final NodeWallsDefinitions defs,
 							 final MapNodeData mapNodeData,
 							 final MapNodeData node) {
-		Wall neighborWall = mapNodeData != null ? mapNodeData.getNorthWall() : null;
-		defineWall(node.getSouthWall(), neighborWall, defs.getSouth());
+		Wall neighborWall = mapNodeData != null ? mapNodeData.getWalls().getNorthWall() : null;
+		defineWall(node.getWalls().getSouthWall(), neighborWall, defs.getSouth());
 	}
 
 	private void defineEast(final NodeWallsDefinitions defs,
 							final MapNodeData neighborNode,
 							final GameAssetsManager am,
 							final MapNodeData node) {
-		Wall neighborWall = neighborNode != null ? neighborNode.getWestWall() : null;
-		defineWall(node.getEastWall(), neighborWall, defs.getEast());
+		Wall neighborWall = neighborNode != null ? neighborNode.getWalls().getWestWall() : null;
+		defineWall(node.getWalls().getEastWall(), neighborWall, defs.getEast());
 	}
 
 	private void defineWall(final Wall selectedWall,

@@ -1,6 +1,7 @@
 package com.necromine.editor.actions;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.Coords;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
@@ -35,7 +36,8 @@ public abstract class PlaceElementAction<T extends PlacedElement, S extends Elem
 
 	@Override
 	public void execute(final MapManagerEventsNotifier eventsNotifier) {
-		MapNodeData tile = map.getNodes()[node.getRow()][node.getCol()];
+		Coords coords = node.getCoords();
+		MapNodeData tile = map.getNodes()[coords.getRow()][coords.getCol()];
 		T element = createElement(tile);
 		Optional.ofNullable(element).ifPresent(e -> {
 			placeElementInCorrectHeight(e, tile);

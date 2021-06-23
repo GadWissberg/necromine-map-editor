@@ -1,6 +1,7 @@
 package com.necromine.editor.model.node;
 
 import com.gadarts.necromine.model.MapNodeData;
+import com.gadarts.necromine.model.NodeWalls;
 import com.gadarts.necromine.model.Wall;
 import lombok.Getter;
 
@@ -13,13 +14,14 @@ public class NodeWallsDefinitions {
 
 
 	public NodeWallsDefinitions(final MapNodeData mapNodeData) {
-		Wall eastWall = mapNodeData.getEastWall();
+		NodeWalls walls = mapNodeData.getWalls();
+		Wall eastWall = walls.getEastWall();
 		this.east = new WallDefinition(eastWall != null ? eastWall.getDefinition() : null, 1F);
-		Wall southWall = mapNodeData.getSouthWall();
+		Wall southWall = walls.getSouthWall();
 		this.south = new WallDefinition(southWall != null ? southWall.getDefinition() : null, 1F);
-		Wall westWall = mapNodeData.getWestWall();
+		Wall westWall = walls.getWestWall();
 		this.west = new WallDefinition(westWall != null ? westWall.getDefinition() : null, 1F);
-		Wall northWall = mapNodeData.getNorthWall();
+		Wall northWall = walls.getNorthWall();
 		this.north = new WallDefinition(northWall != null ? northWall.getDefinition() : null, 1F);
 	}
 

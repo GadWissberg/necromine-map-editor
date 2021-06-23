@@ -9,10 +9,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.ElementDefinition;
-import com.gadarts.necromine.model.EnvironmentDefinitions;
-import com.gadarts.necromine.model.MapNodeData;
-import com.gadarts.necromine.model.Wall;
+import com.gadarts.necromine.model.*;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.handlers.CursorHandler;
@@ -114,10 +111,11 @@ public class MapRenderer {
 			if (tile.getModelInstance() != null) {
 				ModelBatch modelBatch = handlersManager.getBatchHandler().getModelBatch();
 				modelBatch.render(tile.getModelInstance());
-				renderWall(modelBatch, tile.getNorthWall());
-				renderWall(modelBatch, tile.getEastWall());
-				renderWall(modelBatch, tile.getWestWall());
-				renderWall(modelBatch, tile.getSouthWall());
+				NodeWalls walls = tile.getWalls();
+				renderWall(modelBatch, walls.getNorthWall());
+				renderWall(modelBatch, walls.getEastWall());
+				renderWall(modelBatch, walls.getWestWall());
+				renderWall(modelBatch, walls.getSouthWall());
 			}
 		}
 	}

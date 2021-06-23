@@ -1,6 +1,7 @@
 package com.necromine.editor.actions.types;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
+import com.gadarts.necromine.model.Coords;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
@@ -66,8 +67,9 @@ public class PlaceEnvObjectAction extends PlaceElementAction<PlacedEnvObject, En
 
 	private void applyOnNode(final int row, final int col) {
 		MapNodeData[][] nodes = map.getNodes();
-		int currentRow = Math.min(Math.max(node.getRow() + row, 0), nodes.length);
-		int currentCol = Math.min(Math.max(node.getCol() + col, 0), nodes[0].length);
+		Coords coords = node.getCoords();
+		int currentRow = Math.min(Math.max(coords.getRow() + row, 0), nodes.length);
+		int currentCol = Math.min(Math.max(coords.getCol() + col, 0), nodes[0].length);
 		if (currentRow < nodes.length && currentCol < nodes[0].length) {
 			if (nodes[currentRow][currentCol] == null) {
 				nodes[currentRow][currentCol] = new MapNodeData(currentRow, currentCol, selectedEnvObject.getNodeType());
