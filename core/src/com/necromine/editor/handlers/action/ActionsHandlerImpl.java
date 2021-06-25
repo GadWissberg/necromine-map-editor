@@ -367,10 +367,12 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		Optional.ofNullable(wall).flatMap(w -> Optional.ofNullable(wallDefinition)).ifPresent(t -> {
 			Material material = wall.getModelInstance().materials.get(0);
 			Float vScale = wallDefinition.getVScale();
-			wall.setVScale(vScale);
 			TextureAttribute textureAtt = (TextureAttribute) material.get(TextureAttribute.Diffuse);
 			defineWallTexture(wallDefinition, wall, textureAtt);
-			Optional.ofNullable(vScale).ifPresent(d -> textureAtt.scaleV = vScale);
+			Optional.ofNullable(vScale).ifPresent(d -> {
+				textureAtt.scaleV = vScale;
+				wall.setVScale(vScale);
+			});
 			material.set(textureAtt);
 		});
 	}

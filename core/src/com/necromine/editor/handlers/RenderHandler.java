@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.handlers;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Camera;
@@ -17,10 +17,9 @@ import com.badlogic.gdx.utils.Disposable;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.*;
 import com.gadarts.necromine.model.characters.Direction;
+import com.necromine.editor.CursorSelectionModel;
+import com.necromine.editor.MapEditor;
 import com.necromine.editor.actions.processes.MappingProcess;
-import com.necromine.editor.handlers.CursorHandler;
-import com.necromine.editor.handlers.HandlersManager;
-import com.necromine.editor.handlers.HandlersManagerImpl;
 import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;

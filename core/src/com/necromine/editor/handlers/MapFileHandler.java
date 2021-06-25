@@ -1,10 +1,9 @@
-package com.necromine.editor;
+package com.necromine.editor.handlers;
 
 import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.MapNodeData;
-import com.necromine.editor.handlers.CursorHandler;
-import com.necromine.editor.handlers.ViewAuxHandler;
+import com.necromine.editor.GameMap;
 import com.necromine.editor.model.elements.PlacedElements;
 import com.necromine.editor.utils.MapDeflater;
 import com.necromine.editor.utils.MapInflater;
