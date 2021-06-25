@@ -52,6 +52,12 @@ public class CursorHandler implements Disposable {
 	private Decal cursorSimpleDecal;
 	private float flicker;
 
+	void applyOpacity( ) {
+		ModelInstance modelInstance = getCursorSelectionModel().getModelInstance();
+		BlendingAttribute blend = (BlendingAttribute) modelInstance.materials.get(0).get(BlendingAttribute.Type);
+		blend.opacity = CursorHandler.CURSOR_OPACITY;
+	}
+
 	public void updateCursorFlicker(final EditorMode mode) {
 		Material material;
 		if ((mode == EditModes.TILES || mode == EditModes.CHARACTERS)) {
@@ -108,15 +114,15 @@ public class CursorHandler implements Disposable {
 		updateCursorOfDecalMode(x, z, mode);
 	}
 
-	public void createCursors(final GameAssetsManager assetsManager, final Model tileModel, final GameMap map) {
+	public void createCursors(final GameAssetsManager assetsManager, final Model tileModel) {
 		this.cursorTileModel = tileModel;
 		createCursorTile();
-		createCursorCharacterDecal(assetsManager, map);
+		createCursorCharacterDecal(assetsManager);
 		createCursorSimpleDecal(assetsManager);
 	}
 
 
-	private void createCursorTile() {
+	private void createCursorTile( ) {
 		cursorTileModel.materials.get(0).set(ColorAttribute.createDiffuse(CURSOR_COLOR));
 		cursorTileModelInstance = new ModelInstance(cursorTileModel);
 	}
@@ -156,11 +162,11 @@ public class CursorHandler implements Disposable {
 		}
 	}
 
-	private void createCursorCharacterDecal(final GameAssetsManager assetsManager, final GameMap map) {
+	private void createCursorCharacterDecal(final GameAssetsManager assetsManager) {
 		cursorCharacterDecal = Utils.createCharacterDecal(
 				assetsManager,
 				CharacterTypes.PLAYER.getDefinitions()[0],
-				new FlatNode(0,0),
+				new FlatNode(0, 0),
 				SOUTH);
 		Color color = cursorCharacterDecal.getDecal().getColor();
 		cursorCharacterDecal.getDecal().setColor(color.r, color.g, color.b, CURSOR_OPACITY);
@@ -174,6 +180,6 @@ public class CursorHandler implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void dispose( ) {
 	}
 }

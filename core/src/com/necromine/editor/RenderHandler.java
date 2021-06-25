@@ -1,19 +1,26 @@
 package com.necromine.editor;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Disposable;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.*;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.handlers.HandlersManager;
+import com.necromine.editor.handlers.HandlersManagerImpl;
 import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
@@ -21,21 +28,47 @@ import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.model.elements.*;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.utils.Utils;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-@RequiredArgsConstructor
-public class MapRenderer {
+public class RenderHandler implements Disposable {
 	private static final Vector3 auxVector3_1 = new Vector3();
 	private static final Matrix4 auxMatrix = new Matrix4();
 	private static final Vector2 auxVector2_1 = new Vector2();
 	private final GameAssetsManager assetsManager;
 	private final HandlersManager handlersManager;
-	private final OrthographicCamera camera;
+	private final Camera camera;
+
+	@Getter
+	private final Model tileModel;
+
+	public RenderHandler(final GameAssetsManager assetsManager,
+						 final HandlersManagerImpl handlersManager,
+						 final Camera camera) {
+		tileModel = createRectModel();
+		this.assetsManager = assetsManager;
+		this.handlersManager = handlersManager;
+		this.camera = camera;
+	}
+
+	private Model createRectModel( ) {
+		ModelBuilder builder = new ModelBuilder();
+		BlendingAttribute highlightBlend = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		Material material = new Material(highlightBlend);
+		return builder.createRect(
+				0, 0, 1,
+				1, 0, 1,
+				1, 0, 0,
+				0, 0, 0,
+				0, 1, 0,
+				material,
+				VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal | VertexAttributes.Usage.TextureCoordinates
+		);
+	}
 
 	public void draw(final EditorMode mode, final PlacedElements placedElements, final Set<MapNodeData> initializedTiles, final ElementDefinition selectedElement) {
 		int sam = Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0;
@@ -55,20 +88,24 @@ public class MapRenderer {
 		Gdx.gl.glDepthMask(true);
 	}
 
-	private void renderDecalPlacedElements(final PlacedElements placedElements, final HandlersManager handlersManager, final OrthographicCamera camera) {
+	private void renderDecalPlacedElements(final PlacedElements placedElements,
+										   final HandlersManager handlersManager,
+										   final Camera camera) {
 		Map<EditModes, List<? extends PlacedElement>> placedObjects = placedElements.getPlacedObjects();
 		List<PlacedCharacter> placedCharacters = (List<PlacedCharacter>) placedObjects.get(EditModes.CHARACTERS);
-		for (PlacedCharacter character : placedCharacters) {
+		for (final PlacedCharacter character : placedCharacters) {
 			renderCharacter(character.getCharacterDecal(), character.getCharacterDecal().getSpriteDirection(), camera, handlersManager);
 		}
 		List<PlacedLight> placedLights = (List<PlacedLight>) placedObjects.get(EditModes.LIGHTS);
-		for (PlacedLight placedLight : placedLights) {
+		for (final PlacedLight placedLight : placedLights) {
 			handlersManager.getBatchHandler().renderDecal(placedLight.getDecal(), camera);
 		}
 	}
 
 
-	private void renderCursorOfDecalMode(final HandlersManager handlersManager, final EditorMode mode, final OrthographicCamera camera) {
+	private void renderCursorOfDecalMode(final HandlersManager handlersManager,
+										 final EditorMode mode,
+										 final Camera camera) {
 		CursorHandler cursorHandler = handlersManager.getCursorHandler();
 		if (mode == EditModes.CHARACTERS) {
 			CharacterDecal cursorCharacterDecal = cursorHandler.getCursorCharacterDecal();
@@ -78,7 +115,10 @@ public class MapRenderer {
 		}
 	}
 
-	private void renderCharacter(final CharacterDecal characterDecal, final Direction facingDirection, final OrthographicCamera camera, final HandlersManager handlersManager) {
+	private void renderCharacter(final CharacterDecal characterDecal,
+								 final Direction facingDirection,
+								 final Camera camera,
+								 final HandlersManager handlersManager) {
 		Utils.applyFrameSeenFromCameraForCharacterDecal(characterDecal, facingDirection, camera, assetsManager);
 		handlersManager.getBatchHandler().renderDecal(characterDecal.getDecal(), camera);
 	}
@@ -101,13 +141,13 @@ public class MapRenderer {
 		renderTiles(initializedTiles);
 		renderEnvObjects(placedElements);
 		List<PlacedPickup> placedPickups = (List<PlacedPickup>) placedElements.getPlacedObjects().get(EditModes.PICKUPS);
-		for (PlacedPickup pickup : placedPickups) {
+		for (final PlacedPickup pickup : placedPickups) {
 			renderPickup(pickup.getModelInstance());
 		}
 	}
 
 	private void renderTiles(final Set<MapNodeData> initializedTiles) {
-		for (MapNodeData tile : initializedTiles) {
+		for (final MapNodeData tile : initializedTiles) {
 			if (tile.getModelInstance() != null) {
 				ModelBatch modelBatch = handlersManager.getBatchHandler().getModelBatch();
 				modelBatch.render(tile.getModelInstance());
@@ -152,7 +192,7 @@ public class MapRenderer {
 
 	private void renderEnvObjects(final PlacedElements placedElements) {
 		List<PlacedEnvObject> placedEnvObjects = (List<PlacedEnvObject>) placedElements.getPlacedObjects().get(EditModes.ENVIRONMENT);
-		for (PlacedEnvObject placedEnvObject : placedEnvObjects) {
+		for (final PlacedEnvObject placedEnvObject : placedEnvObjects) {
 			renderEnvObject(
 					(EnvironmentDefinitions) placedEnvObject.getDefinition(),
 					placedEnvObject.getModelInstance(),
@@ -180,7 +220,7 @@ public class MapRenderer {
 	}
 
 
-	private void renderExistingProcess() {
+	private void renderExistingProcess( ) {
 		ActionsHandler actionsHandler = handlersManager.getActionsHandler();
 		MappingProcess<? extends MappingProcess.FinishProcessParameters> p = actionsHandler.getCurrentProcess();
 		Optional.ofNullable(p).ifPresent(process -> {
@@ -194,4 +234,14 @@ public class MapRenderer {
 		});
 	}
 
+	public void render(final EditorMode mode,
+					   final PlacedElements placedElements,
+					   final ElementDefinition selectedElement) {
+		draw(mode, placedElements, placedElements.getPlacedTiles(), selectedElement);
+	}
+
+	@Override
+	public void dispose( ) {
+		tileModel.dispose();
+	}
 }
