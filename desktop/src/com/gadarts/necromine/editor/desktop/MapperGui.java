@@ -334,6 +334,8 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 			}
 		} else if (propertyName.equals(Events.REQUEST_TO_ROTATE_SELECTED_OBJECT.name())) {
 			guiEventsSubscriber.onSelectedObjectRotate((Integer) evt.getNewValue());
+		} else if (propertyName.equals(Events.REQUEST_TO_NEW.name())) {
+			guiEventsSubscriber.onNewMapRequested();
 		} else if (propertyName.equals(Events.REQUEST_TO_SAVE.name())) {
 			guiEventsSubscriber.onSaveMapRequested();
 		} else if (propertyName.equals(Events.REQUEST_TO_LOAD.name())) {

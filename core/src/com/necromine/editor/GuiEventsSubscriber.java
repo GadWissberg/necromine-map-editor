@@ -29,9 +29,11 @@ public interface GuiEventsSubscriber {
 
 	void onCameraModeSet(CameraModes mode);
 
-	void onSaveMapRequested();
+	void onSaveMapRequested( );
 
-	void onLoadMapRequested();
+	void onNewMapRequested( );
+
+	void onLoadMapRequested( );
 
 	void onToolSet(EditorTool tool);
 
@@ -39,7 +41,7 @@ public interface GuiEventsSubscriber {
 
 	void onTilesLift(FlatNode src, FlatNode dst, float value);
 
-	float getAmbientLightValue();
+	float getAmbientLightValue( );
 
 	void onAmbientLightValueSet(float value);
 

@@ -5,6 +5,11 @@ import com.gadarts.necromine.editor.desktop.menu.definitions.FileMenuItemsDefini
 import com.gadarts.necromine.editor.desktop.menu.definitions.ViewMenuItemsDefinitions;
 
 public enum ToolbarDefinition implements ToolbarButtonDefinition {
+	NEW(new ToolbarButtonProperties(
+			"file_new",
+			"New Map",
+			FileMenuItemsDefinitions.NEW)),
+
 	SAVE(new ToolbarButtonProperties(
 			"file_save",
 			"Save Map",
@@ -73,7 +78,7 @@ public enum ToolbarDefinition implements ToolbarButtonDefinition {
 
 	private final ToolbarButtonProperties toolbarButtonProperties;
 
-	ToolbarDefinition() {
+	ToolbarDefinition( ) {
 		this(null);
 	}
 
@@ -82,7 +87,7 @@ public enum ToolbarDefinition implements ToolbarButtonDefinition {
 	}
 
 	@Override
-	public ToolbarButtonProperties getButtonProperties() {
+	public ToolbarButtonProperties getButtonProperties( ) {
 		return toolbarButtonProperties;
 	}
 

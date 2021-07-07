@@ -53,8 +53,8 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	public static final int TARGET_VERSION = 5;
 	private static final float NEAR = 0.01f;
 	private static final float CAMERA_HEIGHT = 14;
-	private static final int DEFAULT_LEVEL_SIZE = 20;
 	private static final float[] CAMERA_START_POINT = {12F, CAMERA_HEIGHT, 12F};
+	private static final float[] CAMERA_INITIAL_POSITION = {4F, 6F, 4F};
 
 	@Getter
 	private static EditorMode mode = EditModes.TILES;
@@ -68,7 +68,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	private final Vector2 lastMouseTouchPosition = new Vector2();
 	private final HandlersManagerImpl handlers;
 	private final MapManagerEventsNotifier eventsNotifier = new MapManagerEventsNotifier();
-	private final GameMap map = new GameMap(new Dimension(DEFAULT_LEVEL_SIZE, DEFAULT_LEVEL_SIZE));
+	private final GameMap map = new GameMap();
 	private WallCreator wallCreator;
 	private OrthographicCamera camera;
 	private Assets.SurfaceTextures selectedTile;
@@ -93,7 +93,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		GameAssetsManager assetsManager = handlers.getResourcesHandler().getAssetsManager();
 		wallCreator = new WallCreator(assetsManager);
 		camera = createCamera();
-		handlers.onCreate(camera, wallCreator, new Dimension(DEFAULT_LEVEL_SIZE, DEFAULT_LEVEL_SIZE));
+		handlers.onCreate(camera, wallCreator, map.getDimension());
 		initializeInput();
 	}
 
@@ -103,10 +103,16 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		cam.near = NEAR;
 		cam.far = FAR;
 		cam.update();
-		cam.position.set(4, 6, 4);
+		initializeCameraPosition(cam);
+		return cam;
+	}
+
+	private void initializeCameraPosition(final OrthographicCamera cam) {
+		cam.position.set(CAMERA_INITIAL_POSITION);
+		cam.up.set(0, 1, 0);
+		cam.zoom = 1;
 		cam.lookAt(auxVector3_1.setZero());
 		cam.position.set(CAMERA_START_POINT);
-		return cam;
 	}
 
 	@Override
@@ -208,6 +214,14 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	@Override
 	public void onSaveMapRequested( ) {
 		handlers.getMapFileHandler().onSaveMapRequested(map, placedElements);
+	}
+
+	@Override
+	public void onNewMapRequested( ) {
+		placedElements.clear();
+		map.reset();
+		initializeCameraPosition(camera);
+		handlers.getViewAuxHandler().createModels(map.getDimension());
 	}
 
 	@Override
