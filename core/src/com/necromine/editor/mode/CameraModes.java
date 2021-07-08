@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Getter
 public enum CameraModes implements EditorMode {
-	PAN((lastMouseTouchPosition, camera, screenX, screenY) -> {
+	PAN((lastMouseTouchPosition, camera, screenX, screenY, vector3) -> {
 		Vector2 velocity = lastMouseTouchPosition.sub(screenX, screenY).scl(0.03f);
 		Vector3 left = Utils.auxVector3_1.set(camera.direction).crs(camera.up).nor().scl(0.3f);
 		float x = camera.direction.x * -velocity.y + left.x * velocity.x;
@@ -22,12 +22,12 @@ public enum CameraModes implements EditorMode {
 		camera.translate(x, 0, z);
 	}),
 
-	ROTATE((lastMouseTouchPosition, camera, screenX, screenY) -> {
+	ROTATE((lastMouseTouchPosition, camera, screenX, screenY, rotationPoint) -> {
 		Vector2 velocity = lastMouseTouchPosition.sub(screenX, screenY).scl(0.12f);
-		camera.rotate(Vector3.Y, velocity.x);
+		camera.rotateAround(rotationPoint, Vector3.Y, velocity.x);
 	}),
 
-	ZOOM((lastMouseTouchPosition, camera, screenX, screenY) -> {
+	ZOOM((lastMouseTouchPosition, camera, screenX, screenY, vector3) -> {
 		Vector2 velocity = lastMouseTouchPosition.sub(screenX, screenY).scl(0.005f);
 		camera.zoom = Math.min(Math.max(0.2f, camera.zoom + velocity.y), 2f);
 	});

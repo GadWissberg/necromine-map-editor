@@ -12,6 +12,7 @@ import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
+import com.gadarts.necromine.model.GeneralUtils;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
@@ -310,11 +311,10 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public boolean touchDragged(final int screenX, final int screenY, final int pointer) {
-		boolean result;
+		boolean result = true;
 		if (mode.getClass().equals(CameraModes.class)) {
-			CameraModes cameraMode = (CameraModes) mode;
-			cameraMode.getManipulation().run(lastMouseTouchPosition, camera, screenX, screenY);
-			result = true;
+			Vector3 rotationPoint = GeneralUtils.defineRotationPoint(auxVector3_1, camera);
+			((CameraModes) mode).getManipulation().run(lastMouseTouchPosition, camera, screenX, screenY, rotationPoint);
 		} else {
 			result = handlers.getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, map);
 		}
