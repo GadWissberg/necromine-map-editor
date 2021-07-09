@@ -113,7 +113,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 
 
 	@Override
-	public void defineSelectedEnvObject() {
+	public void defineSelectedEnvObject( ) {
 		MapNodeData mapNodeData = getMapNodeDataFromCursor();
 		List<? extends PlacedElement> list = this.data.getPlacedElements().getPlacedObjects().get(MapEditor.getMode());
 		List<PlacedElement> elementsInTheNode = list.stream()
@@ -136,14 +136,14 @@ public class ActionsHandlerImpl implements ActionsHandler {
 		}
 	}
 
-	private MapNodeData getMapNodeDataFromCursor() {
+	private MapNodeData getMapNodeDataFromCursor( ) {
 		Vector3 cursorPosition = services.getCursorHandler().getHighlighter().transform.getTranslation(auxVector);
 		int row = (int) cursorPosition.z;
 		int col = (int) cursorPosition.x;
 		return data.getMap().getNodes()[row][col];
 	}
 
-	private boolean removeElementByMode() {
+	private boolean removeElementByMode( ) {
 		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
 		RemoveElementAction action = new RemoveElementAction(
 				data.getMap(),
@@ -223,14 +223,14 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	}
 
 	@Override
-	public void beginSelectingTilesForWallTiling() {
+	public void beginSelectingTilesForWallTiling( ) {
 		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
 		FlatNode src = new FlatNode((int) position.z, (int) position.x);
 		currentProcess = new SelectTilesForWallTilingProcess(data.getMap(), src);
 	}
 
 	@Override
-	public ElementDefinition getSelectedElement() {
+	public ElementDefinition getSelectedElement( ) {
 		return selectedElement;
 	}
 
@@ -321,12 +321,11 @@ public class ActionsHandlerImpl implements ActionsHandler {
 											final int row,
 											final int col,
 											final MapNodeData[][] nodes) {
-		GameAssetsManager assetsManager = services.getAssetsManager();
 		if (nodes[0].length - 1 > col) {
-			defineEast(defs, nodes[row][col + 1], assetsManager, nodes[row][col]);
+			defineEast(defs, nodes[row][col + 1], nodes[row][col]);
 		}
 		if (0 < col) {
-			defineWest(defs, nodes[row][col - 1], assetsManager, nodes[row][col]);
+			defineWest(defs, nodes[row][col - 1], nodes[row][col]);
 		}
 	}
 
@@ -339,7 +338,6 @@ public class ActionsHandlerImpl implements ActionsHandler {
 
 	private void defineWest(final NodeWallsDefinitions defs,
 							final MapNodeData mapNodeData,
-							final GameAssetsManager am,
 							final MapNodeData node) {
 		Wall neighborWall = mapNodeData != null ? mapNodeData.getWalls().getEastWall() : null;
 		defineWall(node.getWalls().getWestWall(), neighborWall, defs.getWest());
@@ -354,7 +352,6 @@ public class ActionsHandlerImpl implements ActionsHandler {
 
 	private void defineEast(final NodeWallsDefinitions defs,
 							final MapNodeData neighborNode,
-							final GameAssetsManager am,
 							final MapNodeData node) {
 		Wall neighborWall = neighborNode != null ? neighborNode.getWalls().getWestWall() : null;
 		defineWall(node.getWalls().getEastWall(), neighborWall, defs.getEast());
@@ -370,22 +367,21 @@ public class ActionsHandlerImpl implements ActionsHandler {
 			TextureAttribute textureAtt = (TextureAttribute) material.get(TextureAttribute.Diffuse);
 			defineWallTexture(wallDefinition, wall, textureAtt);
 			Optional.ofNullable(vScale).ifPresent(d -> {
-				textureAtt.scaleV = vScale;
+				textureAtt.scaleV = textureAtt.scaleV < 0 ? -1 * vScale : vScale;
 				wall.setVScale(vScale);
 			});
 			material.set(textureAtt);
 		});
 	}
 
-	private TextureAttribute defineWallTexture(final WallDefinition wallDefinition,
-											   final Wall wall,
-											   final TextureAttribute textureAtt) {
+	private void defineWallTexture(final WallDefinition wallDefinition,
+								   final Wall wall,
+								   final TextureAttribute textureAtt) {
 		Assets.SurfaceTextures texture = wallDefinition.getTexture();
 		wall.setDefinition(texture != null ? texture : wall.getDefinition());
 		GameAssetsManager assetsManager = services.getAssetsManager();
 		Optional.ofNullable(texture)
 				.ifPresent(tex -> textureAtt.textureDescription.texture = assetsManager.getTexture(texture));
-		return textureAtt;
 	}
 
 	/**
