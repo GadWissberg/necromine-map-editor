@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.necromine.editor.GameMap;
+import com.necromine.editor.MapEditorData;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElements;
@@ -28,12 +29,14 @@ import static com.necromine.editor.MapEditor.TARGET_VERSION;
 public class MapDeflater {
 	private final Gson gson = new Gson();
 
-	public void deflate(final GameMap map, final PlacedElements placedElements) {
+	public void deflate(final MapEditorData data) {
 		JsonObject output = new JsonObject();
+		GameMap map = data.getMap();
 		output.addProperty(MapJsonKeys.AMBIENT, map.getAmbientLight());
 		output.addProperty(MapJsonKeys.TARGET, TARGET_VERSION);
 		JsonObject tiles = createNodesData(map);
 		output.add(MapJsonKeys.TILES, tiles);
+		PlacedElements placedElements = data.getPlacedElements();
 		addCharacters(output, placedElements);
 		addElementsGroup(output, EditModes.ENVIRONMENT, true, placedElements);
 		addElementsGroup(output, EditModes.PICKUPS, false, placedElements);

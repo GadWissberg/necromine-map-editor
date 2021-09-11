@@ -1,7 +1,7 @@
 package com.necromine.editor.actions;
 
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapManagerEventsNotifier;
+import com.necromine.editor.MapEditorEventsNotifier;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -13,7 +13,7 @@ public abstract class MappingAction {
 		done = true;
 	}
 
-	public abstract void execute(MapManagerEventsNotifier eventsNotifier);
+	public abstract void execute(MapEditorEventsNotifier eventsNotifier);
 
 	public abstract boolean isProcess();
 }

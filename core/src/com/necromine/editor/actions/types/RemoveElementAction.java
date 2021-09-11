@@ -2,7 +2,7 @@ package com.necromine.editor.actions.types;
 
 import com.gadarts.necromine.model.MapNodeData;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapManagerEventsNotifier;
+import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.actions.AnswerSubscriber;
 import com.necromine.editor.actions.MappingAction;
@@ -30,7 +30,7 @@ public class RemoveElementAction extends MappingAction implements AnswerSubscrib
 	}
 
 	@Override
-	public void execute(final MapManagerEventsNotifier eventsNotifier) {
+	public void execute(final MapEditorEventsNotifier eventsNotifier) {
 		if (mode == EditModes.TILES) {
 			removePlacedTile();
 		} else {
@@ -44,7 +44,7 @@ public class RemoveElementAction extends MappingAction implements AnswerSubscrib
 		placedElements.getPlacedTiles().remove(mapNodeData);
 	}
 
-	private void removePlacedObject(final MapManagerEventsNotifier eventsNotifier) {
+	private void removePlacedObject(final MapEditorEventsNotifier eventsNotifier) {
 		List<? extends PlacedElement> placedElementsList = this.placedElements.getPlacedObjects().get(mode);
 		List<? extends PlacedElement> elementsInTheNode = placedElementsList.stream()
 				.filter(placedElement -> node.equals(placedElement.getNode()))
@@ -56,7 +56,7 @@ public class RemoveElementAction extends MappingAction implements AnswerSubscrib
 		}
 	}
 
-	private void letUserDecide(final MapManagerEventsNotifier eventsNotifier,
+	private void letUserDecide(final MapEditorEventsNotifier eventsNotifier,
 							   final List<? extends PlacedElement> elementsInTheNode) {
 		ActionAnswer<PlacedElement> answer = new ActionAnswer<>(this);
 		eventsNotifier.nodeSelectedToSelectObjectsInIt(elementsInTheNode, answer);

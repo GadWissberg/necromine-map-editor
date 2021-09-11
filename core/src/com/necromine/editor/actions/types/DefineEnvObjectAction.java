@@ -3,7 +3,7 @@ package com.necromine.editor.actions.types;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapManagerEventsNotifier;
+import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 
@@ -19,7 +19,7 @@ public class DefineEnvObjectAction extends MappingAction {
 	}
 
 	@Override
-	public void execute(final MapManagerEventsNotifier eventsNotifier) {
+	public void execute(final MapEditorEventsNotifier eventsNotifier) {
 		element.setHeight(height);
 		Matrix4 transform = element.getModelInstance().transform;
 		Vector3 position = transform.getTranslation(auxVector);

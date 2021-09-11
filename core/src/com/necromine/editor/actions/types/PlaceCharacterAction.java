@@ -7,7 +7,7 @@ import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapManagerEventsNotifier;
+import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.actions.PlaceElementAction;
 import com.necromine.editor.model.elements.PlacedCharacter;
 import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
@@ -28,7 +28,7 @@ public class PlaceCharacterAction extends PlaceElementAction<PlacedCharacter, Ch
 	}
 
 	@Override
-	public void execute(final MapManagerEventsNotifier eventsNotifier) {
+	public void execute(final MapEditorEventsNotifier eventsNotifier) {
 		super.execute(eventsNotifier);
 	}
 

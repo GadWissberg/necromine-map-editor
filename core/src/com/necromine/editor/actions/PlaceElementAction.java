@@ -6,7 +6,7 @@ import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapManagerEventsNotifier;
+import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.model.elements.PlacedElement;
 
 import java.util.List;
@@ -35,7 +35,7 @@ public abstract class PlaceElementAction<T extends PlacedElement, S extends Elem
 	}
 
 	@Override
-	public void execute(final MapManagerEventsNotifier eventsNotifier) {
+	public void execute(final MapEditorEventsNotifier eventsNotifier) {
 		Coords coords = node.getCoords();
 		MapNodeData tile = map.getNodes()[coords.getRow()][coords.getCol()];
 		T element = createElement(tile);

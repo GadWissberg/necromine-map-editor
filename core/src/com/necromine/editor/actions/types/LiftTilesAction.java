@@ -3,7 +3,7 @@ package com.necromine.editor.actions.types;
 import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.model.MapNodeData;
 import com.necromine.editor.GameMap;
-import com.necromine.editor.MapManagerEventsNotifier;
+import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.model.node.FlatNode;
 import lombok.AccessLevel;
@@ -27,7 +27,7 @@ public class LiftTilesAction extends MappingAction {
 
 
 	@Override
-	public void execute(final MapManagerEventsNotifier eventsNotifier) {
+	public void execute(final MapEditorEventsNotifier eventsNotifier) {
 		int minRow = Math.min(params.getSrcNode().getRow(), params.getDstNode().getRow());
 		int minCol = Math.min(params.getSrcNode().getCol(), params.getDstNode().getCol());
 		int maxRow = Math.max(params.getSrcNode().getRow(), params.getDstNode().getRow());

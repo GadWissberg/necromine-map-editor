@@ -2,9 +2,6 @@ package com.gadarts.necromine.editor.desktop.commands;
 
 import com.gadarts.necromine.editor.desktop.Events;
 import com.gadarts.necromine.editor.desktop.toolbar.MapperCommand;
-import com.necromine.editor.mode.CameraModes;
-import com.necromine.editor.mode.EditModes;
-import com.necromine.editor.mode.EditorMode;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;

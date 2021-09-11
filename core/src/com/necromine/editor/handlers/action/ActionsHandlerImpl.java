@@ -13,15 +13,13 @@ import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.CursorSelectionModel;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditor;
-import com.necromine.editor.MapManagerEventsNotifier;
+import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.actions.processes.*;
 import com.necromine.editor.actions.types.*;
 import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.mode.EditModes;
-import com.necromine.editor.mode.EditorMode;
-import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.*;
@@ -37,11 +35,14 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Responsible for handling the actions.
+ */
 public class ActionsHandlerImpl implements ActionsHandler {
 	private static final Vector3 auxVector = new Vector3();
 	private final ActionHandlerRelatedData data;
 	private final ActionHandlerRelatedServices services;
-	private final MapManagerEventsNotifier eventsNotifier;
+	private final MapEditorEventsNotifier eventsNotifier;
 
 	@Setter
 	private ElementDefinition selectedElement;
@@ -51,7 +52,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 
 	public ActionsHandlerImpl(final ActionHandlerRelatedData data,
 							  final ActionHandlerRelatedServices services,
-							  final MapManagerEventsNotifier eventsNotifier) {
+							  final MapEditorEventsNotifier eventsNotifier) {
 		this.data = data;
 		this.services = services;
 		this.eventsNotifier = eventsNotifier;
@@ -94,16 +95,13 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	public boolean onTouchDown(final GameAssetsManager assetsManager,
 							   final Set<MapNodeData> initializedTiles,
 							   final int button) {
-		EditorMode mode = MapEditor.getMode();
-		Class<? extends EditorMode> modeClass = mode.getClass();
-		EditorTool tool = MapEditor.getTool();
 		if (button == Input.Buttons.LEFT) {
-			if (modeClass.equals(EditModes.class)) {
-				mode.onTouchDownLeft(currentProcess, this, assetsManager, initializedTiles);
+			if (MapEditor.getMode().getClass().equals(EditModes.class)) {
+				MapEditor.getMode().onTouchDownLeft(currentProcess, this, assetsManager, initializedTiles);
 			}
 		} else if (button == Input.Buttons.RIGHT) {
-			if (mode instanceof EditModes) {
-				if (tool == TilesTools.BRUSH || tool == EnvTools.BRUSH) {
+			if (MapEditor.getMode() instanceof EditModes) {
+				if (MapEditor.getTool() == TilesTools.BRUSH || MapEditor.getTool() == EnvTools.BRUSH) {
 					return removeElementByMode();
 				}
 			}
@@ -259,8 +257,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	 * @return Whether an action taken in response to this event.
 	 */
 	@SuppressWarnings("JavaDoc")
-	public boolean onTouchUp(final Assets.SurfaceTextures selectedTile,
-							 final Model cursorTileModel) {
+	public boolean onTouchUp(Assets.SurfaceTextures selectedTile, final Model cursorTileModel) {
 		boolean result = false;
 		if (currentProcess != null) {
 			finishProcess(selectedTile, cursorTileModel);

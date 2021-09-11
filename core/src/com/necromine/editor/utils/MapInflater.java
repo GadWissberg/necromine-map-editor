@@ -13,6 +13,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.necromine.editor.GameMap;
+import com.necromine.editor.MapEditorData;
 import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.handlers.ViewAuxHandler;
 import com.necromine.editor.mode.EditModes;
@@ -47,21 +48,20 @@ public class MapInflater {
 	/**
 	 * Deserializes map json into the given map object.
 	 *
-	 * @param map            The output map.
-	 * @param placedElements The placed elements inside the map.
+	 * @param data           The relevant map data.
 	 * @param wallCreator    The tool used to create walls.
 	 * @param viewAuxHandler Stuff used for helping mapping.
 	 */
-	public void inflateMap(final GameMap map,
-						   final PlacedElements placedElements,
+	public void inflateMap(final MapEditorData data,
 						   final WallCreator wallCreator,
 						   final ViewAuxHandler viewAuxHandler) {
-		this.map = map;
+		this.map = data.getMap();
 		try (Reader reader = new FileReader("test_map.json")) {
 			JsonObject input = gson.fromJson(reader, JsonObject.class);
 			JsonObject tilesJsonObject = input.getAsJsonObject(TILES);
 			map.setNodes(inflateTiles(tilesJsonObject, initializedTiles, viewAuxHandler));
 			inflateHeightsAndWalls(tilesJsonObject, map, wallCreator);
+			PlacedElements placedElements = data.getPlacedElements();
 			inflateCharacters(input, placedElements);
 			Arrays.stream(EditModes.values()).forEach(mode -> {
 				if (!mode.isSkipGenericElementLoading()) {

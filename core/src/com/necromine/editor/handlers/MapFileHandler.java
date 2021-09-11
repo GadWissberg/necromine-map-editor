@@ -3,8 +3,7 @@ package com.necromine.editor.handlers;
 import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.MapNodeData;
-import com.necromine.editor.GameMap;
-import com.necromine.editor.model.elements.PlacedElements;
+import com.necromine.editor.MapEditorData;
 import com.necromine.editor.utils.MapDeflater;
 import com.necromine.editor.utils.MapInflater;
 
@@ -20,15 +19,14 @@ public class MapFileHandler {
 		inflater = new MapInflater(assetsManager, cursorHandler, placedTiles);
 	}
 
-	public void onSaveMapRequested(final GameMap map, final PlacedElements placedElements) {
-		deflater.deflate(map, placedElements);
+	public void onSaveMapRequested(final MapEditorData data) {
+		deflater.deflate(data);
 	}
 
-	public void onLoadMapRequested(final GameMap map,
-								   final PlacedElements placedElements,
+	public void onLoadMapRequested(final MapEditorData data,
 								   final WallCreator wallCreator,
 								   final ViewAuxHandler viewAuxHandler) {
-		inflater.inflateMap(map, placedElements, wallCreator, viewAuxHandler);
+		inflater.inflateMap(data, wallCreator, viewAuxHandler);
 
 	}
 }

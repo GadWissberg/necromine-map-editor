@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class MapManagerEventsNotifier {
+public class MapEditorEventsNotifier {
 	private final Set<MapManagerEventsSubscriber> subscribers = new HashSet<>();
 
 	public void subscribeForEvents(final MapManagerEventsSubscriber subscriber) {

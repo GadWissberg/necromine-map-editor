@@ -10,14 +10,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.GeneralUtils;
 import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
-import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.handlers.CursorHandler;
+import com.necromine.editor.handlers.HandlersManager;
 import com.necromine.editor.handlers.HandlersManagerImpl;
 import com.necromine.editor.handlers.ResourcesHandler;
 import com.necromine.editor.mode.CameraModes;
@@ -25,7 +24,6 @@ import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.mode.tools.TilesTools;
-import com.necromine.editor.model.elements.CharacterDecal;
 import com.necromine.editor.model.elements.PlacedElements;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.node.FlatNode;
@@ -58,32 +56,26 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	private static final float[] CAMERA_INITIAL_POSITION = {4F, 6F, 4F};
 
 	@Getter
-	private static EditorMode mode = EditModes.TILES;
+	public static EditorMode mode = EditModes.TILES;
 
 	@Getter
-	private static EditorTool tool = TilesTools.BRUSH;
+	public static EditorTool tool = TilesTools.BRUSH;
 
-	public final int VIEWPORT_WIDTH;
-	public final int VIEWPORT_HEIGHT;
-	private final PlacedElements placedElements = new PlacedElements();
+	private final MapEditorData data;
 	private final Vector2 lastMouseTouchPosition = new Vector2();
-	private final HandlersManagerImpl handlers;
-	private final MapManagerEventsNotifier eventsNotifier = new MapManagerEventsNotifier();
-	private final GameMap map = new GameMap();
+	private final HandlersManager handlers;
 	private WallCreator wallCreator;
 	private OrthographicCamera camera;
-	private Assets.SurfaceTextures selectedTile;
-	private ElementDefinition selectedElement;
 
 	public MapEditor(final int width, final int height, final String assetsLocation) {
-		VIEWPORT_WIDTH = width / 50;
-		VIEWPORT_HEIGHT = height / 50;
-		handlers = new HandlersManagerImpl(map, eventsNotifier, placedElements);
+		data = new MapEditorData(new ViewportResolution(width / 50, height / 50));
+		handlers = new HandlersManagerImpl(data);
 		ResourcesHandler resourcesHandler = handlers.getResourcesHandler();
 		resourcesHandler.init(assetsLocation);
 		CursorHandler cursorHandler = handlers.getCursorHandler();
 		GameAssetsManager assetsManager = resourcesHandler.getAssetsManager();
 		cursorHandler.setCursorSelectionModel(new CursorSelectionModel(assetsManager));
+		PlacedElements placedElements = data.getPlacedElements();
 		handlers.getMapFileHandler().init(assetsManager, cursorHandler, placedElements.getPlacedTiles());
 		Arrays.stream(EditModes.values()).forEach(mode -> placedElements.getPlacedObjects().put(mode, new ArrayList<>()));
 	}
@@ -94,13 +86,16 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		GameAssetsManager assetsManager = handlers.getResourcesHandler().getAssetsManager();
 		wallCreator = new WallCreator(assetsManager);
 		camera = createCamera();
-		handlers.onCreate(camera, wallCreator, map.getDimension());
+		handlers.onCreate(camera, wallCreator, data.getMap().getDimension());
 		initializeInput();
 	}
 
 
 	private OrthographicCamera createCamera( ) {
-		OrthographicCamera cam = new OrthographicCamera(VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+		ViewportResolution viewportResolution = data.getViewportResolution();
+		OrthographicCamera cam = new OrthographicCamera(
+				viewportResolution.VIEWPORT_WIDTH,
+				viewportResolution.VIEWPORT_HEIGHT);
 		cam.near = NEAR;
 		cam.far = FAR;
 		cam.update();
@@ -119,7 +114,8 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	@Override
 	public void render( ) {
 		update();
-		handlers.getRenderHandler().render(mode, placedElements, selectedElement);
+		PlacedElements placedElements = data.getPlacedElements();
+		handlers.getRenderHandler().render(mode, placedElements, handlers.getSelectionHandler().getSelectedElement());
 	}
 
 
@@ -145,103 +141,60 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public void onTileSelected(final Assets.SurfaceTextures texture) {
-		selectedTile = texture;
-		handlers.onTileSelected();
+		handlers.onTileSelected(texture);
 	}
 
 	@Override
 	public void onEditModeSet(final EditModes mode) {
-		onModeSet(mode);
-		if (mode != EditModes.LIGHTS && mode != EditModes.PICKUPS) {
-			if (mode != EditModes.TILES || selectedTile == null) {
-				handlers.getCursorHandler().setHighlighter(null);
-			} else {
-				onTileSelected(selectedTile);
-			}
-		} else {
-			handlers.getCursorHandler().setHighlighter(handlers.getCursorHandler().getCursorTileModelInstance());
-		}
+		handlers.onEditModeSet(mode);
 	}
 
-	private void onModeSet(final EditorMode mode) {
-		selectedElement = null;
-		handlers.getCursorHandler().setHighlighter(null);
-		MapEditor.mode = mode;
-	}
 
 	@Override
 	public void onTreeCharacterSelected(final CharacterDefinition definition) {
-		selectedElement = definition;
-		handlers.onTreeCharacterSelected(selectedElement, definition);
+		handlers.onTreeCharacterSelected(definition);
 	}
 
 	@Override
 	public void onSelectedObjectRotate(final int direction) {
-		if (selectedElement != null) {
-			CursorHandler cursorHandler = handlers.getCursorHandler();
-			if (mode == EditModes.CHARACTERS) {
-				CharacterDecal cursorCharacterDecal = cursorHandler.getCursorCharacterDecal();
-				int ordinal = cursorCharacterDecal.getSpriteDirection().ordinal() + direction;
-				int length = Direction.values().length;
-				int index = (ordinal < 0 ? ordinal + length : ordinal) % length;
-				cursorCharacterDecal.setSpriteDirection(Direction.values()[index]);
-			} else {
-				CursorSelectionModel cursorSelectionModel = cursorHandler.getCursorSelectionModel();
-				int ordinal = cursorSelectionModel.getFacingDirection().ordinal() + direction * 2;
-				int length = Direction.values().length;
-				int index = (ordinal < 0 ? ordinal + length : ordinal) % length;
-				cursorSelectionModel.setFacingDirection(Direction.values()[index]);
-			}
-		}
+		handlers.onSelectedObjectRotate(direction, mode);
 	}
 
 	@Override
 	public void onTreeEnvSelected(final EnvironmentDefinitions env) {
-		selectedElement = env;
-		handlers.onTreeEnvSelected(selectedElement);
+		handlers.onTreeEnvSelected(env);
 	}
 
 	@Override
 	public void onTreePickupSelected(final ItemDefinition definition) {
-		selectedElement = definition;
-		handlers.onTreePickupSelected(selectedElement, definition);
+		handlers.onTreePickupSelected(definition);
 	}
 
 	@Override
 	public void onCameraModeSet(final CameraModes mode) {
-		onModeSet(mode);
+		handlers.onModeSet(mode);
 	}
 
 	@Override
 	public void onSaveMapRequested( ) {
-		handlers.getMapFileHandler().onSaveMapRequested(map, placedElements);
+		handlers.getMapFileHandler().onSaveMapRequested(data);
 	}
 
 	@Override
 	public void onNewMapRequested( ) {
-		placedElements.clear();
-		map.reset();
+		data.reset();
 		initializeCameraPosition(camera);
-		handlers.getViewAuxHandler().createModels(map.getDimension());
+		handlers.getViewAuxHandler().createModels(data.getMap().getDimension());
 	}
 
 	@Override
 	public void onLoadMapRequested( ) {
-		handlers.getMapFileHandler().onLoadMapRequested(map, placedElements, wallCreator, handlers.getViewAuxHandler());
+		handlers.getMapFileHandler().onLoadMapRequested(data, wallCreator, handlers.getViewAuxHandler());
 	}
 
 	@Override
 	public void onToolSet(final EditorTool tool) {
-		selectedElement = null;
-		CursorHandler cursorHandler = handlers.getCursorHandler();
-		if (tool != TilesTools.BRUSH) {
-			cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
-		} else {
-			if (selectedTile == null) {
-				cursorHandler.setHighlighter(null);
-			}
-		}
-		MapEditor.tool = tool;
+		handlers.onToolSet(tool);
 	}
 
 	@Override
@@ -256,12 +209,12 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public float getAmbientLightValue( ) {
-		return map.getAmbientLight();
+		return data.getMap().getAmbientLight();
 	}
 
 	@Override
 	public void onAmbientLightValueSet(final float value) {
-		map.setAmbientLight(value);
+		data.getMap().setAmbientLight(value);
 	}
 
 	@Override
@@ -271,15 +224,15 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public void onMapSizeSet(final int width, final int depth) {
-		if (this.map.getNodes().length == depth && this.map.getNodes()[0].length == width) return;
+		if (this.data.getMap().getNodes().length == depth && this.data.getMap().getNodes()[0].length == width) return;
 		Dimension dimension = new Dimension(width, depth);
-		map.resetSize(dimension);
+		data.getMap().resetSize(dimension);
 		handlers.getViewAuxHandler().createModels(dimension);
 	}
 
 	@Override
 	public Dimension getMapSize( ) {
-		MapNodeData[][] nodes = map.getNodes();
+		MapNodeData[][] nodes = data.getMap().getNodes();
 		return new Dimension(nodes.length, nodes[0].length);
 	}
 
@@ -299,14 +252,14 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		if (button == Input.Buttons.LEFT) {
 			lastMouseTouchPosition.set(screenX, screenY);
 		}
-		Set<MapNodeData> placedTiles = placedElements.getPlacedTiles();
+		Set<MapNodeData> placedTiles = data.getPlacedElements().getPlacedTiles();
 		GameAssetsManager assetsManager = handlers.getResourcesHandler().getAssetsManager();
 		return handlers.getActionsHandler().onTouchDown(assetsManager, placedTiles, button);
 	}
 
 	@Override
 	public boolean touchUp(final int screenX, final int screenY, final int pointer, final int button) {
-		return handlers.getActionsHandler().onTouchUp(selectedTile, handlers.getCursorHandler().getCursorTileModel());
+		return handlers.onTouchUp(handlers.getCursorHandler().getCursorTileModel());
 	}
 
 	@Override
@@ -316,7 +269,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 			Vector3 rotationPoint = GeneralUtils.defineRotationPoint(auxVector3_1, camera);
 			((CameraModes) mode).getManipulation().run(lastMouseTouchPosition, camera, screenX, screenY, rotationPoint);
 		} else {
-			result = handlers.getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, map);
+			result = handlers.getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, data.getMap());
 		}
 		lastMouseTouchPosition.set(screenX, screenY);
 		return result;
@@ -324,10 +277,10 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public boolean mouseMoved(final int screenX, final int screenY) {
-		return handlers.getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, map);
+		return handlers.getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, data.getMap());
 	}
 
 	public void subscribeForEvents(final MapManagerEventsSubscriber subscriber) {
-		eventsNotifier.subscribeForEvents(subscriber);
+		handlers.getEventsNotifier().subscribeForEvents(subscriber);
 	}
 }
