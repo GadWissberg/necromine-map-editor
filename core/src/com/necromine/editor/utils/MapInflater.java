@@ -5,7 +5,11 @@ import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.assets.MapJsonKeys;
-import com.gadarts.necromine.model.*;
+import com.gadarts.necromine.model.Coords;
+import com.gadarts.necromine.model.ElementDefinition;
+import com.gadarts.necromine.model.MapNodeData;
+import com.gadarts.necromine.model.MapNodesTypes;
+import com.gadarts.necromine.model.Wall;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.google.gson.Gson;
@@ -15,7 +19,7 @@ import com.google.gson.JsonObject;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorData;
 import com.necromine.editor.handlers.CursorHandler;
-import com.necromine.editor.handlers.ViewAuxHandler;
+import com.necromine.editor.handlers.RenderHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
@@ -27,11 +31,30 @@ import java.awt.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
-import java.util.*;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.IntStream;
 
-import static com.gadarts.necromine.assets.MapJsonKeys.*;
+import static com.gadarts.necromine.assets.MapJsonKeys.AMBIENT;
+import static com.gadarts.necromine.assets.MapJsonKeys.CHARACTERS;
+import static com.gadarts.necromine.assets.MapJsonKeys.COL;
+import static com.gadarts.necromine.assets.MapJsonKeys.DEPTH;
+import static com.gadarts.necromine.assets.MapJsonKeys.DIRECTION;
+import static com.gadarts.necromine.assets.MapJsonKeys.EAST;
+import static com.gadarts.necromine.assets.MapJsonKeys.HEIGHT;
+import static com.gadarts.necromine.assets.MapJsonKeys.HEIGHTS;
+import static com.gadarts.necromine.assets.MapJsonKeys.MATRIX;
+import static com.gadarts.necromine.assets.MapJsonKeys.NORTH;
+import static com.gadarts.necromine.assets.MapJsonKeys.ROW;
+import static com.gadarts.necromine.assets.MapJsonKeys.TEXTURE;
+import static com.gadarts.necromine.assets.MapJsonKeys.TILES;
+import static com.gadarts.necromine.assets.MapJsonKeys.TYPE;
+import static com.gadarts.necromine.assets.MapJsonKeys.V_SCALE;
+import static com.gadarts.necromine.assets.MapJsonKeys.WEST;
+import static com.gadarts.necromine.assets.MapJsonKeys.WIDTH;
 import static com.gadarts.necromine.model.characters.Direction.SOUTH;
 
 /**
@@ -48,18 +71,18 @@ public class MapInflater {
 	/**
 	 * Deserializes map json into the given map object.
 	 *
-	 * @param data           The relevant map data.
-	 * @param wallCreator    The tool used to create walls.
-	 * @param viewAuxHandler Stuff used for helping mapping.
+	 * @param data          The relevant map data.
+	 * @param wallCreator   The tool used to create walls.
+	 * @param renderHandler Stuff used for helping mapping.
 	 */
 	public void inflateMap(final MapEditorData data,
 						   final WallCreator wallCreator,
-						   final ViewAuxHandler viewAuxHandler) {
+						   final RenderHandler renderHandler) {
 		this.map = data.getMap();
 		try (Reader reader = new FileReader("test_map.json")) {
 			JsonObject input = gson.fromJson(reader, JsonObject.class);
 			JsonObject tilesJsonObject = input.getAsJsonObject(TILES);
-			map.setNodes(inflateTiles(tilesJsonObject, initializedTiles, viewAuxHandler));
+			map.setNodes(inflateTiles(tilesJsonObject, initializedTiles, renderHandler));
 			inflateHeightsAndWalls(tilesJsonObject, map, wallCreator);
 			PlacedElements placedElements = data.getPlacedElements();
 			inflateCharacters(input, placedElements);
@@ -261,7 +284,7 @@ public class MapInflater {
 
 	private MapNodeData[][] inflateTiles(final JsonObject tilesJsonObject,
 										 final Set<MapNodeData> initializedTiles,
-										 final ViewAuxHandler viewAuxHandler) {
+										 final RenderHandler viewAuxHandler) {
 		int width = tilesJsonObject.get(WIDTH).getAsInt();
 		int depth = tilesJsonObject.get(DEPTH).getAsInt();
 		viewAuxHandler.createModels(new Dimension(width, depth));

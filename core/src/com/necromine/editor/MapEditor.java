@@ -72,7 +72,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		handlers = new HandlersManagerImpl(data);
 		ResourcesHandler resourcesHandler = handlers.getResourcesHandler();
 		resourcesHandler.init(assetsLocation);
-		CursorHandler cursorHandler = handlers.getCursorHandler();
+		CursorHandler cursorHandler = handlers.getLogicHandlers().getCursorHandler();
 		GameAssetsManager assetsManager = resourcesHandler.getAssetsManager();
 		cursorHandler.setCursorSelectionModel(new CursorSelectionModel(assetsManager));
 		PlacedElements placedElements = data.getPlacedElements();
@@ -115,7 +115,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	public void render( ) {
 		update();
 		PlacedElements placedElements = data.getPlacedElements();
-		handlers.getRenderHandler().render(mode, placedElements, handlers.getSelectionHandler().getSelectedElement());
+		handlers.getRenderHandler().render(mode, placedElements, handlers.getLogicHandlers().getSelectionHandler().getSelectedElement());
 	}
 
 
@@ -126,7 +126,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 			cameraInputController.update();
 		}
 		camera.update();
-		CursorHandler cursorHandler = handlers.getCursorHandler();
+		CursorHandler cursorHandler = handlers.getLogicHandlers().getCursorHandler();
 		if (cursorHandler.getHighlighter() != null) {
 			cursorHandler.updateCursorFlicker(mode);
 		}
@@ -184,12 +184,12 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	public void onNewMapRequested( ) {
 		data.reset();
 		initializeCameraPosition(camera);
-		handlers.getViewAuxHandler().createModels(data.getMap().getDimension());
+		handlers.getRenderHandler().createModels(data.getMap().getDimension());
 	}
 
 	@Override
 	public void onLoadMapRequested( ) {
-		handlers.getMapFileHandler().onLoadMapRequested(data, wallCreator, handlers.getViewAuxHandler());
+		handlers.getMapFileHandler().onLoadMapRequested(data, wallCreator, handlers.getRenderHandler());
 	}
 
 	@Override
@@ -199,12 +199,12 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public void onNodeWallsDefined(final NodeWallsDefinitions definitions, final FlatNode src, final FlatNode dst) {
-		handlers.getActionsHandler().onNodeWallsDefined(definitions, src, dst);
+		handlers.getLogicHandlers().getActionsHandler().onNodeWallsDefined(definitions, src, dst);
 	}
 
 	@Override
 	public void onTilesLift(final FlatNode src, final FlatNode dst, final float value) {
-		handlers.getActionsHandler().onTilesLift(src, dst, value);
+		handlers.getLogicHandlers().getActionsHandler().onTilesLift(src, dst, value);
 	}
 
 	@Override
@@ -219,7 +219,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public void onEnvObjectDefined(final PlacedEnvObject element, final float height) {
-		handlers.getActionsHandler().onEnvObjectDefined(element, height);
+		handlers.getLogicHandlers().getActionsHandler().onEnvObjectDefined(element, height);
 	}
 
 	@Override
@@ -227,7 +227,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		if (this.data.getMap().getNodes().length == depth && this.data.getMap().getNodes()[0].length == width) return;
 		Dimension dimension = new Dimension(width, depth);
 		data.getMap().resetSize(dimension);
-		handlers.getViewAuxHandler().createModels(dimension);
+		handlers.getRenderHandler().createModels(dimension);
 	}
 
 	@Override
@@ -254,12 +254,12 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		}
 		Set<MapNodeData> placedTiles = data.getPlacedElements().getPlacedTiles();
 		GameAssetsManager assetsManager = handlers.getResourcesHandler().getAssetsManager();
-		return handlers.getActionsHandler().onTouchDown(assetsManager, placedTiles, button);
+		return handlers.getLogicHandlers().getActionsHandler().onTouchDown(assetsManager, placedTiles, button);
 	}
 
 	@Override
 	public boolean touchUp(final int screenX, final int screenY, final int pointer, final int button) {
-		return handlers.onTouchUp(handlers.getCursorHandler().getCursorTileModel());
+		return handlers.onTouchUp(handlers.getLogicHandlers().getCursorHandler().getCursorTileModel());
 	}
 
 	@Override
@@ -269,7 +269,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 			Vector3 rotationPoint = GeneralUtils.defineRotationPoint(auxVector3_1, camera);
 			((CameraModes) mode).getManipulation().run(lastMouseTouchPosition, camera, screenX, screenY, rotationPoint);
 		} else {
-			result = handlers.getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, data.getMap());
+			result = handlers.getLogicHandlers().getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, data.getMap());
 		}
 		lastMouseTouchPosition.set(screenX, screenY);
 		return result;
@@ -277,7 +277,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public boolean mouseMoved(final int screenX, final int screenY) {
-		return handlers.getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, data.getMap());
+		return handlers.getLogicHandlers().getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, data.getMap());
 	}
 
 	public void subscribeForEvents(final MapManagerEventsSubscriber subscriber) {

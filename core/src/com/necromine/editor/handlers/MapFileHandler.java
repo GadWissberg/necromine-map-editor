@@ -25,8 +25,8 @@ public class MapFileHandler {
 
 	public void onLoadMapRequested(final MapEditorData data,
 								   final WallCreator wallCreator,
-								   final ViewAuxHandler viewAuxHandler) {
-		inflater.inflateMap(data, wallCreator, viewAuxHandler);
+								   final RenderHandler renderHandler) {
+		inflater.inflateMap(data, wallCreator, renderHandler);
 
 	}
 }
