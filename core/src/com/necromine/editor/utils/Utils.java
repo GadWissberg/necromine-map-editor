@@ -15,7 +15,10 @@ import com.badlogic.gdx.math.collision.Ray;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.MapNodeData;
-import com.gadarts.necromine.model.characters.*;
+import com.gadarts.necromine.model.characters.CharacterDefinition;
+import com.gadarts.necromine.model.characters.CharacterUtils;
+import com.gadarts.necromine.model.characters.Direction;
+import com.gadarts.necromine.model.characters.SpriteType;
 import com.necromine.editor.actions.processes.ApplyActionOnTilesRegion;
 import com.necromine.editor.model.elements.CharacterDecal;
 import com.necromine.editor.model.node.FlatNode;
@@ -49,8 +52,8 @@ public class Utils {
 																 final Camera camera,
 																 final GameAssetsManager assetsManager) {
 		Direction dirSeenFromCamera = CharacterUtils.calculateDirectionSeenFromCamera(camera, facingDirection);
-		CharacterTypes characterType = characterDecal.getCharacterDefinition().getCharacterType();
-		String name = String.format(FRAMES_KEY_CHARACTER, characterType.name());
+		CharacterDefinition characterDefinition = characterDecal.getCharacterDefinition();
+		String name = String.format(FRAMES_KEY_CHARACTER, characterDefinition.name());
 		HashMap<Direction, TextureAtlas.AtlasRegion> hashMap = assetsManager.get(name);
 		TextureAtlas.AtlasRegion textureRegion = hashMap.get(dirSeenFromCamera);
 		Decal decal = characterDecal.getDecal();

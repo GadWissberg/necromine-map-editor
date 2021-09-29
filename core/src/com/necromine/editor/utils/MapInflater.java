@@ -277,7 +277,16 @@ public class MapInflater {
 		MapNodeData node = map.getNodes()[json.get(ROW).getAsInt()][json.get(COL).getAsInt()];
 		ElementDefinition definition = null;
 		if (definitions != null) {
-			definition = definitions[json.get(TYPE).getAsInt()];
+			try {
+				String asString = json.get(TYPE).getAsString();
+				definition = Optional.of(Arrays.stream(definitions)
+								.filter(def -> def.name().equalsIgnoreCase(asString))
+								.findFirst())
+						.orElseThrow()
+						.get();
+			} catch (Exception e) {
+				definition = definitions[json.get(TYPE).getAsInt()];
+			}
 		}
 		return new PlacedElementParameters(definition, dir, node, height);
 	}

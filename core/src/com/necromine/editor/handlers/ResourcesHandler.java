@@ -48,7 +48,7 @@ public class ResourcesHandler implements Disposable {
 			String name = SpriteType.IDLE.name() + "_" + direction.name();
 			playerFrames.put(direction, atlas.findRegion(name.toLowerCase()));
 		});
-		String format = String.format(Utils.FRAMES_KEY_CHARACTER, characterDefinition.getCharacterType().name());
+		String format = String.format(Utils.FRAMES_KEY_CHARACTER, characterDefinition.name());
 		assetsManager.addAsset(format, Map.class, playerFrames);
 	}
 

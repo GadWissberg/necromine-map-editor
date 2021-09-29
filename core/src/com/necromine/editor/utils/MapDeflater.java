@@ -81,7 +81,7 @@ public class MapDeflater {
 		if (addFacingDirection) {
 			jsonObject.addProperty(MapJsonKeys.DIRECTION, e.getFacingDirection().ordinal());
 		}
-		Optional.ofNullable(e.getDefinition()).ifPresent(d -> jsonObject.addProperty(MapJsonKeys.TYPE, d.ordinal()));
+		Optional.ofNullable(e.getDefinition()).ifPresent(d -> jsonObject.addProperty(MapJsonKeys.TYPE, d.name()));
 		return jsonObject;
 	}
 
