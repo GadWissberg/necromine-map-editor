@@ -6,7 +6,6 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
-import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
@@ -19,19 +18,25 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.gadarts.necromine.assets.Assets.AssetsTypes.FONT;
+import static com.gadarts.necromine.assets.Assets.AssetsTypes.MELODY;
+import static com.gadarts.necromine.assets.Assets.AssetsTypes.PARTICLES;
+import static com.gadarts.necromine.assets.Assets.AssetsTypes.SHADER;
+import static com.gadarts.necromine.assets.Assets.AssetsTypes.SOUND;
+
 @Getter
 public class ResourcesHandler implements Disposable {
 
 	private GameAssetsManager assetsManager;
 
-	void initializeGameFiles( ) {
-		assetsManager.loadGameFiles(Assets.AssetsTypes.FONT, Assets.AssetsTypes.MELODY, Assets.AssetsTypes.SOUND, Assets.AssetsTypes.SHADER);
+	void initializeGameFiles() {
+		assetsManager.loadGameFiles(FONT, MELODY, SOUND, SHADER, PARTICLES);
 		Arrays.stream(CharacterTypes.values()).forEach(type ->
 				Arrays.stream(type.getDefinitions()).forEach(this::generateFramesMapForCharacter));
 		postAssetsLoading();
 	}
 
-	private void postAssetsLoading( ) {
+	private void postAssetsLoading() {
 		Array<Model> models = new Array<>();
 		assetsManager.getAll(Model.class, models);
 		models.forEach(model -> model.materials.get(0).set(new BlendingAttribute()));
@@ -58,7 +63,7 @@ public class ResourcesHandler implements Disposable {
 	}
 
 	@Override
-	public void dispose( ) {
+	public void dispose() {
 		assetsManager.dispose();
 	}
 }
