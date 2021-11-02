@@ -2,9 +2,9 @@ package com.necromine.editor.mode;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
-import com.gadarts.necromine.model.EnvironmentDefinitions;
-import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.CharacterTypes;
+import com.gadarts.necromine.model.env.EnvironmentDefinitions;
+import com.gadarts.necromine.model.map.MapNodeData;
 import com.gadarts.necromine.model.pickups.WeaponsDefinitions;
 import com.necromine.editor.EntriesDisplayTypes;
 import com.necromine.editor.TreeSection;

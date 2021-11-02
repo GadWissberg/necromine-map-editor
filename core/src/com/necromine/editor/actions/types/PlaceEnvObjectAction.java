@@ -2,9 +2,9 @@ package com.necromine.editor.actions.types;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.Coords;
-import com.gadarts.necromine.model.EnvironmentDefinitions;
-import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
+import com.gadarts.necromine.model.env.EnvironmentDefinitions;
+import com.gadarts.necromine.model.map.MapNodeData;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.actions.PlaceElementAction;

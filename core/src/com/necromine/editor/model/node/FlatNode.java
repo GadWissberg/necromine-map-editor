@@ -1,6 +1,6 @@
 package com.necromine.editor.model.node;
 
-import com.gadarts.necromine.model.MapNodeData;
+import com.gadarts.necromine.model.map.MapNodeData;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

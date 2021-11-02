@@ -1,8 +1,8 @@
 package com.necromine.editor.model.elements;
 
 import com.gadarts.necromine.model.ElementDefinition;
-import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
+import com.gadarts.necromine.model.map.MapNodeData;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;

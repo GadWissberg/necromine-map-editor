@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.Coords;
-import com.gadarts.necromine.model.MapNodeData;
+import com.gadarts.necromine.model.map.MapNodeData;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 

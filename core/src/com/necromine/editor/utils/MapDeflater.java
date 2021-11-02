@@ -2,10 +2,11 @@ package com.necromine.editor.utils;
 
 import com.gadarts.necromine.assets.MapJsonKeys;
 import com.gadarts.necromine.model.Coords;
-import com.gadarts.necromine.model.MapNodeData;
-import com.gadarts.necromine.model.NodeWalls;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.CharacterTypes;
+import com.gadarts.necromine.model.map.MapNodeData;
+import com.gadarts.necromine.model.map.NodeWalls;
+import com.gadarts.necromine.model.map.Wall;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -138,7 +139,7 @@ public class MapDeflater {
 		Optional.ofNullable(walls.getNorthWall()).ifPresent(wall -> addWallDefinition(output, wall, MapJsonKeys.NORTH));
 	}
 
-	private void addWallDefinition(final JsonObject json, final com.gadarts.necromine.model.Wall w, final String side) {
+	private void addWallDefinition(final JsonObject json, final Wall w, final String side) {
 		if (w.getDefinition() == null) return;
 		String textureName = w.getDefinition().getName();
 		Float vScale = w.getVScale();

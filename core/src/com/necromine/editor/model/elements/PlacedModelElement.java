@@ -3,9 +3,9 @@ package com.necromine.editor.model.elements;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.Coords;
-import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.ModelElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;
+import com.gadarts.necromine.model.map.MapNodeData;
 import lombok.Getter;
 
 import static com.gadarts.necromine.model.characters.Direction.SOUTH;

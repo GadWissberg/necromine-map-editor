@@ -1,7 +1,7 @@
 package com.necromine.editor.mode;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.MapNodeData;
+import com.gadarts.necromine.model.map.MapNodeData;
 import com.necromine.editor.MapEditor;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.handlers.action.ActionsHandler;

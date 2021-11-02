@@ -2,7 +2,7 @@ package com.necromine.editor.handlers;
 
 import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.MapNodeData;
+import com.gadarts.necromine.model.map.MapNodeData;
 import com.necromine.editor.MapEditorData;
 import com.necromine.editor.utils.MapDeflater;
 import com.necromine.editor.utils.MapInflater;

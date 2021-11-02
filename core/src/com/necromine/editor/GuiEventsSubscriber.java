@@ -2,8 +2,8 @@ package com.necromine.editor;
 
 
 import com.gadarts.necromine.assets.Assets;
-import com.gadarts.necromine.model.EnvironmentDefinitions;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
+import com.gadarts.necromine.model.env.EnvironmentDefinitions;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;

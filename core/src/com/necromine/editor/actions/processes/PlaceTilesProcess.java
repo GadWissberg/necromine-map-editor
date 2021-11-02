@@ -1,7 +1,7 @@
 package com.necromine.editor.actions.processes;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.MapNodeData;
+import com.gadarts.necromine.model.map.MapNodeData;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.model.node.FlatNode;
@@ -11,7 +11,8 @@ import lombok.Getter;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.gadarts.necromine.model.MapNodesTypes.PASSABLE_NODE;
+import static com.gadarts.necromine.model.map.MapNodesTypes.PASSABLE_NODE;
+
 
 @Getter
 public class PlaceTilesProcess extends MappingProcess<PlaceTilesFinishProcessParameters> {

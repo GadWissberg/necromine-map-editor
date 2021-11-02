@@ -1,8 +1,8 @@
 package com.necromine.editor.actions.types;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.MapNodeData;
 import com.gadarts.necromine.model.characters.Direction;
+import com.gadarts.necromine.model.map.MapNodeData;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.actions.PlaceElementAction;
