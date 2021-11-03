@@ -29,7 +29,7 @@ public class TexturesGalleryDialog extends DialogPane {
 	}
 
 	@Override
-	public String getDialogTitle() {
+	public String getDialogTitle( ) {
 		return "Select Texture";
 	}
 }

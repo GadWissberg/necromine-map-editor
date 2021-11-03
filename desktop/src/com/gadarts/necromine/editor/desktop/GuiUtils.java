@@ -54,6 +54,8 @@ public final class GuiUtils {
 		});
 
 		jScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		jScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		jScrollPane.setPreferredSize(new Dimension(jScrollPane.getPreferredSize().width, 480));
 		return jScrollPane;
 	}
 
