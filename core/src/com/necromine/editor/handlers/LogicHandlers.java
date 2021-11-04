@@ -74,12 +74,11 @@ public class LogicHandlers implements Disposable {
 		cursorHandler.applyOpacity();
 	}
 
-	public void onTreePickupSelected(final ItemDefinition definition) {
-		ElementDefinition selectedElement = selectionHandler.getSelectedElement();
+	public void onTreePickupSelected(final ItemDefinition selectedElement) {
 		selectionHandler.setSelectedElement(selectedElement);
 		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
 		actionsHandler.setSelectedElement(selectedElement);
-		cursorHandler.getCursorSelectionModel().setSelection(selectedElement, definition.getModelDefinition());
+		cursorHandler.getCursorSelectionModel().setSelection(selectedElement, selectedElement.getModelDefinition());
 		cursorHandler.applyOpacity();
 	}
 }
