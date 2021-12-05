@@ -1,8 +1,8 @@
 package com.necromine.editor.model.node;
 
-import com.gadarts.necromine.model.MapNodeData;
-import com.gadarts.necromine.model.NodeWalls;
-import com.gadarts.necromine.model.Wall;
+import com.gadarts.necromine.model.map.MapNodeData;
+import com.gadarts.necromine.model.map.NodeWalls;
+import com.gadarts.necromine.model.map.Wall;
 import lombok.Getter;
 
 @Getter

@@ -55,7 +55,9 @@ public class CursorHandler implements Disposable {
 	void applyOpacity( ) {
 		ModelInstance modelInstance = getCursorSelectionModel().getModelInstance();
 		BlendingAttribute blend = (BlendingAttribute) modelInstance.materials.get(0).get(BlendingAttribute.Type);
-		blend.opacity = CursorHandler.CURSOR_OPACITY;
+		if (blend != null) {
+			blend.opacity = CursorHandler.CURSOR_OPACITY;
+		}
 	}
 
 	public void updateCursorFlicker(final EditorMode mode) {
