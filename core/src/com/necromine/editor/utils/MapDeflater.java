@@ -142,10 +142,15 @@ public class MapDeflater {
 	private void addWallDefinition(final JsonObject json, final Wall w, final String side) {
 		if (w.getDefinition() == null) return;
 		String textureName = w.getDefinition().getName();
-		Float vScale = w.getVScale();
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty(MapJsonKeys.TEXTURE, textureName);
-		Optional.ofNullable(vScale).ifPresent(v -> jsonObject.addProperty(MapJsonKeys.V_SCALE, vScale));
+		deflateWallProperty(jsonObject, w.getVScale(), MapJsonKeys.V_SCALE);
+		deflateWallProperty(jsonObject, w.getVScale(), MapJsonKeys.V_SCALE);
+		deflateWallProperty(jsonObject, w.getVScale(), MapJsonKeys.V_SCALE);
 		json.add(side, jsonObject);
+	}
+
+	private void deflateWallProperty(final JsonObject jsonObject, final Float value, final String key) {
+		Optional.ofNullable(value).ifPresent(v -> jsonObject.addProperty(key, value));
 	}
 }

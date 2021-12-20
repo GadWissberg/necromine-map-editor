@@ -11,4 +11,6 @@ import lombok.Setter;
 public class WallDefinition {
 	private final Assets.SurfaceTextures texture;
 	private final Float vScale;
+	private final Float horizontalOffset;
+	private final Float verticalOffset;
 }
