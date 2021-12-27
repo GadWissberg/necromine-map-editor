@@ -140,13 +140,21 @@ public class MapInflater {
 								  final JsonElement north,
 								  final MapNodeData northNode) {
 		JsonObject wallJsonObj = north.getAsJsonObject();
-		Wall northWall = WallCreator.createNorthWall(
+		Wall northWall = createNorthWall(mapNodeData, wallModel, wallJsonObj);
+		mapNodeData.getWalls().setNorthWall(northWall);
+		WallCreator.adjustWallBetweenNorthAndSouth(
+				mapNodeData,
+				northNode,
+				defineVScale(wallJsonObj, northWall),
+				defineHorizontalOffset(wallJsonObj, northWall), defineVerticalOffset(wallJsonObj, northWall));
+	}
+
+	private Wall createNorthWall(final MapNodeData mapNodeData, final Model wallModel, final JsonObject wallJsonObj) {
+		return WallCreator.createNorthWall(
 				mapNodeData,
 				wallModel,
 				assetsManager,
 				Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
-		mapNodeData.getWalls().setNorthWall(northWall);
-		WallCreator.adjustWallBetweenNorthAndSouth(mapNodeData, northNode, defineVScale(wallJsonObj, northWall));
 	}
 
 	private void inflateWestWall(final MapNodeData mapNodeData,
@@ -154,13 +162,21 @@ public class MapInflater {
 								 final JsonElement west,
 								 final MapNodeData westNode) {
 		JsonObject wallJsonObj = west.getAsJsonObject();
-		Wall westWall = WallCreator.createWestWall(
+		Wall westWall = createWestWall(mapNodeData, wallModel, wallJsonObj);
+		mapNodeData.getWalls().setWestWall(westWall);
+		WallCreator.adjustWallBetweenEastAndWest(
+				mapNodeData,
+				westNode,
+				defineVScale(wallJsonObj, westWall),
+				defineHorizontalOffset(wallJsonObj, westWall), defineVerticalOffset(wallJsonObj, westWall));
+	}
+
+	private Wall createWestWall(final MapNodeData mapNodeData, final Model wallModel, final JsonObject wallJsonObj) {
+		return WallCreator.createWestWall(
 				mapNodeData,
 				wallModel,
 				assetsManager,
 				Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
-		mapNodeData.getWalls().setWestWall(westWall);
-		WallCreator.adjustWallBetweenEastAndWest(mapNodeData, westNode, true, defineVScale(wallJsonObj, westWall));
 	}
 
 	private void inflateSouthWall(final MapNodeData mapNodeData,
@@ -168,13 +184,21 @@ public class MapInflater {
 								  final JsonElement south,
 								  final MapNodeData southNode) {
 		JsonObject wallJsonObj = south.getAsJsonObject();
-		Wall southWall = WallCreator.createSouthWall(
+		Wall southWall = createSouthWall(mapNodeData, wallModel, wallJsonObj);
+		mapNodeData.getWalls().setSouthWall(southWall);
+		WallCreator.adjustWallBetweenNorthAndSouth(
+				southNode,
+				mapNodeData,
+				defineVScale(wallJsonObj, southWall),
+				defineHorizontalOffset(wallJsonObj, southWall), defineVerticalOffset(wallJsonObj, southWall));
+	}
+
+	private Wall createSouthWall(final MapNodeData mapNodeData, final Model wallModel, final JsonObject wallJsonObj) {
+		return WallCreator.createSouthWall(
 				mapNodeData,
 				wallModel,
 				assetsManager,
 				Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
-		mapNodeData.getWalls().setSouthWall(southWall);
-		WallCreator.adjustWallBetweenNorthAndSouth(southNode, mapNodeData, defineVScale(wallJsonObj, southWall));
 	}
 
 	private void inflateEastWall(final MapNodeData mapNodeData,
@@ -182,19 +206,39 @@ public class MapInflater {
 								 final JsonElement east,
 								 final MapNodeData eastNode) {
 		JsonObject wallJsonObj = east.getAsJsonObject();
-		Wall eastWall = WallCreator.createEastWall(
+		Wall eastWall = createEastWall(mapNodeData, wallModel, wallJsonObj);
+		mapNodeData.getWalls().setEastWall(eastWall);
+		WallCreator.adjustWallBetweenEastAndWest(
+				eastNode,
+				mapNodeData,
+				defineVScale(wallJsonObj, eastWall),
+				defineHorizontalOffset(wallJsonObj, eastWall), defineVerticalOffset(wallJsonObj, eastWall));
+	}
+
+	private Wall createEastWall(final MapNodeData mapNodeData, final Model wallModel, final JsonObject wallJsonObj) {
+		return WallCreator.createEastWall(
 				mapNodeData,
 				wallModel,
 				assetsManager,
 				Assets.SurfaceTextures.valueOf(wallJsonObj.get(TEXTURE).getAsString()));
-		mapNodeData.getWalls().setEastWall(eastWall);
-		WallCreator.adjustWallBetweenEastAndWest(eastNode, mapNodeData, true, defineVScale(wallJsonObj, eastWall));
 	}
 
-	private float defineVScale(final JsonObject wallJsonObj, final Wall eastWall) {
+	private float defineVScale(final JsonObject wallJsonObj, final Wall wall) {
 		float vScale = wallJsonObj.has(V_SCALE) ? wallJsonObj.get(V_SCALE).getAsFloat() : 0;
-		eastWall.setVScale(vScale);
+		wall.setVScale(vScale);
 		return vScale;
+	}
+
+	private float defineHorizontalOffset(final JsonObject wallJsonObj, final Wall wall) {
+		float hOffset = wallJsonObj.has(H_OFFSET) ? wallJsonObj.get(H_OFFSET).getAsFloat() : 0;
+		wall.setHOffset(hOffset);
+		return hOffset;
+	}
+
+	private float defineVerticalOffset(final JsonObject wallJsonObj, final Wall wall) {
+		float vOffset = wallJsonObj.has(V_OFFSET) ? wallJsonObj.get(V_OFFSET).getAsFloat() : 0;
+		wall.setVOffset(vOffset);
+		return vOffset;
 	}
 
 	private void inflateElements(final JsonObject input,
@@ -265,7 +309,7 @@ public class MapInflater {
 								.findFirst())
 						.orElseThrow()
 						.get();
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				definition = definitions[json.get(TYPE).getAsInt()];
 			}
 		}

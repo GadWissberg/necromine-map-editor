@@ -13,4 +13,5 @@ public class WallDefinition {
 	private final Float vScale;
 	private final Float horizontalOffset;
 	private final Float verticalOffset;
+
 }

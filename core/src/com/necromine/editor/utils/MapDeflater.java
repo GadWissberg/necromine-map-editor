@@ -145,8 +145,8 @@ public class MapDeflater {
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty(MapJsonKeys.TEXTURE, textureName);
 		deflateWallProperty(jsonObject, w.getVScale(), MapJsonKeys.V_SCALE);
-		deflateWallProperty(jsonObject, w.getVScale(), MapJsonKeys.V_SCALE);
-		deflateWallProperty(jsonObject, w.getVScale(), MapJsonKeys.V_SCALE);
+		deflateWallProperty(jsonObject, w.getHOffset(), MapJsonKeys.H_OFFSET);
+		deflateWallProperty(jsonObject, w.getVOffset(), MapJsonKeys.V_OFFSET);
 		json.add(side, jsonObject);
 	}
 

@@ -102,11 +102,11 @@ public class WallTilingDialog extends DialogPane {
 		float vScale = ((Double) vScaleSpinner.getModel().getValue()).floatValue();
 		float horizontalOffsetValue = ((Double) horizontalOffsetSpinner.getModel().getValue()).floatValue();
 		float verticalOffsetValue = ((Double) verticalOffsetSpinner.getModel().getValue()).floatValue();
+		boolean isDefined = def != Assets.SurfaceTextures.MISSING;
 		return new WallDefinition(
-				def != Assets.SurfaceTextures.MISSING ? def : null,
-				vScale != 0 ? vScale : null,
-				horizontalOffsetValue,
-				verticalOffsetValue);
+				isDefined ? def : null,
+				isDefined ? vScale : null,
+				isDefined ? horizontalOffsetValue : null, isDefined ? verticalOffsetValue : null);
 	}
 
 	private void addVScaleSelectors(final GridBagConstraints c) {
