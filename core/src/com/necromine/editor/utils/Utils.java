@@ -42,7 +42,7 @@ public class Utils {
 		TextureAtlas atlas = assetsManager.getAtlas(definition.getAtlasDefinition());
 		TextureAtlas.AtlasRegion region = atlas.findRegion(idle.toLowerCase());
 		Decal decal = Decal.newDecal(region, true);
-		decal.setPosition(node.getCol() + 0.5f, BILLBOARD_Y, node.getRow() + 0.5f);
+		decal.setPosition(node.getCol() + 0.5f, node.getHeight() + BILLBOARD_Y, node.getRow() + 0.5f);
 		decal.setScale(BILLBOARD_SCALE);
 		return new CharacterDecal(decal, definition, selectedCharacterDirection);
 	}
