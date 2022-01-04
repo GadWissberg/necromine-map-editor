@@ -52,7 +52,7 @@ public class CursorHandler implements Disposable {
 	private Decal cursorSimpleDecal;
 	private float flicker;
 
-	void applyOpacity( ) {
+	void applyOpacity() {
 		ModelInstance modelInstance = getCursorSelectionModel().getModelInstance();
 		BlendingAttribute blend = (BlendingAttribute) modelInstance.materials.get(0).get(BlendingAttribute.Type);
 		if (blend != null) {
@@ -82,8 +82,9 @@ public class CursorHandler implements Disposable {
 			int x = MathUtils.clamp((int) collisionPoint.x, 0, nodes[0].length - 1);
 			int z = MathUtils.clamp((int) collisionPoint.z, 0, nodes.length - 1);
 			MapNodeData mapNodeData = nodes[z][x];
-			highlighter.transform.setTranslation(x, (mapNodeData != null ? mapNodeData.getHeight() : 0) + 0.01f, z);
-			updateCursorAdditionals(x, z, MapEditor.getMode());
+			float y = (mapNodeData != null ? mapNodeData.getHeight() : 0) + 0.01f;
+			highlighter.transform.setTranslation(x, y, z);
+			updateCursorAdditionals(x, y, z, MapEditor.getMode());
 			return true;
 		}
 		return false;
@@ -100,20 +101,23 @@ public class CursorHandler implements Disposable {
 		highlighter.transform.setTranslation(initialTilePos);
 	}
 
-	private void updateCursorOfDecalMode(final int x, final int z, final EditorMode mode) {
+	private void updateCursorOfDecalMode(final int x, float y, final int z, final EditorMode mode) {
+		float xFinal = x + 0.5f;
+		float yFinal = y + BILLBOARD_Y;
+		float zFinal = z + 0.5f;
 		if (mode == EditModes.CHARACTERS) {
-			cursorCharacterDecal.getDecal().setPosition(x + 0.5f, BILLBOARD_Y, z + 0.5f);
+			cursorCharacterDecal.getDecal().setPosition(xFinal, yFinal, zFinal);
 		} else {
-			cursorSimpleDecal.setPosition(x + 0.5f, BILLBOARD_Y, z + 0.5f);
+			cursorSimpleDecal.setPosition(xFinal, yFinal, zFinal);
 		}
 	}
 
-	private void updateCursorAdditionals(final int x, final int z, final EditorMode mode) {
+	private void updateCursorAdditionals(final int x, float y, final int z, final EditorMode mode) {
 		ModelInstance modelInstance = cursorSelectionModel.getModelInstance();
 		if (modelInstance != null) {
-			modelInstance.transform.setTranslation(x, 0.01f, z);
+			modelInstance.transform.setTranslation(x, y, z);
 		}
-		updateCursorOfDecalMode(x, z, mode);
+		updateCursorOfDecalMode(x, y, z, mode);
 	}
 
 	public void createCursors(final GameAssetsManager assetsManager, final Model tileModel) {
@@ -124,7 +128,7 @@ public class CursorHandler implements Disposable {
 	}
 
 
-	private void createCursorTile( ) {
+	private void createCursorTile() {
 		cursorTileModel.materials.get(0).set(ColorAttribute.createDiffuse(CURSOR_COLOR));
 		cursorTileModelInstance = new ModelInstance(cursorTileModel);
 	}
@@ -182,6 +186,6 @@ public class CursorHandler implements Disposable {
 	}
 
 	@Override
-	public void dispose( ) {
+	public void dispose() {
 	}
 }
