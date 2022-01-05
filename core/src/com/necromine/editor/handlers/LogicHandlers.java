@@ -60,7 +60,7 @@ public class LogicHandlers implements Disposable {
 	}
 
 	public void onTreeCharacterSelected(final CharacterDefinition definition) {
-		actionsHandler.setSelectedElement(selectionHandler.getSelectedElement());
+		actionsHandler.setSelectedElement(definition);
 		cursorHandler.getCursorCharacterDecal().setCharacterDefinition(definition);
 		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
 		selectionHandler.setSelectedElement(definition);
