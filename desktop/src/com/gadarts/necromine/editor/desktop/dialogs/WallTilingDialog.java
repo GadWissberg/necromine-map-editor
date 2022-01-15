@@ -73,25 +73,25 @@ public class WallTilingDialog extends DialogPane {
 	private void addHorizontalTextureOffsetSelectors(final GridBagConstraints c) {
 		c.gridx = 3;
 		c.gridy = 0;
-		eastWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
+		eastWallHorizontalOffset = addSpinner(0, 1, 0.1F, c, true);
 		c.gridy++;
-		southWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
+		southWallHorizontalOffset = addSpinner(0, 1, 0.1F, c, true);
 		c.gridy++;
-		westWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
+		westWallHorizontalOffset = addSpinner(0, 1, 0.1F, c, true);
 		c.gridy++;
-		northWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
+		northWallHorizontalOffset = addSpinner(0, 1, 0.1F, c, true);
 	}
 
 	private void addVerticalTextureOffsetSelectors(final GridBagConstraints c) {
 		c.gridx = 4;
 		c.gridy = 0;
-		eastWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
+		eastWallVerticalOffset = addSpinner(0, 1, 0.1F, c, true);
 		c.gridy++;
-		southWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
+		southWallVerticalOffset = addSpinner(0, 1, 0.1F, c, true);
 		c.gridy++;
-		westWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
+		westWallVerticalOffset = addSpinner(0, 1, 0.1F, c, true);
 		c.gridy++;
-		northWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
+		northWallVerticalOffset = addSpinner(0, 1, 0.1F, c, true);
 	}
 
 	private WallDefinition createWallDefinition(final GalleryButton imageButton,

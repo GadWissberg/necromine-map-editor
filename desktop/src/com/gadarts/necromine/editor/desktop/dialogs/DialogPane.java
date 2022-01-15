@@ -9,16 +9,16 @@ public abstract class DialogPane extends JPanel {
 	private static final String BUTTON_LABEL_OK = "OK";
 	private static final int SPINNER_WIDTH = 50;
 
-	public DialogPane() {
+	public DialogPane( ) {
 		setLayout(new GridBagLayout());
 	}
 
-	void init() {
+	void init( ) {
 		GridBagConstraints c = createGridBagConstraints();
 		initializeView(c);
 	}
 
-	protected GridBagConstraints createGridBagConstraints() {
+	protected GridBagConstraints createGridBagConstraints( ) {
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets(PADDING, PADDING, PADDING, PADDING);
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -38,7 +38,15 @@ public abstract class DialogPane extends JPanel {
 	}
 
 	protected JSpinner addSpinner(final float value, final int maximum, final float step, final GridBagConstraints c) {
-		SpinnerModel model = new SpinnerNumberModel(value, 0, maximum, step);
+		return addSpinner(value, maximum, step, c, false);
+	}
+
+	protected JSpinner addSpinner(final float value,
+								  final int maximum,
+								  final float step,
+								  final GridBagConstraints c,
+								  final boolean allowNegative) {
+		SpinnerModel model = new SpinnerNumberModel(value, allowNegative ? -1F : 0, maximum, step);
 		JSpinner jSpinner = new JSpinner(model);
 		add(jSpinner, c);
 		Dimension preferredSize = jSpinner.getPreferredSize();
@@ -46,9 +54,9 @@ public abstract class DialogPane extends JPanel {
 		return jSpinner;
 	}
 
-	public abstract String getDialogTitle();
+	public abstract String getDialogTitle( );
 
-	void closeDialog() {
+	void closeDialog( ) {
 		((Dialog) getRootPane().getParent()).dispose();
 	}
 
