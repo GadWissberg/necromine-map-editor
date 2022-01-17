@@ -23,7 +23,7 @@ public class LogicHandlers implements Disposable {
 	private final MapEditorEventsNotifier eventsNotifier;
 	private ActionsHandler actionsHandler;
 
-	public LogicHandlers(MapEditorEventsNotifier eventsNotifier) {
+	public LogicHandlers(final MapEditorEventsNotifier eventsNotifier) {
 		this.eventsNotifier = eventsNotifier;
 	}
 

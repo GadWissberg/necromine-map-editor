@@ -18,7 +18,6 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.env.EnvironmentDefinitions;
-import com.gadarts.necromine.model.map.MapNodeData;
 import com.necromine.editor.CursorSelectionModel;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditor;
@@ -34,12 +33,17 @@ import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 import static com.gadarts.necromine.model.characters.Direction.NORTH;
 import static com.gadarts.necromine.model.characters.Direction.SOUTH;
 
+
+/**
+ * Responsible to handle the cursor's model.
+ */
 @Getter
 @Setter
 public class CursorHandler implements Disposable {
-	public static final float FLICKER_RATE = 0.05f;
-	public static final float CURSOR_Y = 0.01f;
-	public static final float CURSOR_OPACITY = 0.5f;
+
+	private static final float FLICKER_RATE = 0.05f;
+	private static final float CURSOR_Y = 0.01f;
+	private static final float CURSOR_OPACITY = 0.5f;
 	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
 	private static final Vector3 auxVector3_1 = new Vector3();
 	private static final Vector3 auxVector3_2 = new Vector3();
@@ -52,7 +56,7 @@ public class CursorHandler implements Disposable {
 	private Decal cursorSimpleDecal;
 	private float flicker;
 
-	void applyOpacity() {
+	void applyOpacity( ) {
 		ModelInstance modelInstance = getCursorSelectionModel().getModelInstance();
 		BlendingAttribute blend = (BlendingAttribute) modelInstance.materials.get(0).get(BlendingAttribute.Type);
 		if (blend != null) {
@@ -60,6 +64,11 @@ public class CursorHandler implements Disposable {
 		}
 	}
 
+	/**
+	 * Takes step in the flicker effect.
+	 *
+	 * @param mode Current editor mode.
+	 */
 	public void updateCursorFlicker(final EditorMode mode) {
 		Material material;
 		if ((mode == EditModes.TILES || mode == EditModes.CHARACTERS)) {
@@ -72,24 +81,44 @@ public class CursorHandler implements Disposable {
 		material.set(blend);
 	}
 
+	/**
+	 * Moves the cursor's model according to the mouse.
+	 *
+	 * @param screenX
+	 * @param screenY
+	 * @param camera
+	 * @param map
+	 * @return Whether the cursor was moved.
+	 */
+	@SuppressWarnings("JavaDoc")
 	public boolean updateCursorByScreenCoords(final int screenX,
 											  final int screenY,
 											  final OrthographicCamera camera,
 											  final GameMap map) {
 		if (highlighter != null) {
 			Vector3 collisionPoint = Utils.castRayTowardsPlane(screenX, screenY, camera);
-			MapNodeData[][] nodes = map.getNodes();
-			int x = MathUtils.clamp((int) collisionPoint.x, 0, nodes[0].length - 1);
-			int z = MathUtils.clamp((int) collisionPoint.z, 0, nodes.length - 1);
-			MapNodeData mapNodeData = nodes[z][x];
-			float y = (mapNodeData != null ? mapNodeData.getHeight() : 0) + 0.01f;
-			highlighter.transform.setTranslation(x, y, z);
-			updateCursorAdditionals(x, y, z, MapEditor.getMode());
+			updateCursorModelAndAdditionalsByCollisionPoint(map, collisionPoint);
 			return true;
 		}
 		return false;
 	}
 
+	private void updateCursorModelAndAdditionalsByCollisionPoint(final GameMap map, final Vector3 collisionPoint) {
+		int x = MathUtils.clamp((int) collisionPoint.x, 0, map.getNodes()[0].length - 1);
+		int z = MathUtils.clamp((int) collisionPoint.z, 0, map.getNodes().length - 1);
+		float y = (map.getNodes()[z][x] != null ? map.getNodes()[z][x].getHeight() : 0) + 0.01f;
+		highlighter.transform.setTranslation(x, y, z);
+		updateCursorAdditionals(x, y, z, MapEditor.getMode());
+	}
+
+	/**
+	 * Renders the tiles marking when tiling.
+	 *
+	 * @param srcRow     The row it started.
+	 * @param srcCol     The row it started.
+	 * @param modelBatch
+	 */
+	@SuppressWarnings("JavaDoc")
 	public void renderRectangleMarking(final int srcRow, final int srcCol, final ModelBatch modelBatch) {
 		Vector3 initialTilePos = highlighter.transform.getTranslation(auxVector3_1);
 		for (int i = Math.min((int) initialTilePos.x, srcCol); i <= Math.max((int) initialTilePos.x, srcCol); i++) {
@@ -101,7 +130,7 @@ public class CursorHandler implements Disposable {
 		highlighter.transform.setTranslation(initialTilePos);
 	}
 
-	private void updateCursorOfDecalMode(final int x, float y, final int z, final EditorMode mode) {
+	private void updateCursorOfDecalMode(final int x, final float y, final int z, final EditorMode mode) {
 		float xFinal = x + 0.5f;
 		float yFinal = y + BILLBOARD_Y;
 		float zFinal = z + 0.5f;
@@ -112,7 +141,7 @@ public class CursorHandler implements Disposable {
 		}
 	}
 
-	private void updateCursorAdditionals(final int x, float y, final int z, final EditorMode mode) {
+	private void updateCursorAdditionals(final int x, final float y, final int z, final EditorMode mode) {
 		ModelInstance modelInstance = cursorSelectionModel.getModelInstance();
 		if (modelInstance != null) {
 			modelInstance.transform.setTranslation(x, y, z);
@@ -120,6 +149,13 @@ public class CursorHandler implements Disposable {
 		updateCursorOfDecalMode(x, y, z, mode);
 	}
 
+	/**
+	 * Create the certain cursors types.
+	 *
+	 * @param assetsManager
+	 * @param tileModel
+	 */
+	@SuppressWarnings("JavaDoc")
 	public void createCursors(final GameAssetsManager assetsManager, final Model tileModel) {
 		this.cursorTileModel = tileModel;
 		createCursorTile();
@@ -128,11 +164,16 @@ public class CursorHandler implements Disposable {
 	}
 
 
-	private void createCursorTile() {
+	private void createCursorTile( ) {
 		cursorTileModel.materials.get(0).set(ColorAttribute.createDiffuse(CURSOR_COLOR));
 		cursorTileModelInstance = new ModelInstance(cursorTileModel);
 	}
 
+	/**
+	 * @param selectedElement
+	 * @param modelBatch
+	 */
+	@SuppressWarnings("JavaDoc")
 	public void renderModelCursorFloorGrid(final EnvironmentDefinitions selectedElement, final ModelBatch modelBatch) {
 		Vector3 originalPosition = cursorTileModelInstance.transform.getTranslation(auxVector3_1);
 		Vector3 cursorPosition = highlighter.transform.getTranslation(auxVector3_3);
@@ -186,6 +227,6 @@ public class CursorHandler implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void dispose( ) {
 	}
 }

@@ -261,7 +261,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	 * @return Whether an action taken in response to this event.
 	 */
 	@SuppressWarnings("JavaDoc")
-	public boolean onTouchUp(Assets.SurfaceTextures selectedTile, final Model cursorTileModel) {
+	public boolean onTouchUp(final Assets.SurfaceTextures selectedTile, final Model cursorTileModel) {
 		boolean result = false;
 		if (currentProcess != null) {
 			finishProcess(selectedTile, cursorTileModel);
