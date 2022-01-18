@@ -33,7 +33,7 @@ public class HandlersManagerImpl implements HandlersManager, Disposable {
 	private RenderHandler renderHandler;
 
 
-	public HandlersManagerImpl(MapEditorData data) {
+	public HandlersManagerImpl(final MapEditorData data) {
 		this.eventsNotifier = new MapEditorEventsNotifier();
 		handlersManagerRelatedData = new HandlersManagerRelatedData(data.getMap(), data.getPlacedElements());
 		this.logicHandlers = new LogicHandlers(eventsNotifier);
@@ -78,14 +78,15 @@ public class HandlersManagerImpl implements HandlersManager, Disposable {
 	@Override
 	public void onEditModeSet(final EditModes mode) {
 		onModeSet(mode);
+		CursorHandler cursorHandler = logicHandlers.getCursorHandler();
 		if (mode != EditModes.LIGHTS && mode != EditModes.PICKUPS) {
 			if (mode != EditModes.TILES || logicHandlers.getSelectionHandler().getSelectedTile() == null) {
-				logicHandlers.getCursorHandler().setHighlighter(null);
+				cursorHandler.setHighlighter(null);
 			} else {
 				onTileSelected(logicHandlers.getSelectionHandler().getSelectedTile());
 			}
 		} else {
-			logicHandlers.getCursorHandler().setHighlighter(logicHandlers.getCursorHandler().getCursorTileModelInstance());
+			cursorHandler.setHighlighter(cursorHandler.getCursorHandlerModelData().getCursorTileModelInstance());
 		}
 	}
 
@@ -100,7 +101,8 @@ public class HandlersManagerImpl implements HandlersManager, Disposable {
 				int index = (ordinal < 0 ? ordinal + length : ordinal) % length;
 				cursorCharacterDecal.setSpriteDirection(Direction.values()[index]);
 			} else {
-				CursorSelectionModel cursorSelectionModel = cursorHandler.getCursorSelectionModel();
+				CursorHandlerModelData cursorHandlerModelData = cursorHandler.getCursorHandlerModelData();
+				CursorSelectionModel cursorSelectionModel = cursorHandlerModelData.getCursorSelectionModel();
 				int ordinal = cursorSelectionModel.getFacingDirection().ordinal() + direction * 2;
 				int length = Direction.values().length;
 				int index = (ordinal < 0 ? ordinal + length : ordinal) % length;
@@ -121,7 +123,7 @@ public class HandlersManagerImpl implements HandlersManager, Disposable {
 		logicHandlers.getSelectionHandler().setSelectedElement(null);
 		CursorHandler cursorHandler = logicHandlers.getCursorHandler();
 		if (tool != TilesTools.BRUSH) {
-			cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+			cursorHandler.setHighlighter(cursorHandler.getCursorHandlerModelData().getCursorTileModelInstance());
 		} else {
 			if (logicHandlers.getSelectionHandler().getSelectedElement() == null) {
 				cursorHandler.setHighlighter(null);

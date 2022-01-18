@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.BlendingAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.decals.Decal;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector3;
@@ -18,7 +17,6 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.env.EnvironmentDefinitions;
-import com.necromine.editor.CursorSelectionModel;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditor;
 import com.necromine.editor.mode.EditModes;
@@ -44,20 +42,18 @@ public class CursorHandler implements Disposable {
 	private static final float FLICKER_RATE = 0.05f;
 	private static final float CURSOR_Y = 0.01f;
 	private static final float CURSOR_OPACITY = 0.5f;
-	private static final Color CURSOR_COLOR = Color.valueOf("#2AFF14");
 	private static final Vector3 auxVector3_1 = new Vector3();
 	private static final Vector3 auxVector3_2 = new Vector3();
 	private static final Vector3 auxVector3_3 = new Vector3();
-	private ModelInstance cursorTileModelInstance;
+
+	private CursorHandlerModelData cursorHandlerModelData = new CursorHandlerModelData();
 	private CharacterDecal cursorCharacterDecal;
-	private CursorSelectionModel cursorSelectionModel;
-	private Model cursorTileModel;
 	private ModelInstance highlighter;
 	private Decal cursorSimpleDecal;
 	private float flicker;
 
 	void applyOpacity( ) {
-		ModelInstance modelInstance = getCursorSelectionModel().getModelInstance();
+		ModelInstance modelInstance = cursorHandlerModelData.getCursorSelectionModel().getModelInstance();
 		BlendingAttribute blend = (BlendingAttribute) modelInstance.materials.get(0).get(BlendingAttribute.Type);
 		if (blend != null) {
 			blend.opacity = CursorHandler.CURSOR_OPACITY;
@@ -74,7 +70,7 @@ public class CursorHandler implements Disposable {
 		if ((mode == EditModes.TILES || mode == EditModes.CHARACTERS)) {
 			material = getHighlighter().materials.get(0);
 		} else {
-			material = getCursorTileModelInstance().materials.get(0);
+			material = cursorHandlerModelData.getCursorTileModelInstance().materials.get(0);
 		}
 		BlendingAttribute blend = (BlendingAttribute) material.get(BlendingAttribute.Type);
 		blend.opacity = Math.abs(MathUtils.sin(flicker += FLICKER_RATE));
@@ -142,7 +138,7 @@ public class CursorHandler implements Disposable {
 	}
 
 	private void updateCursorAdditionals(final int x, final float y, final int z, final EditorMode mode) {
-		ModelInstance modelInstance = cursorSelectionModel.getModelInstance();
+		ModelInstance modelInstance = cursorHandlerModelData.getCursorSelectionModel().getModelInstance();
 		if (modelInstance != null) {
 			modelInstance.transform.setTranslation(x, y, z);
 		}
@@ -157,17 +153,13 @@ public class CursorHandler implements Disposable {
 	 */
 	@SuppressWarnings("JavaDoc")
 	public void createCursors(final GameAssetsManager assetsManager, final Model tileModel) {
-		this.cursorTileModel = tileModel;
-		createCursorTile();
+		cursorHandlerModelData.createCursors(tileModel);
 		createCursorCharacterDecal(assetsManager);
 		createCursorSimpleDecal(assetsManager);
 	}
 
 
-	private void createCursorTile( ) {
-		cursorTileModel.materials.get(0).set(ColorAttribute.createDiffuse(CURSOR_COLOR));
-		cursorTileModelInstance = new ModelInstance(cursorTileModel);
-	}
+
 
 	/**
 	 * @param selectedElement
@@ -175,10 +167,11 @@ public class CursorHandler implements Disposable {
 	 */
 	@SuppressWarnings("JavaDoc")
 	public void renderModelCursorFloorGrid(final EnvironmentDefinitions selectedElement, final ModelBatch modelBatch) {
+		ModelInstance cursorTileModelInstance = cursorHandlerModelData.getCursorTileModelInstance();
 		Vector3 originalPosition = cursorTileModelInstance.transform.getTranslation(auxVector3_1);
 		Vector3 cursorPosition = highlighter.transform.getTranslation(auxVector3_3);
 		cursorPosition.y = CURSOR_Y;
-		Direction facingDirection = cursorSelectionModel.getFacingDirection();
+		Direction facingDirection = cursorHandlerModelData.getCursorSelectionModel().getFacingDirection();
 		renderModelCursorFloorGridCells(cursorPosition, selectedElement, facingDirection, modelBatch);
 		cursorTileModelInstance.transform.setTranslation(originalPosition);
 	}
@@ -204,6 +197,7 @@ public class CursorHandler implements Disposable {
 											   final int row,
 											   final ModelBatch modelBatch) {
 		for (int col = -halfWidth; col < Math.max(halfWidth, 1); col++) {
+			ModelInstance cursorTileModelInstance = cursorHandlerModelData.getCursorTileModelInstance();
 			cursorTileModelInstance.transform.setTranslation(cursorPosition).translate(col, 0, row);
 			modelBatch.render(cursorTileModelInstance);
 		}

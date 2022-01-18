@@ -74,7 +74,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		resourcesHandler.init(assetsLocation);
 		CursorHandler cursorHandler = handlers.getLogicHandlers().getCursorHandler();
 		GameAssetsManager assetsManager = resourcesHandler.getAssetsManager();
-		cursorHandler.setCursorSelectionModel(new CursorSelectionModel(assetsManager));
+		cursorHandler.getCursorHandlerModelData().setCursorSelectionModel(new CursorSelectionModel(assetsManager));
 		PlacedElements placedElements = data.getPlacedElements();
 		handlers.getMapFileHandler().init(assetsManager, cursorHandler, placedElements.getPlacedTiles());
 		Arrays.stream(EditModes.values()).forEach(mode -> placedElements.getPlacedObjects().put(mode, new ArrayList<>()));
@@ -259,7 +259,8 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 
 	@Override
 	public boolean touchUp(final int screenX, final int screenY, final int pointer, final int button) {
-		return handlers.onTouchUp(handlers.getLogicHandlers().getCursorHandler().getCursorTileModel());
+		CursorHandler cursorHandler = handlers.getLogicHandlers().getCursorHandler();
+		return handlers.onTouchUp(cursorHandler.getCursorHandlerModelData().getCursorTileModel());
 	}
 
 	@Override

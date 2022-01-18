@@ -240,11 +240,12 @@ public class RenderHandler implements Disposable {
 			if (mode == EditModes.ENVIRONMENT) {
 				EnvironmentDefinitions environmentDefinition = (EnvironmentDefinitions) selectedElement;
 				cursorHandler.renderModelCursorFloorGrid(environmentDefinition, handlersManager.getRenderHandler().getModelBatch());
-				CursorSelectionModel cursorSelectionModel = cursorHandler.getCursorSelectionModel();
+				CursorHandlerModelData cursorHandlerModelData = cursorHandler.getCursorHandlerModelData();
+				CursorSelectionModel cursorSelectionModel = cursorHandlerModelData.getCursorSelectionModel();
 				ModelInstance modelInstance = cursorSelectionModel.getModelInstance();
 				renderEnvObject(environmentDefinition, modelInstance, cursorSelectionModel.getFacingDirection());
 			} else if (mode == EditModes.PICKUPS) {
-				renderPickup(cursorHandler.getCursorSelectionModel().getModelInstance());
+				renderPickup(cursorHandler.getCursorHandlerModelData().getCursorSelectionModel().getModelInstance());
 			}
 		}
 	}

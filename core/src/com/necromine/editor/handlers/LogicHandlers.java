@@ -8,6 +8,7 @@ import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.env.EnvironmentDefinitions;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
+import com.necromine.editor.CursorSelectionModel;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.handlers.action.ActionHandlerRelatedData;
@@ -55,30 +56,33 @@ public class LogicHandlers implements Disposable {
 	}
 
 	public void onTileSelected(final Assets.SurfaceTextures texture) {
-		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+		cursorHandler.setHighlighter(cursorHandler.getCursorHandlerModelData().getCursorTileModelInstance());
 		selectionHandler.onTileSelected(texture);
 	}
 
 	public void onTreeCharacterSelected(final CharacterDefinition definition) {
 		actionsHandler.setSelectedElement(definition);
 		cursorHandler.getCursorCharacterDecal().setCharacterDefinition(definition);
-		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+		cursorHandler.setHighlighter(cursorHandler.getCursorHandlerModelData().getCursorTileModelInstance());
 		selectionHandler.setSelectedElement(definition);
 	}
 
 	public void onTreeEnvSelected(final ElementDefinition selectedElement) {
 		selectionHandler.setSelectedElement(selectedElement);
-		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+		cursorHandler.setHighlighter(cursorHandler.getCursorHandlerModelData().getCursorTileModelInstance());
 		actionsHandler.setSelectedElement(selectedElement);
-		cursorHandler.getCursorSelectionModel().setSelection(selectedElement, ((EnvironmentDefinitions) selectedElement).getModelDefinition());
+		CursorSelectionModel cursorSelectionModel = cursorHandler.getCursorHandlerModelData().getCursorSelectionModel();
+		cursorSelectionModel.setSelection(selectedElement, ((EnvironmentDefinitions) selectedElement).getModelDefinition());
 		cursorHandler.applyOpacity();
 	}
 
 	public void onTreePickupSelected(final ItemDefinition selectedElement) {
 		selectionHandler.setSelectedElement(selectedElement);
-		cursorHandler.setHighlighter(cursorHandler.getCursorTileModelInstance());
+		CursorHandlerModelData cursorHandlerModelData = cursorHandler.getCursorHandlerModelData();
+		cursorHandler.setHighlighter(cursorHandlerModelData.getCursorTileModelInstance());
 		actionsHandler.setSelectedElement(selectedElement);
-		cursorHandler.getCursorSelectionModel().setSelection(selectedElement, selectedElement.getModelDefinition());
+		Assets.Models modelDefinition = selectedElement.getModelDefinition();
+		cursorHandlerModelData.getCursorSelectionModel().setSelection(selectedElement, modelDefinition);
 		cursorHandler.applyOpacity();
 	}
 }

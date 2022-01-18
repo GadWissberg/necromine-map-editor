@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorData;
 import com.necromine.editor.handlers.CursorHandler;
+import com.necromine.editor.handlers.CursorHandlerModelData;
 import com.necromine.editor.handlers.RenderHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.model.elements.PlacedElement;
@@ -342,7 +343,8 @@ public class MapInflater {
 		MapNodeData tile;
 		if (tileId != 0) {
 			Assets.SurfaceTextures textureDefinition = Assets.SurfaceTextures.values()[tileId - 1];
-			tile = new MapNodeData(cursorHandler.getCursorTileModel(), row, col, MapNodesTypes.PASSABLE_NODE);
+			CursorHandlerModelData cursorHandlerModelData = cursorHandler.getCursorHandlerModelData();
+			tile = new MapNodeData(cursorHandlerModelData.getCursorTileModel(), row, col, MapNodesTypes.PASSABLE_NODE);
 			Utils.initializeTile(tile, textureDefinition, assetsManager);
 			initializedTiles.add(tile);
 		} else {

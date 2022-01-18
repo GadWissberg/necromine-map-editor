@@ -23,6 +23,7 @@ import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.actions.processes.*;
 import com.necromine.editor.actions.types.*;
 import com.necromine.editor.handlers.CursorHandler;
+import com.necromine.editor.handlers.CursorHandlerModelData;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.mode.tools.TilesTools;
@@ -77,14 +78,21 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	@Override
 	public void beginTilePlacingProcess(final GameAssetsManager assetsManager,
 										final Set<MapNodeData> initializedTiles) {
-		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
-		PlaceTilesProcess placeTilesProcess = new PlaceTilesProcess(
+		CursorHandlerModelData cursorHandlerModelData = services.getCursorHandler().getCursorHandlerModelData();
+		Vector3 position = cursorHandlerModelData.getCursorTileModelInstance().transform.getTranslation(auxVector);
+		PlaceTilesProcess placeTilesProcess = createPlaceTilesProcess(assetsManager, initializedTiles, position);
+		currentProcess = placeTilesProcess;
+		placeTilesProcess.execute(eventsNotifier);
+	}
+
+	private PlaceTilesProcess createPlaceTilesProcess(final GameAssetsManager assetsManager,
+													  final Set<MapNodeData> initializedTiles,
+													  final Vector3 position) {
+		return new PlaceTilesProcess(
 				new FlatNode((int) position.z, (int) position.x),
 				assetsManager,
 				initializedTiles,
 				data.getMap());
-		currentProcess = placeTilesProcess;
-		placeTilesProcess.execute(eventsNotifier);
 	}
 
 	/**
@@ -146,20 +154,21 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	}
 
 	private boolean removeElementByMode( ) {
-		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
-		RemoveElementAction action = new RemoveElementAction(
+		CursorHandlerModelData cursorHandlerModelData = services.getCursorHandler().getCursorHandlerModelData();
+		Vector3 position = cursorHandlerModelData.getCursorTileModelInstance().transform.getTranslation(auxVector);
+		executeAction(new RemoveElementAction(
 				data.getMap(),
 				data.getPlacedElements(),
 				new FlatNode((int) position.z, (int) position.x),
-				(EditModes) MapEditor.getMode());
-		executeAction(action);
+				(EditModes) MapEditor.getMode()));
 		return true;
 	}
 
 	@Override
 	public void placeEnvObject(final GameAssetsManager am) {
 		GameMap map = data.getMap();
-		CursorSelectionModel cursorSelectionModel = services.getCursorHandler().getCursorSelectionModel();
+		CursorHandlerModelData cursorHandlerModelData = services.getCursorHandler().getCursorHandlerModelData();
+		CursorSelectionModel cursorSelectionModel = cursorHandlerModelData.getCursorSelectionModel();
 		Vector3 position = cursorSelectionModel.getModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
@@ -181,7 +190,8 @@ public class ActionsHandlerImpl implements ActionsHandler {
 
 	@Override
 	public void placePickup(final GameAssetsManager am) {
-		CursorSelectionModel cursorSelectionModel = services.getCursorHandler().getCursorSelectionModel();
+		CursorHandlerModelData cursorHandlerModelData = services.getCursorHandler().getCursorHandlerModelData();
+		CursorSelectionModel cursorSelectionModel = cursorHandlerModelData.getCursorSelectionModel();
 		Vector3 position = cursorSelectionModel.getModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
@@ -198,7 +208,8 @@ public class ActionsHandlerImpl implements ActionsHandler {
 
 	@Override
 	public void placeLight(final GameAssetsManager am) {
-		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
+		CursorHandlerModelData cursorHandlerModelData = services.getCursorHandler().getCursorHandlerModelData();
+		Vector3 position = cursorHandlerModelData.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		GameMap map = data.getMap();
@@ -214,19 +225,20 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	@Override
 	public boolean beginSelectingTileForLiftProcess(final int direction,
 													final Set<MapNodeData> initializedTiles) {
-		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
-		FlatNode src = new FlatNode((int) position.z, (int) position.x);
-		SelectTilesForLiftProcess current = new SelectTilesForLiftProcess(data.getMap(), src);
-		current.setDirection(direction);
-		current.setWallCreator(services.getWallCreator());
-		current.setInitializedTiles(initializedTiles);
-		currentProcess = current;
+		CursorHandlerModelData cursorHandlerModelData = services.getCursorHandler().getCursorHandlerModelData();
+		Vector3 pos = cursorHandlerModelData.getCursorTileModelInstance().transform.getTranslation(auxVector);
+		SelectTilesForLiftProcess p = new SelectTilesForLiftProcess(data.getMap(), new FlatNode((int) pos.z, (int) pos.x));
+		p.setDirection(direction);
+		p.setWallCreator(services.getWallCreator());
+		p.setInitializedTiles(initializedTiles);
+		currentProcess = p;
 		return true;
 	}
 
 	@Override
 	public void beginSelectingTilesForWallTiling( ) {
-		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
+		CursorHandlerModelData cursorHandlerModelData = services.getCursorHandler().getCursorHandlerModelData();
+		Vector3 position = cursorHandlerModelData.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		FlatNode src = new FlatNode((int) position.z, (int) position.x);
 		currentProcess = new SelectTilesForWallTilingProcess(data.getMap(), src);
 	}
@@ -239,7 +251,8 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	@Override
 	public void placeCharacter(final GameAssetsManager am) {
 		CursorHandler cursorHandler = services.getCursorHandler();
-		Vector3 position = cursorHandler.getCursorTileModelInstance().transform.getTranslation(auxVector);
+		CursorHandlerModelData cursorHandlerModelData = cursorHandler.getCursorHandlerModelData();
+		Vector3 position = cursorHandlerModelData.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int row = (int) position.z;
 		int col = (int) position.x;
 		GameMap map = data.getMap();
@@ -271,7 +284,8 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	}
 
 	private void finishProcess(final Assets.SurfaceTextures selectedTile, final Model cursorTileModel) {
-		Vector3 position = services.getCursorHandler().getCursorTileModelInstance().transform.getTranslation(auxVector);
+		CursorHandlerModelData cursorHandlerModelData = services.getCursorHandler().getCursorHandlerModelData();
+		Vector3 position = cursorHandlerModelData.getCursorTileModelInstance().transform.getTranslation(auxVector);
 		int dstRow = (int) position.z;
 		int dstCol = (int) position.x;
 		if (currentProcess instanceof PlaceTilesProcess) {
