@@ -11,7 +11,6 @@ import java.util.Properties;
 
 public class DesktopLauncher {
 	public static final String PROPERTIES_KEY_ASSETS_PATH = "assets.path";
-	private static final String WINDOW_HEADER = "Necromine Map Editor";
 	private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;
 	public static final String PROPERTIES_FILE_NAME = "settings.properties";
@@ -25,7 +24,7 @@ public class DesktopLauncher {
 			Properties properties = getProperties();
 			MapEditor mapManager = new MapEditor(WIDTH, HEIGHT, properties.getProperty(PROPERTIES_KEY_ASSETS_PATH));
 			LwjglAWTCanvas lwjgl = new LwjglAWTCanvas(mapManager, config);
-			MapperGui gui = new MapperGui(WINDOW_HEADER, lwjgl, mapManager, properties);
+			MapperGui gui = new MapperGui(lwjgl, mapManager, properties);
 			mapManager.subscribeForEvents(gui);
 		});
 	}

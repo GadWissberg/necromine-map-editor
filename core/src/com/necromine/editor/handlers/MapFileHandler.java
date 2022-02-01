@@ -7,6 +7,7 @@ import com.necromine.editor.MapEditorData;
 import com.necromine.editor.utils.MapDeflater;
 import com.necromine.editor.utils.MapInflater;
 
+import java.io.IOException;
 import java.util.Set;
 
 public class MapFileHandler {
@@ -19,14 +20,14 @@ public class MapFileHandler {
 		inflater = new MapInflater(assetsManager, cursorHandler, placedTiles);
 	}
 
-	public void onSaveMapRequested(final MapEditorData data) {
-		deflater.deflate(data);
+	public void onSaveMapRequested(final MapEditorData data, final String path) {
+		deflater.deflate(data, path);
 	}
 
 	public void onLoadMapRequested(final MapEditorData data,
 								   final WallCreator wallCreator,
-								   final RenderHandler renderHandler) {
-		inflater.inflateMap(data, wallCreator, renderHandler);
-
+								   final RenderHandler renderHandler,
+								   final String path) throws IOException {
+		inflater.inflateMap(data, wallCreator, renderHandler, path);
 	}
 }

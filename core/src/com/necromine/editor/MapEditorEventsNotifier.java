@@ -32,4 +32,8 @@ public class MapEditorEventsNotifier {
 	public void selectedEnvObjectToDefine(final PlacedEnvObject data) {
 		subscribers.forEach(subscriber -> subscriber.onSelectedEnvObjectToDefine(data));
 	}
+
+	public void editorIsReady( ) {
+		subscribers.forEach(subscriber -> subscriber.editorIsReady());
+	}
 }

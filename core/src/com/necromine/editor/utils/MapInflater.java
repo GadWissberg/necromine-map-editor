@@ -12,10 +12,7 @@ import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.map.MapNodeData;
 import com.gadarts.necromine.model.map.MapNodesTypes;
 import com.gadarts.necromine.model.map.Wall;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
 import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorData;
 import com.necromine.editor.handlers.CursorHandler;
@@ -56,12 +53,14 @@ public class MapInflater {
 	 * @param data          The relevant map data.
 	 * @param wallCreator   The tool used to create walls.
 	 * @param renderHandler Stuff used for helping mapping.
+	 * @param path          The file path.
 	 */
 	public void inflateMap(final MapEditorData data,
 						   final WallCreator wallCreator,
-						   final RenderHandler renderHandler) {
+						   final RenderHandler renderHandler,
+						   final String path) throws IOException {
 		this.map = data.getMap();
-		try (Reader reader = new FileReader("test_map.json")) {
+		try (Reader reader = new FileReader(path)) {
 			JsonObject input = gson.fromJson(reader, JsonObject.class);
 			JsonObject tilesJsonObject = input.getAsJsonObject(TILES);
 			map.setNodes(inflateTiles(tilesJsonObject, initializedTiles, renderHandler));
@@ -75,8 +74,8 @@ public class MapInflater {
 			});
 			JsonElement ambient = input.get(AMBIENT);
 			Optional.ofNullable(ambient).ifPresent(a -> map.setAmbientLight(a.getAsFloat()));
-		} catch (final IOException e) {
-			e.printStackTrace();
+		} catch (final JsonSyntaxException e) {
+			throw new IOException(e.getMessage());
 		}
 	}
 

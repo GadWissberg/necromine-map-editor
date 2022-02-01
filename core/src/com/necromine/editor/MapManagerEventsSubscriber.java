@@ -16,4 +16,6 @@ public interface MapManagerEventsSubscriber {
 												 ActionAnswer<PlacedElement> answer);
 
 	void onSelectedEnvObjectToDefine(PlacedEnvObject data);
+
+	void editorIsReady( );
 }

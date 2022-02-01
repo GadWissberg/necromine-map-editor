@@ -13,6 +13,7 @@ import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 
 import java.awt.*;
+import java.io.IOException;
 
 public interface GuiEventsSubscriber {
 	void onTileSelected(Assets.SurfaceTextures texture);
@@ -29,11 +30,11 @@ public interface GuiEventsSubscriber {
 
 	void onCameraModeSet(CameraModes mode);
 
-	void onSaveMapRequested( );
+	void onSaveMapRequested(String path);
 
 	void onNewMapRequested( );
 
-	void onLoadMapRequested( );
+	void onLoadMapRequested(String path) throws IOException;
 
 	void onToolSet(EditorTool tool);
 

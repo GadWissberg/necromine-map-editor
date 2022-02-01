@@ -31,6 +31,7 @@ import com.necromine.editor.model.node.NodeWallsDefinitions;
 import lombok.Getter;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
@@ -88,6 +89,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 		camera = createCamera();
 		handlers.onCreate(camera, wallCreator, data.getMap().getDimension());
 		initializeInput();
+		handlers.getEventsNotifier().editorIsReady();
 	}
 
 
@@ -176,8 +178,8 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	}
 
 	@Override
-	public void onSaveMapRequested( ) {
-		handlers.getMapFileHandler().onSaveMapRequested(data);
+	public void onSaveMapRequested(final String path) {
+		handlers.getMapFileHandler().onSaveMapRequested(data, path);
 	}
 
 	@Override
@@ -188,8 +190,8 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	}
 
 	@Override
-	public void onLoadMapRequested( ) {
-		handlers.getMapFileHandler().onLoadMapRequested(data, wallCreator, handlers.getRenderHandler());
+	public void onLoadMapRequested(final String path) throws IOException {
+		handlers.getMapFileHandler().onLoadMapRequested(data, wallCreator, handlers.getRenderHandler(), path);
 	}
 
 	@Override

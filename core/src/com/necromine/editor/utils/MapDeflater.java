@@ -30,7 +30,7 @@ import static com.necromine.editor.MapEditor.TARGET_VERSION;
 public class MapDeflater {
 	private final Gson gson = new Gson();
 
-	public void deflate(final MapEditorData data) {
+	public void deflate(final MapEditorData data, String path) {
 		JsonObject output = new JsonObject();
 		GameMap map = data.getMap();
 		output.addProperty(MapJsonKeys.AMBIENT, map.getAmbientLight());
@@ -42,7 +42,7 @@ public class MapDeflater {
 		addElementsGroup(output, EditModes.ENVIRONMENT, true, placedElements);
 		addElementsGroup(output, EditModes.PICKUPS, false, placedElements);
 		addElementsGroup(output, EditModes.LIGHTS, false, placedElements);
-		try (Writer writer = new FileWriter("test_map.json")) {
+		try (Writer writer = new FileWriter(path)) {
 			gson.toJson(output, writer);
 		} catch (final IOException e) {
 			e.printStackTrace();

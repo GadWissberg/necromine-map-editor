@@ -2,28 +2,18 @@ package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.gadarts.necromine.assets.Assets;
-import com.gadarts.necromine.editor.desktop.dialogs.DefineEnvObjectDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
-import com.gadarts.necromine.editor.desktop.dialogs.SelectObjectInNodeDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.SetAmbientLightDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.SetMapSizeDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.TilesLiftDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.WallTilingDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.*;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.menu.definitions.Menus;
-import com.gadarts.necromine.editor.desktop.toolbar.RadioToolBarButton;
-import com.gadarts.necromine.editor.desktop.toolbar.SubToolbarsDefinitions;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolBarButton;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonDefinition;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonProperties;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarDefinition;
+import com.gadarts.necromine.editor.desktop.toolbar.*;
 import com.gadarts.necromine.editor.desktop.tree.EditorTree;
 import com.gadarts.necromine.editor.desktop.tree.ResourcesTreeCellRenderer;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.env.EnvironmentDefinitions;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
+import com.google.gson.Gson;
 import com.necromine.editor.EntriesDisplayTypes;
 import com.necromine.editor.GuiEventsSubscriber;
 import com.necromine.editor.MapManagerEventsSubscriber;
@@ -43,21 +33,12 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.io.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
@@ -68,21 +49,31 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	private static final String ICON_FORMAT = ".png";
 	private static final String FOLDER_ASSETS = "core" + File.separator + "assets";
 	public static final String UI_ASSETS_FOLDER_PATH = FOLDER_ASSETS + File.separator + "%s" + File.separator + "%s" + ICON_FORMAT;
-
+	private static final String MSG_FAILED_TO_OPEN_MAP_FILE = "Failed to open map file!";
+	private static final String MSG_FAILED_TO_SAVE_MAP_FILE = "Failed to save map file!";
+	private static final String MSG_FAILED_TO_READ_SETTINGS = "Failed to read the editor's settings!";
+	private static final String MSG_SUCCESS_TO_SAVE_MAP_FILE = "Map was saved successfully to: %s";
+	private static final String PROGRAM_TILE = "Necronemes Map Editor";
+	private static final String DEFAULT_MAP_NAME = "Unnamed map";
+	private static final String WINDOW_HEADER = "%s - %s";
+	private static final String SETTINGS_FILE = "settings.json";
+	private static final String SETTINGS_KEY_LAST_OPENED_FILE = "last_opened_file";
 	private final LwjglAWTCanvas lwjgl;
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
 	private final File assetsFolderLocation;
 	private final GuiEventsSubscriber guiEventsSubscriber;
 	private final ModesHandler modesHandler;
+	private final Gson gson = new Gson();
 	private JPanel entitiesPanel;
 	private JPanel subToolbarPanel;
+	private File currentlyOpenedMap;
+	private Map<String, String> settings;
 
 
-	public MapperGui(final String header,
-					 final LwjglAWTCanvas lwjgl,
+	public MapperGui(final LwjglAWTCanvas lwjgl,
 					 final GuiEventsSubscriber guiEventsSubscriber,
 					 final Properties properties) {
-		super(header);
+		super(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
 		this.assetsFolderLocation = new File(properties.getProperty(DesktopLauncher.PROPERTIES_KEY_ASSETS_PATH));
 		this.lwjgl = lwjgl;
 		this.guiEventsSubscriber = guiEventsSubscriber;
@@ -100,7 +91,27 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		defineMapperWindow(lwjgl.getCanvas());
 	}
 
-	private void addMenuBar() {
+	private void readSettingsFile( ) {
+		File settingsFile = new File(SETTINGS_FILE);
+		if (settingsFile.exists()) {
+			try {
+				Reader json = new FileReader(SETTINGS_FILE);
+				//noinspection unchecked
+				settings = gson.fromJson(json, HashMap.class);
+			} catch (final FileNotFoundException e) {
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(this, MSG_FAILED_TO_READ_SETTINGS, PROGRAM_TILE, JOptionPane.ERROR_MESSAGE);
+			}
+			if (settings.containsKey(SETTINGS_KEY_LAST_OPENED_FILE)) {
+				File file = new File(settings.get(SETTINGS_KEY_LAST_OPENED_FILE));
+				tryOpeningFile(file);
+			}
+		} else {
+			settings = new HashMap<>();
+		}
+	}
+
+	private void addMenuBar( ) {
 		JMenuBar menuBar = new JMenuBar();
 		Arrays.stream(Menus.values()).forEach(menu -> {
 			JMenu jMenu = new JMenu(menu.getLabel());
@@ -216,7 +227,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		return splitPane;
 	}
 
-	private JPanel createEntitiesPanel() {
+	private JPanel createEntitiesPanel( ) {
 		CardLayout entitiesLayout = new CardLayout();
 		return new JPanel(entitiesLayout);
 	}
@@ -280,7 +291,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	}
 
 
-	private void defineMapperWindowAttributes() {
+	private void defineMapperWindowAttributes( ) {
 		defineWindowClose();
 		setSize(WIDTH, HEIGHT);
 		setLocationByPlatform(true);
@@ -288,7 +299,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		setResizable(false);
 	}
 
-	private void defineWindowClose() {
+	private void defineWindowClose( ) {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -357,13 +368,55 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		} else if (propertyName.equals(Events.REQUEST_TO_NEW.name())) {
 			guiEventsSubscriber.onNewMapRequested();
 		} else if (propertyName.equals(Events.REQUEST_TO_SAVE.name())) {
-			guiEventsSubscriber.onSaveMapRequested();
+			File file = currentlyOpenedMap;
+			if (file == null) {
+				JFileChooser fileChooser = new JFileChooser();
+				if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+					file = fileChooser.getSelectedFile();
+				}
+			}
+			try {
+				//noinspection ConstantConditions
+				guiEventsSubscriber.onSaveMapRequested(file.getPath());
+				updateCurrentlyOpenedFile(file);
+				JOptionPane.showMessageDialog(
+						this,
+						String.format(MSG_SUCCESS_TO_SAVE_MAP_FILE, file.getPath()), PROGRAM_TILE, JOptionPane.INFORMATION_MESSAGE);
+			} catch (final NullPointerException e) {
+				JOptionPane.showMessageDialog(this, MSG_FAILED_TO_SAVE_MAP_FILE, PROGRAM_TILE, JOptionPane.ERROR_MESSAGE);
+			}
 		} else if (propertyName.equals(Events.REQUEST_TO_LOAD.name())) {
-			guiEventsSubscriber.onLoadMapRequested();
+			JFileChooser fileChooser = new JFileChooser();
+			if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+				File file = fileChooser.getSelectedFile();
+				tryOpeningFile(file);
+			}
 		} else if (propertyName.equals(Events.REQUEST_TO_OPEN_AMBIENT_LIGHT_DIALOG.name())) {
 			openDialog(new SetAmbientLightDialog(guiEventsSubscriber.getAmbientLightValue(), guiEventsSubscriber));
 		} else if (propertyName.equals(Events.REQUEST_TO_OPEN_MAP_SIZE_DIALOG.name())) {
 			openDialog(new SetMapSizeDialog(guiEventsSubscriber.getMapSize(), guiEventsSubscriber));
+		}
+	}
+
+	private void tryOpeningFile(final File file) {
+		try {
+			guiEventsSubscriber.onLoadMapRequested(file.getPath());
+			updateCurrentlyOpenedFile(file);
+		} catch (final IOException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, MSG_FAILED_TO_OPEN_MAP_FILE);
+		}
+	}
+
+	private void updateCurrentlyOpenedFile(final File file) {
+		currentlyOpenedMap = file;
+		setTitle(String.format(WINDOW_HEADER, PROGRAM_TILE, file.getName()));
+		settings.put(SETTINGS_KEY_LAST_OPENED_FILE, file.getPath());
+		String serialized = gson.toJson(settings);
+		try (PrintWriter out = new PrintWriter(SETTINGS_FILE)) {
+			out.println(serialized);
+		} catch (final FileNotFoundException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -372,7 +425,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		Optional.ofNullable(SubToolbarsDefinitions.findByMode(mode))
 				.ifPresentOrElse(
 						sub -> subToolbarLayout.show(subToolbarPanel, sub.name()),
-						() -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
+						( ) -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
 	}
 
 
@@ -399,6 +452,11 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	@Override
 	public void onSelectedEnvObjectToDefine(final PlacedEnvObject data) {
 		openDialog(new DefineEnvObjectDialog(data, guiEventsSubscriber));
+	}
+
+	@Override
+	public void editorIsReady( ) {
+		readSettingsFile();
 	}
 
 
