@@ -34,6 +34,6 @@ public class MapEditorEventsNotifier {
 	}
 
 	public void editorIsReady( ) {
-		subscribers.forEach(subscriber -> subscriber.editorIsReady());
+		subscribers.forEach(MapManagerEventsSubscriber::onEditorIsReady);
 	}
 }

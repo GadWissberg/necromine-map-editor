@@ -30,4 +30,5 @@ public class MapFileHandler {
 								   final String path) throws IOException {
 		inflater.inflateMap(data, wallCreator, renderHandler, path);
 	}
+
 }

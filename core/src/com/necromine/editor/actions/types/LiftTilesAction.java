@@ -35,7 +35,11 @@ public class LiftTilesAction extends MappingAction {
 		MapNodeData[][] t = map.getNodes();
 		IntStream.rangeClosed(minRow, maxRow).forEach(row ->
 				IntStream.rangeClosed(minCol, maxCol).forEach(col ->
-						Optional.ofNullable(t[row][col]).ifPresent(n -> n.applyHeight(params.getValue()))));
+						Optional.ofNullable(t[row][col]).ifPresent(n -> {
+							if (n.getTextureDefinition() != null) {
+								n.applyHeight(params.getValue());
+							}
+						})));
 		IntStream.rangeClosed(minRow, maxRow).forEach(row ->
 				IntStream.rangeClosed(minCol, maxCol).forEach(col ->
 						Optional.ofNullable(t[row][col]).ifPresent(n -> adjustWalls(t, row, col, n))));
@@ -58,7 +62,7 @@ public class LiftTilesAction extends MappingAction {
 
 
 	@Override
-	public boolean isProcess() {
+	public boolean isProcess( ) {
 		return false;
 	}
 

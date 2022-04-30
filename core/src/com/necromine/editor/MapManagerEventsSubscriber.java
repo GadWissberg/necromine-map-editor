@@ -17,5 +17,5 @@ public interface MapManagerEventsSubscriber {
 
 	void onSelectedEnvObjectToDefine(PlacedEnvObject data);
 
-	void editorIsReady( );
+	void onEditorIsReady( );
 }

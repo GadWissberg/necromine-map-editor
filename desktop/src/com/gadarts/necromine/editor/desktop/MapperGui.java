@@ -2,22 +2,11 @@ package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.gadarts.necromine.assets.Assets;
-import com.gadarts.necromine.editor.desktop.dialogs.DefineEnvObjectDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
-import com.gadarts.necromine.editor.desktop.dialogs.SelectObjectInNodeDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.SetAmbientLightDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.SetMapSizeDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.TilesLiftDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.WallTilingDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.*;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.menu.definitions.Menus;
-import com.gadarts.necromine.editor.desktop.toolbar.RadioToolBarButton;
-import com.gadarts.necromine.editor.desktop.toolbar.SubToolbarsDefinitions;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolBarButton;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonDefinition;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonProperties;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarDefinition;
+import com.gadarts.necromine.editor.desktop.toolbar.*;
 import com.gadarts.necromine.editor.desktop.tree.EditorTree;
 import com.gadarts.necromine.editor.desktop.tree.ResourcesTreeCellRenderer;
 import com.gadarts.necromine.model.ElementDefinition;
@@ -44,25 +33,12 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.io.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
@@ -390,6 +366,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		} else if (propertyName.equals(Events.REQUEST_TO_ROTATE_SELECTED_OBJECT.name())) {
 			guiEventsSubscriber.onSelectedObjectRotate((Integer) evt.getNewValue());
 		} else if (propertyName.equals(Events.REQUEST_TO_NEW.name())) {
+			resetCurrentlyOpenedFile();
 			guiEventsSubscriber.onNewMapRequested();
 		} else if (propertyName.equals(Events.REQUEST_TO_SAVE.name())) {
 			File file = currentlyOpenedMap;
@@ -422,6 +399,22 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		}
 	}
 
+	private void resetCurrentlyOpenedFile( ) {
+		currentlyOpenedMap = null;
+		setTitle(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
+		settings.put(SETTINGS_KEY_LAST_OPENED_FILE, null);
+		saveSettings();
+	}
+
+	private void saveSettings( ) {
+		String serialized = gson.toJson(settings);
+		try (PrintWriter out = new PrintWriter(SETTINGS_FILE)) {
+			out.println(serialized);
+		} catch (final FileNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void tryOpeningFile(final File file) {
 		try {
 			guiEventsSubscriber.onLoadMapRequested(file.getPath());
@@ -436,19 +429,16 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		currentlyOpenedMap = file;
 		setTitle(String.format(WINDOW_HEADER, PROGRAM_TILE, file.getName()));
 		settings.put(SETTINGS_KEY_LAST_OPENED_FILE, file.getPath());
-		String serialized = gson.toJson(settings);
-		try (PrintWriter out = new PrintWriter(SETTINGS_FILE)) {
-			out.println(serialized);
-		} catch (final FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		saveSettings();
 	}
 
 	private void updateSubToolbar(final EditorMode mode) {
 		CardLayout subToolbarLayout = (CardLayout) subToolbarPanel.getLayout();
 		Optional.ofNullable(SubToolbarsDefinitions.findByMode(mode))
 				.ifPresentOrElse(
-						sub -> subToolbarLayout.show(subToolbarPanel, sub.name()),
+						sub -> {
+							subToolbarLayout.show(subToolbarPanel, sub.name());
+						},
 						( ) -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
 	}
 
@@ -479,7 +469,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	}
 
 	@Override
-	public void editorIsReady( ) {
+	public void onEditorIsReady( ) {
 		readSettingsFile();
 	}
 
