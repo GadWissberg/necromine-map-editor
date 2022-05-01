@@ -1,8 +1,7 @@
-package com.gadarts.necromine.editor.desktop.menu.definitions;
+package com.gadarts.necromine.editor.desktop.gui.menu.definitions;
 
 import com.gadarts.necromine.editor.desktop.commands.SetModeCommand;
-import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
-import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
+import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.necromine.editor.mode.CameraModes;
 
 public enum ViewMenuItemsDefinitions implements MenuItemDefinition {

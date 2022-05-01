@@ -1,28 +1,25 @@
 package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
-import com.gadarts.necromine.assets.Assets;
-import com.gadarts.necromine.editor.desktop.dialogs.*;
-import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
-import com.gadarts.necromine.editor.desktop.menu.MenuItemProperties;
-import com.gadarts.necromine.editor.desktop.menu.definitions.Menus;
-import com.gadarts.necromine.editor.desktop.toolbar.*;
-import com.gadarts.necromine.editor.desktop.tree.EditorTree;
-import com.gadarts.necromine.editor.desktop.tree.ResourcesTreeCellRenderer;
+import com.gadarts.necromine.editor.desktop.dialogs.DefineEnvObjectDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
+import com.gadarts.necromine.editor.desktop.dialogs.SelectObjectInNodeDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.TilesLiftDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.WallTilingDialog;
+import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
+import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
+import com.gadarts.necromine.editor.desktop.gui.menu.definitions.Menus;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
+import com.gadarts.necromine.editor.desktop.toolbar.RadioToolBarButton;
+import com.gadarts.necromine.editor.desktop.toolbar.SubToolbarsDefinitions;
+import com.gadarts.necromine.editor.desktop.toolbar.ToolBarButton;
+import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonDefinition;
 import com.gadarts.necromine.model.ElementDefinition;
-import com.gadarts.necromine.model.characters.CharacterDefinition;
-import com.gadarts.necromine.model.env.EnvironmentDefinitions;
-import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.google.gson.Gson;
-import com.necromine.editor.EntriesDisplayTypes;
 import com.necromine.editor.GuiEventsSubscriber;
 import com.necromine.editor.MapManagerEventsSubscriber;
 import com.necromine.editor.actions.ActionAnswer;
-import com.necromine.editor.mode.CameraModes;
-import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
-import com.necromine.editor.mode.tools.EnvTools;
-import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.node.FlatNode;
@@ -31,16 +28,22 @@ import org.lwjgl.openal.AL;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
 import java.awt.*;
-import java.awt.event.*;
-import java.beans.PropertyChangeEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
-
-import static com.necromine.editor.EntriesDisplayTypes.NONE;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 public class MapperGui extends JFrame implements PropertyChangeListener, MapManagerEventsSubscriber {
 	public static final String FOLDER_TOOLBAR_BUTTONS = "toolbar_buttons";
@@ -86,12 +89,12 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		} catch (final Exception e1) {
 			e1.printStackTrace();
 		}
-		addToolBar(ToolbarDefinition.values(), this).add(Box.createHorizontalGlue());
+//		addToolBar(ToolbarDefinition.values(), this).add(Box.createHorizontalGlue());
 		addMenuBar();
 		defineMapperWindow(lwjgl.getCanvas());
 	}
 
-	private void readSettingsFile( ) {
+	private void readSettingsFile() {
 		File settingsFile = new File(SETTINGS_FILE);
 		if (settingsFile.exists()) {
 			try {
@@ -111,7 +114,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		}
 	}
 
-	private void addMenuBar( ) {
+	private void addMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		Arrays.stream(Menus.values()).forEach(menu -> {
 			JMenu jMenu = new JMenu(menu.getLabel());
@@ -155,18 +158,14 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 
 	private AbstractButton createToolbarButtonOfMenuItem(final ToolbarButtonDefinition button) throws IOException {
 		ToolbarButtonProperties buttonProperties = button.getButtonProperties();
-		ImageIcon imageIcon = getButtonIcon(buttonProperties);
-		AbstractButton toolBarButton;
-		MenuItemDefinition menuItemDefinition = buttonProperties.getMenuItemDefinition();
-		if ((menuItemDefinition == null && buttonProperties.getButtonGroup() == null) || (menuItemDefinition != null && menuItemDefinition.getMenuItemProperties().getButtonGroup() == null)) {
-			toolBarButton = new ToolBarButton(imageIcon, buttonProperties, modesHandler);
+		MenuItemDefinition menuItemDef = buttonProperties.getMenuItemDefinition();
+		boolean noMenuItem = menuItemDef == null;
+		if ((noMenuItem && buttonProperties.getButtonGroup() == null)
+				|| (!noMenuItem && menuItemDef.getMenuItemProperties().getButtonGroup() == null)) {
+			return new ToolBarButton(getButtonIcon(buttonProperties), buttonProperties);
 		} else {
-			toolBarButton = createToolbarRadioButtonOfMenuItem(button, buttonProperties, imageIcon);
+			return createToolbarRadioButtonOfMenuItem(button, buttonProperties, getButtonIcon(buttonProperties));
 		}
-		toolBarButton.addPropertyChangeListener(modesHandler);
-		toolBarButton.addPropertyChangeListener(this);
-		modesHandler.addPropertyChangeListener(this);
-		return toolBarButton;
 	}
 
 	private AbstractButton createToolbarRadioButtonOfMenuItem(final ToolbarButtonDefinition button,
@@ -227,7 +226,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		return splitPane;
 	}
 
-	private JPanel createEntitiesPanel( ) {
+	private JPanel createEntitiesPanel() {
 		CardLayout entitiesLayout = new CardLayout();
 		return new JPanel(entitiesLayout);
 	}
@@ -238,60 +237,60 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		return sectionNode;
 	}
 
-	private EditorTree createResourcesTree(final EditModes mode) {
-		DefaultMutableTreeNode top = new DefaultMutableTreeNode(mode.getDisplayName());
-		EditorTree tree = new EditorTree(top);
-		Arrays.stream(mode.getTreeSections()).forEach(modeSection -> {
-			top.add(createSectionNodeForTree(modeSection.getHeader(), modeSection.getDefinitions()));
-			tree.setCellRenderer(new ResourcesTreeCellRenderer(modeSection.getEntryIcon()));
-			tree.addMouseListener(new MouseAdapter() {
+//	private EditorTree createResourcesTree(final EditModes mode) {
+//		DefaultMutableTreeNode top = new DefaultMutableTreeNode(mode.getDisplayName());
+//		EditorTree tree = new EditorTree(top);
+//		Arrays.stream(mode.getTreeSections()).forEach(modeSection -> {
+//			top.add(createSectionNodeForTree(modeSection.getHeader(), modeSection.getDefinitions()));
+//			tree.setCellRenderer(new ResourcesTreeCellRenderer(modeSection.getEntryIcon()));
+//			tree.addMouseListener(new MouseAdapter() {
+//
+//				@Override
+//				public void mouseClicked(final MouseEvent e) {
+//					super.mouseClicked(e);
+//					TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+//					tree.setSelectionPath(path);
+//					if (path != null && e.getClickCount() > 1) {
+//						DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+//						if (node.isLeaf()) {
+//							ElementDefinition definition = (ElementDefinition) node.getUserObject();
+//							tree.firePropertyChange(Events.TREE_ENTRY_SELECTED.name(), null, definition);
+//						}
+//					}
+//				}
+//			});
+//		});
+//		tree.expandPath(new TreePath(top.getPath()));
+//		return tree;
+//	}
 
-				@Override
-				public void mouseClicked(final MouseEvent e) {
-					super.mouseClicked(e);
-					TreePath path = tree.getPathForLocation(e.getX(), e.getY());
-					tree.setSelectionPath(path);
-					if (path != null && e.getClickCount() > 1) {
-						DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-						if (node.isLeaf()) {
-							ElementDefinition definition = (ElementDefinition) node.getUserObject();
-							tree.firePropertyChange(Events.TREE_ENTRY_SELECTED.name(), null, definition);
-						}
-					}
-				}
-			});
-		});
-		tree.expandPath(new TreePath(top.getPath()));
-		return tree;
-	}
-
-	private void addEntitiesDataSelectors(final JPanel entitiesPanel) {
-		CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
-		Arrays.stream(EditModes.values()).forEach(mode -> {
-			EntriesDisplayTypes entriesDisplayType = mode.getEntriesDisplayTypes();
-			if (entriesDisplayType == EntriesDisplayTypes.GALLERY) {
-				JScrollPane entitiesGallery = GuiUtils.createEntitiesGallery(assetsFolderLocation, itemEvent -> {
-					if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
-						Optional.ofNullable(guiEventsSubscriber).ifPresent(sub -> {
-							Assets.SurfaceTextures texture = ((GalleryButton) itemEvent.getItem()).getTextureDefinition();
-							sub.onTileSelected(texture);
-						});
-					}
-				});
-				entitiesPanel.add(entitiesGallery, EditModes.TILES.name());
-			} else if (entriesDisplayType == EntriesDisplayTypes.TREE) {
-				EditorTree resourcesTree = createResourcesTree(mode);
-				resourcesTree.addPropertyChangeListener(this);
-				entitiesPanel.add(resourcesTree, mode.name());
-			}
-		});
-		entitiesPanel.add(new JPanel(), NONE.name());
-		EditModes mode = (EditModes) ModesHandler.getMode();
-		entitiesLayout.show(entitiesPanel, mode.name());
-	}
+//	private void addEntitiesDataSelectors(final JPanel entitiesPanel) {
+//		CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
+//		Arrays.stream(EditModes.values()).forEach(mode -> {
+//			EntriesDisplayTypes entriesDisplayType = mode.getEntriesDisplayTypes();
+//			if (entriesDisplayType == EntriesDisplayTypes.GALLERY) {
+//				JScrollPane entitiesGallery = GuiUtils.createEntitiesGallery(assetsFolderLocation, itemEvent -> {
+//					if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
+//						Optional.ofNullable(guiEventsSubscriber).ifPresent(sub -> {
+//							Assets.SurfaceTextures texture = ((GalleryButton) itemEvent.getItem()).getTextureDefinition();
+//							sub.onTileSelected(texture);
+//						});
+//					}
+//				});
+//				entitiesPanel.add(entitiesGallery, EditModes.TILES.name());
+//			} else if (entriesDisplayType == EntriesDisplayTypes.TREE) {
+//				EditorTree resourcesTree = createResourcesTree(mode);
+//				resourcesTree.addPropertyChangeListener(this);
+//				entitiesPanel.add(resourcesTree, mode.name());
+//			}
+//		});
+//		entitiesPanel.add(new JPanel(), NONE.name());
+//		EditModes mode = (EditModes) ModesHandler.getMode();
+//		entitiesLayout.show(entitiesPanel, mode.name());
+//	}
 
 
-	private void defineMapperWindowAttributes( ) {
+	private void defineMapperWindowAttributes() {
 		defineWindowClose();
 		setSize(WIDTH, HEIGHT);
 		setLocationByPlatform(true);
@@ -299,7 +298,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		setResizable(false);
 	}
 
-	private void defineWindowClose( ) {
+	private void defineWindowClose() {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -311,102 +310,102 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		});
 	}
 
-	@Override
-	public void propertyChange(final PropertyChangeEvent evt) {
-		String propertyName = evt.getPropertyName();
-		EditorMode mode = ModesHandler.getMode();
-		if (propertyName.equals(Events.MODE_SET_EDIT.name())) {
-			int newModeIndex = (int) evt.getNewValue();
-			mode = EditModes.values()[newModeIndex];
-			EditModes editMode = (EditModes) mode;
-			CardLayout cardLayout = (CardLayout) entitiesPanel.getLayout();
-			guiEventsSubscriber.onEditModeSet(editMode);
-			updateSubToolbar(editMode);
-			if (editMode.getEntriesDisplayTypes() != NONE) {
-				cardLayout.show(entitiesPanel, editMode.name());
-			} else {
-				cardLayout.show(entitiesPanel, NONE.name());
-			}
-			EditorMode finalMode = mode;
-			Optional.ofNullable(editMode.getTools()).ifPresent(tools -> SubToolbarsDefinitions.findByMode(finalMode).getButtons()[0].getButtonProperties());
-		} else if (propertyName.equals(Events.MODE_SET_CAMERA.name())) {
-			int newModeIndex = (int) evt.getNewValue();
-			mode = CameraModes.values()[newModeIndex];
-			guiEventsSubscriber.onCameraModeSet((CameraModes) mode);
-			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
-			entitiesLayout.show(entitiesPanel, NONE.name());
-			updateSubToolbar(mode);
-		} else if (propertyName.equals(Events.TILE_TOOL_SET.name())) {
-			TilesTools selectedTool = TilesTools.values()[(int) evt.getNewValue()];
-			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
-			if (selectedTool == TilesTools.BRUSH) {
-				entitiesLayout.show(entitiesPanel, EditModes.TILES.name());
-			} else {
-				entitiesLayout.show(entitiesPanel, NONE.name());
-			}
-			guiEventsSubscriber.onToolSet(selectedTool);
-		} else if (propertyName.equals(Events.ENV_TOOL_SET.name())) {
-			EnvTools selectedTool = EnvTools.values()[(int) evt.getNewValue()];
-			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
-			if (selectedTool == EnvTools.BRUSH) {
-				entitiesLayout.show(entitiesPanel, EditModes.ENVIRONMENT.name());
-			} else {
-				entitiesLayout.show(entitiesPanel, NONE.name());
-			}
-			guiEventsSubscriber.onToolSet(selectedTool);
-		} else if (propertyName.equals(Events.TREE_ENTRY_SELECTED.name())) {
-			guiEventsSubscriber.onToolSet(EnvTools.BRUSH);
-			if (mode == EditModes.CHARACTERS) {
-				guiEventsSubscriber.onTreeCharacterSelected((CharacterDefinition) evt.getNewValue());
-			} else if (mode == EditModes.ENVIRONMENT) {
-				guiEventsSubscriber.onTreeEnvSelected((EnvironmentDefinitions) evt.getNewValue());
-			} else if (mode == EditModes.PICKUPS) {
-				guiEventsSubscriber.onTreePickupSelected((ItemDefinition) evt.getNewValue());
-			}
-		} else if (propertyName.equals(Events.REQUEST_TO_ROTATE_SELECTED_OBJECT.name())) {
-			guiEventsSubscriber.onSelectedObjectRotate((Integer) evt.getNewValue());
-		} else if (propertyName.equals(Events.REQUEST_TO_NEW.name())) {
-			resetCurrentlyOpenedFile();
-			guiEventsSubscriber.onNewMapRequested();
-		} else if (propertyName.equals(Events.REQUEST_TO_SAVE.name())) {
-			File file = currentlyOpenedMap;
-			if (file == null) {
-				JFileChooser fileChooser = new JFileChooser();
-				if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-					file = fileChooser.getSelectedFile();
-				}
-			}
-			try {
-				//noinspection ConstantConditions
-				guiEventsSubscriber.onSaveMapRequested(file.getPath());
-				updateCurrentlyOpenedFile(file);
-				JOptionPane.showMessageDialog(
-						this,
-						String.format(MSG_SUCCESS_TO_SAVE_MAP_FILE, file.getPath()), PROGRAM_TILE, JOptionPane.INFORMATION_MESSAGE);
-			} catch (final NullPointerException e) {
-				JOptionPane.showMessageDialog(this, MSG_FAILED_TO_SAVE_MAP_FILE, PROGRAM_TILE, JOptionPane.ERROR_MESSAGE);
-			}
-		} else if (propertyName.equals(Events.REQUEST_TO_LOAD.name())) {
-			JFileChooser fileChooser = new JFileChooser();
-			if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-				File file = fileChooser.getSelectedFile();
-				tryOpeningFile(file);
-			}
-		} else if (propertyName.equals(Events.REQUEST_TO_OPEN_AMBIENT_LIGHT_DIALOG.name())) {
-			openDialog(new SetAmbientLightDialog(guiEventsSubscriber.getAmbientLightValue(), guiEventsSubscriber));
-		} else if (propertyName.equals(Events.REQUEST_TO_OPEN_MAP_SIZE_DIALOG.name())) {
-			openDialog(new SetMapSizeDialog(guiEventsSubscriber.getMapSize(), guiEventsSubscriber));
-		}
-	}
+//	@Override
+//	public void propertyChange(final PropertyChangeEvent evt) {
+//		String propertyName = evt.getPropertyName();
+//		EditorMode mode = ModesHandler.getMode();
+//		if (propertyName.equals(Events.MODE_SET_EDIT.name())) {
+//			int newModeIndex = (int) evt.getNewValue();
+//			mode = EditModes.values()[newModeIndex];
+//			EditModes editMode = (EditModes) mode;
+//			CardLayout cardLayout = (CardLayout) entitiesPanel.getLayout();
+//			guiEventsSubscriber.onEditModeSet(editMode);
+//			updateSubToolbar(editMode);
+//			if (editMode.getEntriesDisplayTypes() != NONE) {
+//				cardLayout.show(entitiesPanel, editMode.name());
+//			} else {
+//				cardLayout.show(entitiesPanel, NONE.name());
+//			}
+//			EditorMode finalMode = mode;
+//			Optional.ofNullable(editMode.getTools()).ifPresent(tools -> SubToolbarsDefinitions.findByMode(finalMode).getButtons()[0].getButtonProperties());
+//		} else if (propertyName.equals(Events.MODE_SET_CAMERA.name())) {
+//			int newModeIndex = (int) evt.getNewValue();
+//			mode = CameraModes.values()[newModeIndex];
+//			guiEventsSubscriber.onCameraModeSet((CameraModes) mode);
+//			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
+//			entitiesLayout.show(entitiesPanel, NONE.name());
+//			updateSubToolbar(mode);
+//		} else if (propertyName.equals(Events.TILE_TOOL_SET.name())) {
+//			TilesTools selectedTool = TilesTools.values()[(int) evt.getNewValue()];
+//			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
+//			if (selectedTool == TilesTools.BRUSH) {
+//				entitiesLayout.show(entitiesPanel, EditModes.TILES.name());
+//			} else {
+//				entitiesLayout.show(entitiesPanel, NONE.name());
+//			}
+//			guiEventsSubscriber.onToolSet(selectedTool);
+//		} else if (propertyName.equals(Events.ENV_TOOL_SET.name())) {
+//			EnvTools selectedTool = EnvTools.values()[(int) evt.getNewValue()];
+//			CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
+//			if (selectedTool == EnvTools.BRUSH) {
+//				entitiesLayout.show(entitiesPanel, EditModes.ENVIRONMENT.name());
+//			} else {
+//				entitiesLayout.show(entitiesPanel, NONE.name());
+//			}
+//			guiEventsSubscriber.onToolSet(selectedTool);
+//		} else if (propertyName.equals(Events.TREE_ENTRY_SELECTED.name())) {
+//			guiEventsSubscriber.onToolSet(EnvTools.BRUSH);
+//			if (mode == EditModes.CHARACTERS) {
+//				guiEventsSubscriber.onTreeCharacterSelected((CharacterDefinition) evt.getNewValue());
+//			} else if (mode == EditModes.ENVIRONMENT) {
+//				guiEventsSubscriber.onTreeEnvSelected((EnvironmentDefinitions) evt.getNewValue());
+//			} else if (mode == EditModes.PICKUPS) {
+//				guiEventsSubscriber.onTreePickupSelected((ItemDefinition) evt.getNewValue());
+//			}
+//		} else if (propertyName.equals(Events.REQUEST_TO_ROTATE_SELECTED_OBJECT.name())) {
+//			guiEventsSubscriber.onSelectedObjectRotate((Integer) evt.getNewValue());
+//		} else if (propertyName.equals(Events.REQUEST_TO_NEW.name())) {
+//			resetCurrentlyOpenedFile();
+//			guiEventsSubscriber.onNewMapRequested();
+//		} else if (propertyName.equals(Events.REQUEST_TO_SAVE.name())) {
+//			File file = currentlyOpenedMap;
+//			if (file == null) {
+//				JFileChooser fileChooser = new JFileChooser();
+//				if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+//					file = fileChooser.getSelectedFile();
+//				}
+//			}
+//			try {
+//				//noinspection ConstantConditions
+//				guiEventsSubscriber.onSaveMapRequested(file.getPath());
+//				updateCurrentlyOpenedFile(file);
+//				JOptionPane.showMessageDialog(
+//						this,
+//						String.format(MSG_SUCCESS_TO_SAVE_MAP_FILE, file.getPath()), PROGRAM_TILE, JOptionPane.INFORMATION_MESSAGE);
+//			} catch (final NullPointerException e) {
+//				JOptionPane.showMessageDialog(this, MSG_FAILED_TO_SAVE_MAP_FILE, PROGRAM_TILE, JOptionPane.ERROR_MESSAGE);
+//			}
+//		} else if (propertyName.equals(Events.REQUEST_TO_LOAD.name())) {
+//			JFileChooser fileChooser = new JFileChooser();
+//			if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+//				File file = fileChooser.getSelectedFile();
+//				tryOpeningFile(file);
+//			}
+//		} else if (propertyName.equals(Events.REQUEST_TO_OPEN_AMBIENT_LIGHT_DIALOG.name())) {
+//			openDialog(new SetAmbientLightDialog(guiEventsSubscriber.getAmbientLightValue(), guiEventsSubscriber));
+//		} else if (propertyName.equals(Events.REQUEST_TO_OPEN_MAP_SIZE_DIALOG.name())) {
+//			openDialog(new SetMapSizeDialog(guiEventsSubscriber.getMapSize(), guiEventsSubscriber));
+//		}
+//	}
 
-	private void resetCurrentlyOpenedFile( ) {
+	private void resetCurrentlyOpenedFile() {
 		currentlyOpenedMap = null;
 		setTitle(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
 		settings.put(SETTINGS_KEY_LAST_OPENED_FILE, null);
 		saveSettings();
 	}
 
-	private void saveSettings( ) {
+	private void saveSettings() {
 		String serialized = gson.toJson(settings);
 		try (PrintWriter out = new PrintWriter(SETTINGS_FILE)) {
 			out.println(serialized);
@@ -439,7 +438,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 						sub -> {
 							subToolbarLayout.show(subToolbarPanel, sub.name());
 						},
-						( ) -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
+						() -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
 	}
 
 
@@ -469,7 +468,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	}
 
 	@Override
-	public void onEditorIsReady( ) {
+	public void onEditorIsReady() {
 		readSettingsFile();
 	}
 

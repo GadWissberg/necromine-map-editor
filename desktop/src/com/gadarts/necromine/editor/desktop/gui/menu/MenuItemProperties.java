@@ -1,4 +1,4 @@
-package com.gadarts.necromine.editor.desktop.menu;
+package com.gadarts.necromine.editor.desktop.gui.menu;
 
 import lombok.Getter;
 

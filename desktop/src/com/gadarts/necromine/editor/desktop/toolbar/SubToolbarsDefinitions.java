@@ -2,6 +2,7 @@ package com.gadarts.necromine.editor.desktop.toolbar;
 
 import com.gadarts.necromine.editor.desktop.commands.RotateSelectionCommand;
 import com.gadarts.necromine.editor.desktop.commands.SetToolCommand;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.tools.EnvTools;

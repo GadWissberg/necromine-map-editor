@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop.dialogs;
 
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarDefinition;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarDefinition;
 import com.necromine.editor.GuiEventsSubscriber;
 
 import javax.swing.*;

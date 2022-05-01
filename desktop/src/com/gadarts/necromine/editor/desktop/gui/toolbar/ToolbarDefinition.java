@@ -1,8 +1,9 @@
-package com.gadarts.necromine.editor.desktop.toolbar;
+package com.gadarts.necromine.editor.desktop.gui.toolbar;
 
-import com.gadarts.necromine.editor.desktop.menu.definitions.EditMenuItemsDefinitions;
-import com.gadarts.necromine.editor.desktop.menu.definitions.FileMenuItemsDefinitions;
-import com.gadarts.necromine.editor.desktop.menu.definitions.ViewMenuItemsDefinitions;
+import com.gadarts.necromine.editor.desktop.gui.menu.definitions.EditMenuItemsDefinitions;
+import com.gadarts.necromine.editor.desktop.gui.menu.definitions.FileMenuItemsDefinitions;
+import com.gadarts.necromine.editor.desktop.gui.menu.definitions.ViewMenuItemsDefinitions;
+import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonDefinition;
 
 public enum ToolbarDefinition implements ToolbarButtonDefinition {
 	NEW(new ToolbarButtonProperties(

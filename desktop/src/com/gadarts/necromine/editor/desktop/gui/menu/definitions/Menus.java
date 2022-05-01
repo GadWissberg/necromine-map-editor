@@ -1,6 +1,5 @@
-package com.gadarts.necromine.editor.desktop.menu.definitions;
+package com.gadarts.necromine.editor.desktop.gui.menu.definitions;
 
-import com.gadarts.necromine.editor.desktop.menu.MenuItemDefinition;
 import lombok.Getter;
 
 @Getter
