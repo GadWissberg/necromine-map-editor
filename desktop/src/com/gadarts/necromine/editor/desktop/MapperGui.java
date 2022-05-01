@@ -1,11 +1,7 @@
 package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
-import com.gadarts.necromine.editor.desktop.dialogs.DefineEnvObjectDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
-import com.gadarts.necromine.editor.desktop.dialogs.SelectObjectInNodeDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.TilesLiftDialog;
-import com.gadarts.necromine.editor.desktop.dialogs.WallTilingDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.*;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.Menus;
@@ -31,19 +27,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.io.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 public class MapperGui extends JFrame implements PropertyChangeListener, MapManagerEventsSubscriber {
 	public static final String FOLDER_TOOLBAR_BUTTONS = "toolbar_buttons";
@@ -204,7 +192,6 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		addSubToolbars(mainPanel);
 		entitiesPanel = createEntitiesPanel();
-		addEntitiesDataSelectors(entitiesPanel);
 		JSplitPane splitPane = createSplitPane(canvas, entitiesPanel);
 		mainPanel.add(splitPane);
 		getContentPane().add(mainPanel);
@@ -468,9 +455,13 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	}
 
 	@Override
-	public void onEditorIsReady() {
+	public void onEditorIsReady( ) {
 		readSettingsFile();
 	}
 
 
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+
+	}
 }
