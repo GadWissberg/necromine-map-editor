@@ -3,7 +3,11 @@ package com.gadarts.necromine.editor.desktop.gui;
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.bulenkov.darcula.DarculaLaf;
 import com.gadarts.necromine.assets.Assets;
-import com.gadarts.necromine.editor.desktop.*;
+import com.gadarts.necromine.editor.desktop.DesktopLauncher;
+import com.gadarts.necromine.editor.desktop.GalleryButton;
+import com.gadarts.necromine.editor.desktop.GuiUtils;
+import com.gadarts.necromine.editor.desktop.MapperGui;
+import com.gadarts.necromine.editor.desktop.ModesHandler;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.Menus;
@@ -27,12 +31,23 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
@@ -42,16 +57,16 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	public static final int HEIGHT = 720;
 	public static final String FOLDER_TOOLBAR_BUTTONS = "toolbar_buttons";
 	public static final int MENU_ITEM_IMAGE_SIZE = 16;
+	public static final int MENU_LABEL_PAD = 4;
+	public static final String DEFAULT_MAP_NAME = "Unnamed map";
+	public static final String WINDOW_HEADER = "%s - %s";
+	public static final String PROGRAM_TILE = "Necronemes Map Editor";
+	public static final String SETTINGS_KEY_LAST_OPENED_FILE = "last_opened_file";
+	static final String SETTINGS_FILE = "settings.json";
 	private static final String FOLDER_ASSETS = "core" + File.separator + "assets";
 	private static final String ICON_FORMAT = ".png";
 	public static final String UI_ASSETS_FOLDER_PATH = FOLDER_ASSETS + File.separator + "%s" + File.separator + "%s"
 			+ ICON_FORMAT;
-	private static final String DEFAULT_MAP_NAME = "Unnamed map";
-	private static final String WINDOW_HEADER = "%s - %s";
-	private static final String PROGRAM_TILE = "Necronemes Map Editor";
-	private static final String SETTINGS_FILE = "settings.json";
-	private static final String SETTINGS_KEY_LAST_OPENED_FILE = "last_opened_file";
-	public static final int MENU_LABEL_PAD = 4;
 	private final LwjglAWTCanvas lwjgl;
 	private final GuiEventsSubscriber guiEventsSubscriber;
 	private final File assetsFolderLocation;
@@ -62,14 +77,10 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 			EditModes.ENVIRONMENT, EntriesDisplayTypes.TREE,
 			EditModes.LIGHTS, NONE,
 			EditModes.PICKUPS, EntriesDisplayTypes.TREE);
-	//	private ImageIcon getButtonIcon(final ToolbarButtonProperties buttonProperties) throws IOException {
-//		String path = String.format(UI_ASSETS_FOLDER_PATH, FOLDER_TOOLBAR_BUTTONS, buttonProperties.getIcon());
-//		return new ImageIcon(ImageIO.read(new File(path)), buttonProperties.getToolTip());
-//	}
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
+	private final FileManager fileManager = new FileManager();
 	private JPanel entitiesPanel;
-	private Map<String, String> settings;
-	private File currentlyOpenedMap;
+	private Map<String, String> settings = new HashMap<>();
 
 	public Gui(final LwjglAWTCanvas lwjgl, final GuiEventsSubscriber guiEventsSubscriber, final Properties properties) {
 		super(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
@@ -85,7 +96,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		defineWindow();
 	}
 
-	private void addEntitiesDataSelectors( ) {
+	private void addEntitiesDataSelectors() {
 		CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
 		Arrays.stream(EditModes.values()).forEach(mode -> {
 			EntriesDisplayTypes entriesDisplayType = modeToEntriesDisplayType.get(mode);
@@ -110,7 +121,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		entitiesLayout.show(entitiesPanel, mode.name());
 	}
 
-	private void addMenuBar( ) {
+	private void addMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		Arrays.stream(Menus.values()).forEach(menu -> {
 			JMenu jMenu = new JMenu(menu.getLabel());
@@ -122,17 +133,21 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	}
 
 	private JMenuItem createMenuItem(MenuItemDefinition item) {
-		MenuItemProperties prop = item.getMenuItemProperties();
-		JMenuItem menuItem = new JMenuItem(prop.getLabel());
-		if (prop.getIcon() != null) {
+		JMenuItem menuItem = new JMenuItem(item.getMenuItemProperties().getLabel());
+		if (item.getMenuItemProperties().getIcon() != null) {
 			try {
-				ImageIcon icon = createMenuItemIcon(prop);
+				ImageIcon icon = createMenuItemIcon(item.getMenuItemProperties());
 				menuItem.setIcon(icon);
 			} catch (final IOException e) {
 				throw new RuntimeException(e);
 			}
 		}
-		menuItem.addActionListener(prop.getAction());
+		try {
+			Constructor<?> constructor = item.getMenuItemProperties().getActionClass().getConstructors()[0];
+			menuItem.addActionListener((ActionListener) constructor.newInstance(fileManager, guiEventsSubscriber, settings));
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
 		menuItem.setBorder(new EmptyBorder(MENU_LABEL_PAD, MENU_LABEL_PAD, MENU_LABEL_PAD, MENU_LABEL_PAD));
 		return menuItem;
 	}
@@ -144,13 +159,13 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		return icon;
 	}
 
-	private JPanel createEntitiesPanel( ) {
+	private JPanel createEntitiesPanel() {
 		CardLayout entitiesLayout = new CardLayout();
 		return new JPanel(entitiesLayout);
 	}
 
-	private void defineWindow( ) {
-		addWindowInternals();
+	private void defineWindow() {
+		addWindowComponents();
 		defineWindowClose();
 		setSize(WIDTH, HEIGHT);
 		setLocationByPlatform(true);
@@ -190,14 +205,14 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	}
 
 	private AbstractButton createToolbarButtonOfMenuItem(final ToolbarButtonDefinition button) throws IOException {
-		ToolbarButtonProperties buttonProperties = button.getButtonProperties();
-		ImageIcon imageIcon = getButtonIcon(buttonProperties);
+		ToolbarButtonProperties props = button.getButtonProperties();
+		ImageIcon imageIcon = getButtonIcon(props);
 		AbstractButton toolBarButton;
-		MenuItemDefinition menuItemDefinition = buttonProperties.getMenuItemDefinition();
-		if ((menuItemDefinition == null && buttonProperties.getButtonGroup() == null) || (menuItemDefinition != null && menuItemDefinition.getMenuItemProperties().getButtonGroup() == null)) {
-			toolBarButton = new ToolBarButton(imageIcon, buttonProperties);
+		MenuItemDefinition def = props.getMenuItemDefinition();
+		if ((def == null && props.getButtonGroup() == null) || (def != null && def.getMenuItemProperties().getButtonGroup() == null)) {
+			toolBarButton = new ToolBarButton(imageIcon, props, fileManager, guiEventsSubscriber, settings);
 		} else {
-			toolBarButton = createToolbarRadioButtonOfMenuItem(button, buttonProperties, imageIcon);
+			toolBarButton = createToolbarRadioButtonOfMenuItem(button, props, imageIcon);
 		}
 		return toolBarButton;
 	}
@@ -223,7 +238,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		return toolBar;
 	}
 
-	private void addWindowInternals( ) {
+	private void addWindowComponents() {
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		entitiesPanel = createEntitiesPanel();
 		JSplitPane splitPane = createSplitPane(lwjgl.getCanvas(), entitiesPanel);
@@ -241,7 +256,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		return splitPane;
 	}
 
-	private void defineWindowClose( ) {
+	private void defineWindowClose() {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -273,7 +288,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 
 	}
 
-	private void readSettingsFile( ) {
+	private void readSettingsFile() {
 		File settingsFile = new File(SETTINGS_FILE);
 		if (settingsFile.exists()) {
 			try {
@@ -290,25 +305,17 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 				tryOpeningFile(file);
 			}
 		} else {
-			settings = new HashMap<>();
+			settings.clear();
 		}
 	}
 
 	private void updateCurrentlyOpenedFile(final File file) {
-		currentlyOpenedMap = file;
+		fileManager.setCurrentlyOpenedMap(file);
 		setTitle(String.format(WINDOW_HEADER, PROGRAM_TILE, file.getName()));
 		settings.put(SETTINGS_KEY_LAST_OPENED_FILE, file.getPath());
-		saveSettings();
+		fileManager.saveSettings(settings);
 	}
 
-	private void saveSettings( ) {
-		String serialized = gson.toJson(settings);
-		try (PrintWriter out = new PrintWriter(SETTINGS_FILE)) {
-			out.println(serialized);
-		} catch (final FileNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
 
 	private void tryOpeningFile(final File file) {
 		try {
@@ -321,7 +328,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	}
 
 	@Override
-	public void onEditorIsReady( ) {
+	public void onEditorIsReady() {
 		readSettingsFile();
 	}
 }

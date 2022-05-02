@@ -1,6 +1,5 @@
 package com.gadarts.necromine.editor.desktop.dialogs;
 
-import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarDefinition;
 import com.necromine.editor.GuiEventsSubscriber;
 
 import javax.swing.*;
@@ -51,6 +50,7 @@ public class SetMapSizeDialog extends DialogPane {
 
 	@Override
 	public String getDialogTitle() {
-		return ToolbarDefinition.MAP_SIZE.getButtonProperties().getToolTip();
+//		return ToolbarDefinition.MAP_SIZE.getButtonProperties().getToolTip();
+		return "";
 	}
 }

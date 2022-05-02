@@ -6,11 +6,16 @@ import com.gadarts.necromine.editor.desktop.gui.Gui;
 import com.necromine.editor.MapEditor;
 
 import java.awt.*;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Optional;
 import java.util.Properties;
 
 public class DesktopLauncher {
+
 	public static final String PROPERTIES_KEY_ASSETS_PATH = "assets.path";
 	private static final int WIDTH = 800;
 	private static final int HEIGHT = 600;

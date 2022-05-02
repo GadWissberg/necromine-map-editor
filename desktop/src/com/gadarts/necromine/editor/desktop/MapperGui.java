@@ -1,24 +1,15 @@
 package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
-import com.gadarts.necromine.editor.desktop.dialogs.*;
+import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
-import com.gadarts.necromine.editor.desktop.gui.menu.definitions.Menus;
 import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
 import com.gadarts.necromine.editor.desktop.toolbar.RadioToolBarButton;
-import com.gadarts.necromine.editor.desktop.toolbar.SubToolbarsDefinitions;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolBarButton;
 import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonDefinition;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.google.gson.Gson;
 import com.necromine.editor.GuiEventsSubscriber;
-import com.necromine.editor.MapManagerEventsSubscriber;
-import com.necromine.editor.actions.ActionAnswer;
-import com.necromine.editor.mode.EditorMode;
-import com.necromine.editor.model.elements.PlacedElement;
-import com.necromine.editor.model.elements.PlacedEnvObject;
-import com.necromine.editor.model.node.FlatNode;
 import org.lwjgl.openal.AL;
 
 import javax.imageio.ImageIO;
@@ -29,11 +20,16 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.*;
-import java.util.List;
-import java.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
-public class MapperGui extends JFrame implements PropertyChangeListener, MapManagerEventsSubscriber {
+public class MapperGui extends JFrame implements PropertyChangeListener {
 	public static final String FOLDER_TOOLBAR_BUTTONS = "toolbar_buttons";
 	public static final int WIDTH = 1280;
 	public static final int HEIGHT = 720;
@@ -57,7 +53,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 	private final Gson gson = new Gson();
 	private JPanel entitiesPanel;
 	private JPanel subToolbarPanel;
-	private File currentlyOpenedMap;
+
 	private Map<String, String> settings;
 
 
@@ -78,83 +74,83 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 			e1.printStackTrace();
 		}
 //		addToolBar(ToolbarDefinition.values(), this).add(Box.createHorizontalGlue());
-		addMenuBar();
-		defineMapperWindow(lwjgl.getCanvas());
+//		addMenuBar();
+//		defineMapperWindow(lwjgl.getCanvas());
 	}
 
-	private void readSettingsFile() {
-		File settingsFile = new File(SETTINGS_FILE);
-		if (settingsFile.exists()) {
-			try {
-				Reader json = new FileReader(SETTINGS_FILE);
-				//noinspection unchecked
-				settings = gson.fromJson(json, HashMap.class);
-			} catch (final FileNotFoundException e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(this, MSG_FAILED_TO_READ_SETTINGS, PROGRAM_TILE, JOptionPane.ERROR_MESSAGE);
-			}
-			if (settings.containsKey(SETTINGS_KEY_LAST_OPENED_FILE)) {
-				File file = new File(settings.get(SETTINGS_KEY_LAST_OPENED_FILE));
-				tryOpeningFile(file);
-			}
-		} else {
-			settings = new HashMap<>();
-		}
-	}
+//	private void readSettingsFile() {
+//		File settingsFile = new File(SETTINGS_FILE);
+//		if (settingsFile.exists()) {
+//			try {
+//				Reader json = new FileReader(SETTINGS_FILE);
+//				//noinspection unchecked
+//				settings = gson.fromJson(json, HashMap.class);
+//			} catch (final FileNotFoundException e) {
+//				e.printStackTrace();
+//				JOptionPane.showMessageDialog(this, MSG_FAILED_TO_READ_SETTINGS, PROGRAM_TILE, JOptionPane.ERROR_MESSAGE);
+//			}
+//			if (settings.containsKey(SETTINGS_KEY_LAST_OPENED_FILE)) {
+//				File file = new File(settings.get(SETTINGS_KEY_LAST_OPENED_FILE));
+//				tryOpeningFile(file);
+//			}
+//		} else {
+//			settings = new HashMap<>();
+//		}
+//	}
 
-	private void addMenuBar() {
-		JMenuBar menuBar = new JMenuBar();
-		Arrays.stream(Menus.values()).forEach(menu -> {
-			JMenu jMenu = new JMenu(menu.getLabel());
-			Arrays.stream(menu.getDefinitions()).forEach(item -> {
-				MenuItemProperties menuItemProperties = item.getMenuItemProperties();
-				JMenuItem menuItem = new JMenuItem(menuItemProperties.getLabel());
-				menuItem.addActionListener(menuItemProperties.getAction());
-				jMenu.add(menuItem);
-			});
-			menuBar.add(jMenu);
-		});
-		setJMenuBar(menuBar);
-	}
+//	private void addMenuBar() {
+//		JMenuBar menuBar = new JMenuBar();
+//		Arrays.stream(Menus.values()).forEach(menu -> {
+//			JMenu jMenu = new JMenu(menu.getLabel());
+//			Arrays.stream(menu.getDefinitions()).forEach(item -> {
+//				MenuItemProperties menuItemProperties = item.getMenuItemProperties();
+//				JMenuItem menuItem = new JMenuItem(menuItemProperties.getLabel());
+//				menuItem.addActionListener(menuItemProperties.getActionClass());
+//				jMenu.add(menuItem);
+//			});
+//			menuBar.add(jMenu);
+//		});
+//		setJMenuBar(menuBar);
+//	}
 
-	protected JToolBar addToolBar(final ToolbarButtonDefinition[] toolbarOptions, final Container container) {
-		return addToolBar(toolbarOptions, container, BorderLayout.PAGE_START);
-	}
+//	protected JToolBar addToolBar(final ToolbarButtonDefinition[] toolbarOptions, final Container container) {
+//		return addToolBar(toolbarOptions, container, BorderLayout.PAGE_START);
+//	}
 
-	protected JToolBar addToolBar(final ToolbarButtonDefinition[] toolbarOptions,
-								  final Container container,
-								  final String name) {
-		JToolBar toolBar = new JToolBar();
-		toolBar.setFloatable(false);
-		Arrays.stream(toolbarOptions).forEach(option -> {
-			if (option.getButtonProperties() != null) {
-				AbstractButton jButton;
-				try {
-					jButton = createToolbarButtonOfMenuItem(option);
-					toolBar.add(jButton);
-					toolBar.setName(name);
-				} catch (final IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				toolBar.addSeparator();
-			}
-		});
-		container.add(toolBar, name);
-		return toolBar;
-	}
+//	protected JToolBar addToolBar(final ToolbarButtonDefinition[] toolbarOptions,
+//								  final Container container,
+//								  final String name) {
+//		JToolBar toolBar = new JToolBar();
+//		toolBar.setFloatable(false);
+//		Arrays.stream(toolbarOptions).forEach(option -> {
+//			if (option.getButtonProperties() != null) {
+//				AbstractButton jButton;
+//				try {
+//					jButton = createToolbarButtonOfMenuItem(option);
+//					toolBar.add(jButton);
+//					toolBar.setName(name);
+//				} catch (final IOException e) {
+//					e.printStackTrace();
+//				}
+//			} else {
+//				toolBar.addSeparator();
+//			}
+//		});
+//		container.add(toolBar, name);
+//		return toolBar;
+//	}
 
-	private AbstractButton createToolbarButtonOfMenuItem(final ToolbarButtonDefinition button) throws IOException {
-		ToolbarButtonProperties buttonProperties = button.getButtonProperties();
-		MenuItemDefinition menuItemDef = buttonProperties.getMenuItemDefinition();
-		boolean noMenuItem = menuItemDef == null;
-		if ((noMenuItem && buttonProperties.getButtonGroup() == null)
-				|| (!noMenuItem && menuItemDef.getMenuItemProperties().getButtonGroup() == null)) {
-			return new ToolBarButton(getButtonIcon(buttonProperties), buttonProperties);
-		} else {
-			return createToolbarRadioButtonOfMenuItem(button, buttonProperties, getButtonIcon(buttonProperties));
-		}
-	}
+//	private AbstractButton createToolbarButtonOfMenuItem(final ToolbarButtonDefinition button) throws IOException {
+//		ToolbarButtonProperties buttonProperties = button.getButtonProperties();
+//		MenuItemDefinition menuItemDef = buttonProperties.getMenuItemDefinition();
+//		boolean noMenuItem = menuItemDef == null;
+//		if ((noMenuItem && buttonProperties.getButtonGroup() == null)
+//				|| (!noMenuItem && menuItemDef.getMenuItemProperties().getButtonGroup() == null)) {
+//			return new ToolBarButton(getButtonIcon(buttonProperties), buttonProperties, fileManager, guiEventsSubscriber, settings);
+//		} else {
+//			return createToolbarRadioButtonOfMenuItem(button, buttonProperties, getButtonIcon(buttonProperties));
+//		}
+//	}
 
 	private AbstractButton createToolbarRadioButtonOfMenuItem(final ToolbarButtonDefinition button,
 															  final ToolbarButtonProperties buttonProperties,
@@ -187,24 +183,24 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		return new ImageIcon(ImageIO.read(new File(path)), buttonProperties.getToolTip());
 	}
 
-	private void defineMapperWindow(final Canvas canvas) {
-		defineMapperWindowAttributes();
-		JPanel mainPanel = new JPanel(new BorderLayout());
-		addSubToolbars(mainPanel);
-		entitiesPanel = createEntitiesPanel();
-		JSplitPane splitPane = createSplitPane(canvas, entitiesPanel);
-		mainPanel.add(splitPane);
-		getContentPane().add(mainPanel);
-	}
+//	private void defineMapperWindow(final Canvas canvas) {
+//		defineMapperWindowAttributes();
+//		JPanel mainPanel = new JPanel(new BorderLayout());
+//		addSubToolbars(mainPanel);
+//		entitiesPanel = createEntitiesPanel();
+//		JSplitPane splitPane = createSplitPane(canvas, entitiesPanel);
+//		mainPanel.add(splitPane);
+//		getContentPane().add(mainPanel);
+//	}
 
-	private void addSubToolbars(final JPanel mainPanel) {
-		CardLayout subToolbarsCardLayout = new CardLayout();
-		subToolbarPanel = new JPanel(subToolbarsCardLayout);
-		mainPanel.add(subToolbarPanel, BorderLayout.PAGE_START);
-		Arrays.stream(SubToolbarsDefinitions.values()).forEach(sub ->
-				addToolBar(sub.getButtons(), subToolbarPanel, sub.name()).add(Box.createHorizontalGlue()));
-		subToolbarsCardLayout.show(subToolbarPanel, SubToolbarsDefinitions.TILES.name());
-	}
+//	private void addSubToolbars(final JPanel mainPanel) {
+//		CardLayout subToolbarsCardLayout = new CardLayout();
+//		subToolbarPanel = new JPanel(subToolbarsCardLayout);
+//		mainPanel.add(subToolbarPanel, BorderLayout.PAGE_START);
+//		Arrays.stream(SubToolbarsDefinitions.values()).forEach(sub ->
+//				addToolBar(sub.getButtons(), subToolbarPanel, sub.name()).add(Box.createHorizontalGlue()));
+//		subToolbarsCardLayout.show(subToolbarPanel, SubToolbarsDefinitions.TILES.name());
+//	}
 
 	private JSplitPane createSplitPane(final Canvas canvas, final JPanel entitiesPanel) {
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, entitiesPanel, canvas);
@@ -385,12 +381,6 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 //		}
 //	}
 
-	private void resetCurrentlyOpenedFile() {
-		currentlyOpenedMap = null;
-		setTitle(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
-		settings.put(SETTINGS_KEY_LAST_OPENED_FILE, null);
-		saveSettings();
-	}
 
 	private void saveSettings() {
 		String serialized = gson.toJson(settings);
@@ -401,63 +391,63 @@ public class MapperGui extends JFrame implements PropertyChangeListener, MapMana
 		}
 	}
 
-	private void tryOpeningFile(final File file) {
-		try {
-			guiEventsSubscriber.onLoadMapRequested(file.getPath());
-			updateCurrentlyOpenedFile(file);
-		} catch (final IOException e) {
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(this, MSG_FAILED_TO_OPEN_MAP_FILE);
-		}
-	}
+//	private void tryOpeningFile(final File file) {
+//		try {
+//			guiEventsSubscriber.onLoadMapRequested(file.getPath());
+//			updateCurrentlyOpenedFile(file);
+//		} catch (final IOException e) {
+//			e.printStackTrace();
+//			JOptionPane.showMessageDialog(this, MSG_FAILED_TO_OPEN_MAP_FILE);
+//		}
+//	}
 
-	private void updateCurrentlyOpenedFile(final File file) {
-		currentlyOpenedMap = file;
-		setTitle(String.format(WINDOW_HEADER, PROGRAM_TILE, file.getName()));
-		settings.put(SETTINGS_KEY_LAST_OPENED_FILE, file.getPath());
-		saveSettings();
-	}
+//	private void updateCurrentlyOpenedFile(final File file) {
+//		currentlyOpenedMap = file;
+//		setTitle(String.format(WINDOW_HEADER, PROGRAM_TILE, file.getName()));
+//		settings.put(SETTINGS_KEY_LAST_OPENED_FILE, file.getPath());
+//		saveSettings();
+//	}
 
-	private void updateSubToolbar(final EditorMode mode) {
-		CardLayout subToolbarLayout = (CardLayout) subToolbarPanel.getLayout();
-		Optional.ofNullable(SubToolbarsDefinitions.findByMode(mode))
-				.ifPresentOrElse(
-						sub -> {
-							subToolbarLayout.show(subToolbarPanel, sub.name());
-						},
-						() -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
-	}
+//	private void updateSubToolbar(final EditorMode mode) {
+//		CardLayout subToolbarLayout = (CardLayout) subToolbarPanel.getLayout();
+//		Optional.ofNullable(SubToolbarsDefinitions.findByMode(mode))
+//				.ifPresentOrElse(
+//						sub -> {
+//							subToolbarLayout.show(subToolbarPanel, sub.name());
+//						},
+//						() -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
+//	}
 
 
 	private void openDialog(final DialogPane pane) {
 		GuiUtils.openNewDialog(this, pane);
 	}
 
-	@Override
-	public void onTileSelectedUsingWallTilingTool(final FlatNode src, final FlatNode dst) {
-		openDialog(new WallTilingDialog(assetsFolderLocation, guiEventsSubscriber, src, dst));
-	}
+//	@Override
+//	public void onTileSelectedUsingWallTilingTool(final FlatNode src, final FlatNode dst) {
+//		openDialog(new WallTilingDialog(assetsFolderLocation, guiEventsSubscriber, src, dst));
+//	}
+//
+//	@Override
+//	public void onTilesSelectedForLifting(final int srcRow, final int srcCol, final int dstRow, final int dstCol) {
+//		openDialog(new TilesLiftDialog(new FlatNode(srcRow, srcCol), new FlatNode(dstRow, dstCol), guiEventsSubscriber));
+//	}
+//
+//	@Override
+//	public void onNodeSelectedToSelectPlacedObjectsInIt(final List<? extends PlacedElement> elementsInTheNode,
+//														final ActionAnswer<PlacedElement> answer) {
+//		openDialog(new SelectObjectInNodeDialog(elementsInTheNode, answer));
+//	}
+//
+//	@Override
+//	public void onSelectedEnvObjectToDefine(final PlacedEnvObject data) {
+//		openDialog(new DefineEnvObjectDialog(data, guiEventsSubscriber));
+//	}
 
-	@Override
-	public void onTilesSelectedForLifting(final int srcRow, final int srcCol, final int dstRow, final int dstCol) {
-		openDialog(new TilesLiftDialog(new FlatNode(srcRow, srcCol), new FlatNode(dstRow, dstCol), guiEventsSubscriber));
-	}
-
-	@Override
-	public void onNodeSelectedToSelectPlacedObjectsInIt(final List<? extends PlacedElement> elementsInTheNode,
-														final ActionAnswer<PlacedElement> answer) {
-		openDialog(new SelectObjectInNodeDialog(elementsInTheNode, answer));
-	}
-
-	@Override
-	public void onSelectedEnvObjectToDefine(final PlacedEnvObject data) {
-		openDialog(new DefineEnvObjectDialog(data, guiEventsSubscriber));
-	}
-
-	@Override
-	public void onEditorIsReady( ) {
-		readSettingsFile();
-	}
+//	@Override
+//	public void onEditorIsReady( ) {
+//		readSettingsFile();
+//	}
 
 
 	@Override

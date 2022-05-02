@@ -1,36 +1,35 @@
 package com.gadarts.necromine.editor.desktop.gui.menu;
 
+import com.gadarts.necromine.editor.desktop.toolbar.MapperCommand;
 import lombok.Getter;
-
-import java.awt.event.ActionListener;
 
 @Getter
 public class MenuItemProperties {
-    private final String label;
-    private final ActionListener action;
-    private final boolean disabledOnStart;
-    private final String icon;
-    private final String buttonGroup;
+	private final String label;
+	private final Class<? extends MapperCommand> actionClass;
+	private final boolean disabledOnStart;
+	private final String icon;
+	private final String buttonGroup;
 
-    public MenuItemProperties(final String label, final ActionListener action, final String icon) {
-        this(label, action, icon, false, null);
-    }
+	public MenuItemProperties(final String label, final Class<? extends MapperCommand> actionClass, final String icon) {
+		this(label, actionClass, icon, false, null);
+	}
 
-    public MenuItemProperties(final String label, final ActionListener action, final String icon, final String buttonGroup) {
-        this(label, action, icon, false, buttonGroup);
-    }
+	public MenuItemProperties(String label, Class<? extends MapperCommand> actionClass, String icon, String buttonGroup) {
+		this(label, actionClass, icon, false, buttonGroup);
+	}
 
-    public MenuItemProperties(final String label,
-                              final ActionListener action,
-                              final String icon,
-                              final boolean disabledOnStart,
-                              final String buttonGroup) {
-        this.label = label;
-        this.action = action;
-        this.disabledOnStart = disabledOnStart;
-        this.icon = icon;
-        this.buttonGroup = buttonGroup;
-    }
+	public MenuItemProperties(String label,
+							  Class<? extends MapperCommand> actionClass,
+							  String icon,
+							  boolean disabledOnStart,
+							  String buttonGroup) {
+		this.label = label;
+		this.actionClass = actionClass;
+		this.disabledOnStart = disabledOnStart;
+		this.icon = icon;
+		this.buttonGroup = buttonGroup;
+	}
 
 
 }
