@@ -1,15 +1,17 @@
 package com.gadarts.necromine.editor.desktop.commands;
 
-import com.gadarts.necromine.editor.desktop.gui.FileManager;
-import com.gadarts.necromine.editor.desktop.toolbar.MapperCommand;
+import com.gadarts.necromine.editor.desktop.ModesHandler;
+import com.gadarts.necromine.editor.desktop.gui.PersistenceManager;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.MapperCommand;
 import com.necromine.editor.GuiEventsSubscriber;
 
 import java.awt.event.ActionEvent;
-import java.util.Map;
 
 public class SetToolCommand extends MapperCommand {
-	public SetToolCommand(FileManager fileManager, GuiEventsSubscriber guiEventsSubscriber, Map<String, String> settings) {
-		super(fileManager, guiEventsSubscriber, settings);
+	public SetToolCommand(PersistenceManager persistenceManager,
+						  GuiEventsSubscriber guiEventsSubscriber,
+						  ModesHandler modesHandler) {
+		super(persistenceManager, guiEventsSubscriber, modesHandler);
 	}
 //	private final EditorTool tool;
 

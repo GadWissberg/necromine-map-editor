@@ -1,18 +1,13 @@
 package com.gadarts.necromine.editor.desktop.gui;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
-import com.bulenkov.darcula.DarculaLaf;
 import com.gadarts.necromine.assets.Assets;
-import com.gadarts.necromine.editor.desktop.DesktopLauncher;
-import com.gadarts.necromine.editor.desktop.GalleryButton;
-import com.gadarts.necromine.editor.desktop.GuiUtils;
-import com.gadarts.necromine.editor.desktop.MapperGui;
-import com.gadarts.necromine.editor.desktop.ModesHandler;
+import com.gadarts.necromine.editor.desktop.*;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.Menus;
 import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
-import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarDefinition;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarDefinitions;
 import com.gadarts.necromine.editor.desktop.toolbar.RadioToolBarButton;
 import com.gadarts.necromine.editor.desktop.toolbar.ToolBarButton;
 import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonDefinition;
@@ -26,6 +21,7 @@ import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.node.FlatNode;
 import org.lwjgl.openal.AL;
+import org.pushingpixels.radiance.theming.api.skin.RadianceTwilightLookAndFeel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -36,18 +32,11 @@ import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 import static com.necromine.editor.EntriesDisplayTypes.NONE;
 
@@ -78,9 +67,9 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 			EditModes.LIGHTS, NONE,
 			EditModes.PICKUPS, EntriesDisplayTypes.TREE);
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
-	private final FileManager fileManager = new FileManager();
+	private final PersistenceManager persistenceManager = new PersistenceManager();
+	private final ModesHandler modesHandler = new ModesHandler();
 	private JPanel entitiesPanel;
-	private Map<String, String> settings = new HashMap<>();
 
 	public Gui(final LwjglAWTCanvas lwjgl, final GuiEventsSubscriber guiEventsSubscriber, final Properties properties) {
 		super(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
@@ -88,7 +77,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		this.guiEventsSubscriber = guiEventsSubscriber;
 		this.assetsFolderLocation = new File(properties.getProperty(DesktopLauncher.PROPERTIES_KEY_ASSETS_PATH));
 		try {
-			UIManager.setLookAndFeel(new DarculaLaf());
+			UIManager.setLookAndFeel(new RadianceTwilightLookAndFeel());
 			SwingUtilities.updateComponentTreeUI(this);
 		} catch (final Exception e1) {
 			e1.printStackTrace();
@@ -117,7 +106,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 			}
 		});
 		entitiesPanel.add(new JPanel(), NONE.name());
-		EditModes mode = (EditModes) ModesHandler.getMode();
+		EditModes mode = (EditModes) ModesHandler.getCurrentMode();
 		entitiesLayout.show(entitiesPanel, mode.name());
 	}
 
@@ -144,7 +133,10 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		}
 		try {
 			Constructor<?> constructor = item.getMenuItemProperties().getActionClass().getConstructors()[0];
-			menuItem.addActionListener((ActionListener) constructor.newInstance(fileManager, guiEventsSubscriber, settings));
+			menuItem.addActionListener((ActionListener) constructor.newInstance(
+					persistenceManager,
+					guiEventsSubscriber,
+					modesHandler));
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
@@ -190,7 +182,12 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 			ButtonGroup buttonGroup = new ButtonGroup();
 			buttonGroups.put(groupName, buttonGroup);
 		}
-		toolBarButton = new RadioToolBarButton(imageIcon, buttonProperties);
+		toolBarButton = new RadioToolBarButton(
+				imageIcon,
+				buttonProperties,
+				persistenceManager,
+				guiEventsSubscriber,
+				modesHandler);
 		ButtonGroup buttonGroup = buttonGroups.get(groupName);
 		buttonGroup.add(toolBarButton);
 		if (isNew) {
@@ -210,7 +207,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		AbstractButton toolBarButton;
 		MenuItemDefinition def = props.getMenuItemDefinition();
 		if ((def == null && props.getButtonGroup() == null) || (def != null && def.getMenuItemProperties().getButtonGroup() == null)) {
-			toolBarButton = new ToolBarButton(imageIcon, props, fileManager, guiEventsSubscriber, settings);
+			toolBarButton = new ToolBarButton(imageIcon, props, persistenceManager, guiEventsSubscriber, modesHandler);
 		} else {
 			toolBarButton = createToolbarRadioButtonOfMenuItem(button, props, imageIcon);
 		}
@@ -244,7 +241,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		JSplitPane splitPane = createSplitPane(lwjgl.getCanvas(), entitiesPanel);
 		mainPanel.add(splitPane);
 		addMenuBar();
-		addToolBar(ToolbarDefinition.values()).add(Box.createHorizontalGlue());
+		addToolBar(ToolbarDefinitions.values()).add(Box.createHorizontalGlue());
 		addEntitiesDataSelectors();
 		getContentPane().add(mainPanel);
 	}
@@ -288,47 +285,9 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 
 	}
 
-	private void readSettingsFile() {
-		File settingsFile = new File(SETTINGS_FILE);
-		if (settingsFile.exists()) {
-			try {
-				Reader json = new FileReader(SETTINGS_FILE);
-				//noinspection unchecked
-				settings = gson.fromJson(json, HashMap.class);
-			} catch (final FileNotFoundException e) {
-				e.printStackTrace();
-				final String MESSAGE = "Failed to read the editor's settings!";
-				JOptionPane.showMessageDialog(this, MESSAGE, PROGRAM_TILE, JOptionPane.ERROR_MESSAGE);
-			}
-			if (settings.containsKey(SETTINGS_KEY_LAST_OPENED_FILE)) {
-				File file = new File(settings.get(SETTINGS_KEY_LAST_OPENED_FILE));
-				tryOpeningFile(file);
-			}
-		} else {
-			settings.clear();
-		}
-	}
-
-	private void updateCurrentlyOpenedFile(final File file) {
-		fileManager.setCurrentlyOpenedMap(file);
-		setTitle(String.format(WINDOW_HEADER, PROGRAM_TILE, file.getName()));
-		settings.put(SETTINGS_KEY_LAST_OPENED_FILE, file.getPath());
-		fileManager.saveSettings(settings);
-	}
-
-
-	private void tryOpeningFile(final File file) {
-		try {
-			guiEventsSubscriber.onLoadMapRequested(file.getPath());
-			updateCurrentlyOpenedFile(file);
-		} catch (final IOException e) {
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(this, "Failed to open map file!");
-		}
-	}
 
 	@Override
 	public void onEditorIsReady() {
-		readSettingsFile();
+		persistenceManager.readSettingsFile(this, guiEventsSubscriber);
 	}
 }

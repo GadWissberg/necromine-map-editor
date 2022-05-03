@@ -8,22 +8,19 @@ import com.necromine.editor.mode.tools.EnvTools;
 import com.necromine.editor.mode.tools.TilesTools;
 import lombok.Getter;
 
-import java.awt.*;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Optional;
 
 @Getter
-public class ModesHandler extends Component implements PropertyChangeListener {
+public class ModesHandler {
 
 	@Getter
-	private static EditorMode mode = EditModes.TILES;
+	private static EditorMode currentMode = EditModes.TILES;
 
 	@Getter
 	private static EditorTool tool = TilesTools.BRUSH;
 
 	public void applyMode(final EditorMode mode) {
-		if (ModesHandler.mode == mode) return;
+		if (ModesHandler.currentMode == mode) return;
 		Class<? extends EditorMode> modeType = mode.getClass();
 		String name = null;
 		if (modeType.equals(CameraModes.class)) {
@@ -31,10 +28,7 @@ public class ModesHandler extends Component implements PropertyChangeListener {
 		} else if (modeType.equals(EditModes.class)) {
 			name = Events.MODE_SET_EDIT.name();
 		}
-		Optional.ofNullable(name).ifPresent(n -> {
-			ModesHandler.mode = mode;
-			firePropertyChange(n, -1, mode.ordinal());
-		});
+		Optional.ofNullable(name).ifPresent(n -> ModesHandler.currentMode = mode);
 	}
 
 	public void setTool(final EditorTool tool) {
@@ -46,23 +40,7 @@ public class ModesHandler extends Component implements PropertyChangeListener {
 		} else if (toolType.equals(EnvTools.class)) {
 			name = Events.ENV_TOOL_SET.name();
 		}
-		Optional.ofNullable(name).ifPresent(n -> {
-			ModesHandler.tool = tool;
-			firePropertyChange(n, -1, tool.ordinal());
-		});
+		Optional.ofNullable(name).ifPresent(n -> ModesHandler.tool = tool);
 	}
 
-	@Override
-	public void propertyChange(final PropertyChangeEvent evt) {
-		String propertyName = evt.getPropertyName();
-		if (propertyName.equals(Events.REQUEST_TO_SET_EDIT_MODE.name())) {
-			applyMode(EditModes.values()[(int) evt.getNewValue()]);
-		} else if (propertyName.equals(Events.REQUEST_TO_SET_CAMERA_MODE.name())) {
-			applyMode(CameraModes.values()[(int) evt.getNewValue()]);
-		} else if (propertyName.equals(Events.REQUEST_TO_SET_TILE_TOOL.name())) {
-			setTool(TilesTools.values()[(int) evt.getNewValue()]);
-		} else if (propertyName.equals(Events.REQUEST_TO_SET_ENV_TOOL.name())) {
-			setTool(EnvTools.values()[(int) evt.getNewValue()]);
-		}
-	}
 }

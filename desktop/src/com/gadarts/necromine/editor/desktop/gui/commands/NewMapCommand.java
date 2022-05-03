@@ -1,23 +1,22 @@
 package com.gadarts.necromine.editor.desktop.gui.commands;
 
-import com.gadarts.necromine.editor.desktop.gui.FileManager;
-import com.gadarts.necromine.editor.desktop.toolbar.MapperCommand;
+import com.gadarts.necromine.editor.desktop.ModesHandler;
+import com.gadarts.necromine.editor.desktop.gui.PersistenceManager;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.MapperCommand;
 import com.necromine.editor.GuiEventsSubscriber;
 
 import java.awt.event.ActionEvent;
-import java.util.Map;
 
-import static com.gadarts.necromine.editor.desktop.gui.Gui.DEFAULT_MAP_NAME;
-import static com.gadarts.necromine.editor.desktop.gui.Gui.PROGRAM_TILE;
-import static com.gadarts.necromine.editor.desktop.gui.Gui.SETTINGS_KEY_LAST_OPENED_FILE;
-import static com.gadarts.necromine.editor.desktop.gui.Gui.WINDOW_HEADER;
+import static com.gadarts.necromine.editor.desktop.gui.Gui.*;
 import static org.lwjgl.opengl.Display.setTitle;
 
 
 public class NewMapCommand extends MapperCommand {
 
-	public NewMapCommand(FileManager fileManager, GuiEventsSubscriber guiEventsSubscriber, Map<String, String> settings) {
-		super(fileManager, guiEventsSubscriber, settings);
+	public NewMapCommand(PersistenceManager persistenceManager,
+						 GuiEventsSubscriber guiEventsSubscriber,
+						 ModesHandler modesHandler) {
+		super(persistenceManager, guiEventsSubscriber, modesHandler);
 	}
 
 	@Override
@@ -26,10 +25,11 @@ public class NewMapCommand extends MapperCommand {
 		getGuiEventsSubscriber().onNewMapRequested();
 	}
 
-	private void resetCurrentlyOpenedFile() {
-		getFileManager().setCurrentlyOpenedMap(null);
+	private void resetCurrentlyOpenedFile( ) {
+		PersistenceManager persistenceManager = getPersistenceManager();
+		persistenceManager.setCurrentlyOpenedMap(null);
 		setTitle(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
-		getSettings().put(SETTINGS_KEY_LAST_OPENED_FILE, null);
-		getFileManager().saveSettings(getSettings());
+		persistenceManager.getSettings().put(SETTINGS_KEY_LAST_OPENED_FILE, null);
+		persistenceManager.saveSettings(persistenceManager.getSettings());
 	}
 }

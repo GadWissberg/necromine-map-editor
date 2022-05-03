@@ -2,11 +2,7 @@ package com.gadarts.necromine.editor.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
-import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
-import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
-import com.gadarts.necromine.editor.desktop.toolbar.RadioToolBarButton;
-import com.gadarts.necromine.editor.desktop.toolbar.ToolbarButtonDefinition;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.google.gson.Gson;
 import com.necromine.editor.GuiEventsSubscriber;
@@ -45,11 +41,11 @@ public class MapperGui extends JFrame implements PropertyChangeListener {
 	private static final String WINDOW_HEADER = "%s - %s";
 	private static final String SETTINGS_FILE = "settings.json";
 	private static final String SETTINGS_KEY_LAST_OPENED_FILE = "last_opened_file";
-	private final LwjglAWTCanvas lwjgl;
-	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
-	private final File assetsFolderLocation;
-	private final GuiEventsSubscriber guiEventsSubscriber;
-	private final ModesHandler modesHandler;
+//	private final LwjglAWTCanvas lwjgl;
+private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
+	//	private final File assetsFolderLocation;
+//	private final GuiEventsSubscriber guiEventsSubscriber;
+//	private final ModesHandler modesHandler;
 	private final Gson gson = new Gson();
 	private JPanel entitiesPanel;
 	private JPanel subToolbarPanel;
@@ -60,22 +56,22 @@ public class MapperGui extends JFrame implements PropertyChangeListener {
 	public MapperGui(final LwjglAWTCanvas lwjgl,
 					 final GuiEventsSubscriber guiEventsSubscriber,
 					 final Properties properties) {
-		super(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
-		this.assetsFolderLocation = new File(properties.getProperty(DesktopLauncher.PROPERTIES_KEY_ASSETS_PATH));
-		this.lwjgl = lwjgl;
-		this.guiEventsSubscriber = guiEventsSubscriber;
-		modesHandler = new ModesHandler();
-		modesHandler.setVisible(false);
-		add(modesHandler);
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			SwingUtilities.updateComponentTreeUI(this);
-		} catch (final Exception e1) {
-			e1.printStackTrace();
-		}
-//		addToolBar(ToolbarDefinition.values(), this).add(Box.createHorizontalGlue());
-//		addMenuBar();
-//		defineMapperWindow(lwjgl.getCanvas());
+//		super(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
+//		this.assetsFolderLocation = new File(properties.getProperty(DesktopLauncher.PROPERTIES_KEY_ASSETS_PATH));
+//		this.lwjgl = lwjgl;
+//		this.guiEventsSubscriber = guiEventsSubscriber;
+//		modesHandler = new ModesHandler();
+//		modesHandler.setVisible(false);
+//		add(modesHandler);
+//		try {
+//			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//			SwingUtilities.updateComponentTreeUI(this);
+//		} catch (final Exception e1) {
+//			e1.printStackTrace();
+//		}
+////		addToolBar(ToolbarDefinition.values(), this).add(Box.createHorizontalGlue());
+////		addMenuBar();
+////		defineMapperWindow(lwjgl.getCanvas());
 	}
 
 //	private void readSettingsFile() {
@@ -152,31 +148,31 @@ public class MapperGui extends JFrame implements PropertyChangeListener {
 //		}
 //	}
 
-	private AbstractButton createToolbarRadioButtonOfMenuItem(final ToolbarButtonDefinition button,
-															  final ToolbarButtonProperties buttonProperties,
-															  final ImageIcon imageIcon) {
-		AbstractButton toolBarButton;
-		MenuItemDefinition menuItemDefinition = button.getButtonProperties().getMenuItemDefinition();
-		String groupName;
-		if (menuItemDefinition != null) {
-			MenuItemProperties menuItemProperties = menuItemDefinition.getMenuItemProperties();
-			groupName = menuItemProperties.getButtonGroup();
-		} else {
-			groupName = buttonProperties.getButtonGroup();
-		}
-		boolean isNew = !buttonGroups.containsKey(groupName);
-		if (isNew) {
-			ButtonGroup buttonGroup = new ButtonGroup();
-			buttonGroups.put(groupName, buttonGroup);
-		}
-		toolBarButton = new RadioToolBarButton(imageIcon, buttonProperties);
-		ButtonGroup buttonGroup = buttonGroups.get(groupName);
-		buttonGroup.add(toolBarButton);
-		if (isNew) {
-			toolBarButton.setSelected(true);
-		}
-		return toolBarButton;
-	}
+//	private AbstractButton createToolbarRadioButtonOfMenuItem(final ToolbarButtonDefinition button,
+//															  final ToolbarButtonProperties buttonProperties,
+//															  final ImageIcon imageIcon) {
+//		AbstractButton toolBarButton;
+//		MenuItemDefinition menuItemDefinition = button.getButtonProperties().getMenuItemDefinition();
+//		String groupName;
+//		if (menuItemDefinition != null) {
+//			MenuItemProperties menuItemProperties = menuItemDefinition.getMenuItemProperties();
+//			groupName = menuItemProperties.getButtonGroup();
+//		} else {
+//			groupName = buttonProperties.getButtonGroup();
+//		}
+//		boolean isNew = !buttonGroups.containsKey(groupName);
+//		if (isNew) {
+//			ButtonGroup buttonGroup = new ButtonGroup();
+//			buttonGroups.put(groupName, buttonGroup);
+//		}
+//		toolBarButton = new RadioToolBarButton(imageIcon, buttonProperties, fileManager, guiEventsSubscriber, settings);
+//		ButtonGroup buttonGroup = buttonGroups.get(groupName);
+//		buttonGroup.add(toolBarButton);
+//		if (isNew) {
+//			toolBarButton.setSelected(true);
+//		}
+//		return toolBarButton;
+//	}
 
 	private ImageIcon getButtonIcon(final ToolbarButtonProperties buttonProperties) throws IOException {
 		String path = String.format(UI_ASSETS_FOLDER_PATH, FOLDER_TOOLBAR_BUTTONS, buttonProperties.getIcon());
@@ -286,7 +282,7 @@ public class MapperGui extends JFrame implements PropertyChangeListener {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(final WindowEvent e) {
-				lwjgl.stop();
+//				lwjgl.stop();
 				AL.destroy();
 				e.getWindow().dispose();
 			}

@@ -1,11 +1,11 @@
 package com.gadarts.necromine.editor.desktop.commands;
 
-import com.gadarts.necromine.editor.desktop.gui.FileManager;
-import com.gadarts.necromine.editor.desktop.toolbar.MapperCommand;
+import com.gadarts.necromine.editor.desktop.ModesHandler;
+import com.gadarts.necromine.editor.desktop.gui.PersistenceManager;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.MapperCommand;
 import com.necromine.editor.GuiEventsSubscriber;
 
 import java.awt.event.ActionEvent;
-import java.util.Map;
 
 public class RotateSelectionCommand extends MapperCommand {
 
@@ -13,8 +13,10 @@ public class RotateSelectionCommand extends MapperCommand {
 	public static final int COUNTER_CLOCKWISE = 1;
 //	private final int direction;
 
-	public RotateSelectionCommand(FileManager fileManager, GuiEventsSubscriber guiEventsSubscriber, Map<String, String> settings) {
-		super(fileManager, guiEventsSubscriber, settings);
+	public RotateSelectionCommand(PersistenceManager persistenceManager,
+								  GuiEventsSubscriber guiEventsSubscriber,
+								  ModesHandler modesHandler) {
+		super(persistenceManager, guiEventsSubscriber, modesHandler);
 	}
 
 	@Override

@@ -1,24 +1,24 @@
 package com.gadarts.necromine.editor.desktop.toolbar;
 
-import com.gadarts.necromine.editor.desktop.gui.FileManager;
+import com.gadarts.necromine.editor.desktop.ModesHandler;
+import com.gadarts.necromine.editor.desktop.gui.PersistenceManager;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.MapperCommand;
 import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
 import com.necromine.editor.GuiEventsSubscriber;
 
 import javax.swing.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
 import java.util.Optional;
 
 public class ToolBarButton extends JButton {
 
 	public ToolBarButton(ImageIcon imageIcon,
 						 ToolbarButtonProperties buttonDefinition,
-						 FileManager fileManager,
-						 GuiEventsSubscriber guiEventsSubscriber,
-						 Map<String, String> settings) {
+						 PersistenceManager persistenceManager,
+						 GuiEventsSubscriber guiEventsSubscriber, ModesHandler modesHandler) {
 		super(imageIcon);
 		MenuItemDefinition menuItemDefinition = buttonDefinition.getMenuItemDefinition();
 		Optional.ofNullable(menuItemDefinition).ifPresentOrElse(menuItem -> {
@@ -27,7 +27,7 @@ public class ToolBarButton extends JButton {
 			MapperCommand action;
 			try {
 				Constructor<?> constructor = menuItemProperties.getActionClass().getConstructors()[0];
-				action = (MapperCommand) constructor.newInstance(fileManager, guiEventsSubscriber, settings);
+				action = (MapperCommand) constructor.newInstance(persistenceManager, guiEventsSubscriber, modesHandler);
 			} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
 				throw new RuntimeException(e);
 			}
