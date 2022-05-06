@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop.dialogs;
 
-import com.necromine.editor.GuiEventsSubscriber;
+import com.necromine.editor.MapRenderer;
 import com.necromine.editor.model.node.FlatNode;
 
 import javax.swing.*;
@@ -13,12 +13,12 @@ public class TilesLiftDialog extends DialogPane {
 	static final float STEP = 0.1f;
 	private final FlatNode src;
 	private final FlatNode dst;
-	private final GuiEventsSubscriber guiEventsSubscriber;
+	private final MapRenderer mapRenderer;
 
-	public TilesLiftDialog(final FlatNode src, final FlatNode dst, final GuiEventsSubscriber guiEventsSubscriber) {
+	public TilesLiftDialog(final FlatNode src, final FlatNode dst, final MapRenderer mapRenderer) {
 		this.src = src;
 		this.dst = dst;
-		this.guiEventsSubscriber = guiEventsSubscriber;
+		this.mapRenderer = mapRenderer;
 		init();
 	}
 
@@ -32,7 +32,7 @@ public class TilesLiftDialog extends DialogPane {
 		addOkButton(c, e -> {
 			float value = ((Double) model.getValue()).floatValue();
 			if (value > 0) {
-				guiEventsSubscriber.onTilesLift(src, dst, value);
+				mapRenderer.onTilesLift(src, dst, value);
 			}
 			closeDialog();
 		});

@@ -5,8 +5,8 @@ import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.env.EnvironmentDefinitions;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
-import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
+import com.necromine.editor.mode.ViewModes;
 import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.node.FlatNode;
@@ -15,7 +15,7 @@ import com.necromine.editor.model.node.NodeWallsDefinitions;
 import java.awt.*;
 import java.io.IOException;
 
-public interface GuiEventsSubscriber {
+public interface MapRenderer {
 	void onTileSelected(Assets.SurfaceTextures texture);
 
 	void onEditModeSet(EditModes mode);
@@ -28,7 +28,7 @@ public interface GuiEventsSubscriber {
 
 	void onTreePickupSelected(ItemDefinition definition);
 
-	void onCameraModeSet(CameraModes mode);
+	void onViewModeSet(ViewModes mode);
 
 	void onSaveMapRequested(String path);
 

@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop.dialogs;
 
-import com.necromine.editor.GuiEventsSubscriber;
+import com.necromine.editor.MapRenderer;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
@@ -13,11 +13,11 @@ public class SetMapSizeDialog extends DialogPane {
 	private static final String LABEL_DEPTH = "Depth: ";
 	private static final int STEP_SIZE = 1;
 	private final Dimension current;
-	private final GuiEventsSubscriber guiEventsSubscriber;
+	private final MapRenderer mapRenderer;
 
-	public SetMapSizeDialog(final Dimension current, final GuiEventsSubscriber guiEventsSubscriber) {
+	public SetMapSizeDialog(final Dimension current, final MapRenderer mapRenderer) {
 		this.current = current;
-		this.guiEventsSubscriber = guiEventsSubscriber;
+		this.mapRenderer = mapRenderer;
 		init();
 	}
 
@@ -28,7 +28,7 @@ public class SetMapSizeDialog extends DialogPane {
 		addOkButton(c, (e -> {
 			int width = ((Double) widthSpinner.getValue()).intValue();
 			int depth = ((Double) heightSpinner.getValue()).intValue();
-			guiEventsSubscriber.onMapSizeSet(width, depth);
+			mapRenderer.onMapSizeSet(width, depth);
 			closeDialog();
 		}));
 	}

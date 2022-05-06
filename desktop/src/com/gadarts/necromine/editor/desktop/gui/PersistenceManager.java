@@ -1,7 +1,7 @@
 package com.gadarts.necromine.editor.desktop.gui;
 
 import com.google.gson.Gson;
-import com.necromine.editor.GuiEventsSubscriber;
+import com.necromine.editor.MapRenderer;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,9 +20,9 @@ public class PersistenceManager {
 	private Gson gson = new Gson();
 	private Map<String, String> settings = new HashMap<>();
 
-	private void tryOpeningFile(final File file, GuiEventsSubscriber guiEventsSubscriber, JFrame window) {
+	private void tryOpeningFile(final File file, MapRenderer mapRenderer, JFrame window) {
 		try {
-			guiEventsSubscriber.onLoadMapRequested(file.getPath());
+			mapRenderer.onLoadMapRequested(file.getPath());
 			updateCurrentlyOpenedFile(file);
 		} catch (final IOException e) {
 			e.printStackTrace();
@@ -30,7 +30,7 @@ public class PersistenceManager {
 		}
 	}
 
-	void readSettingsFile(JFrame window, GuiEventsSubscriber guiEventsSubscriber) {
+	void readSettingsFile(JFrame window, MapRenderer mapRenderer) {
 		File settingsFile = new File(SETTINGS_FILE);
 		if (settingsFile.exists()) {
 			try {
@@ -44,7 +44,7 @@ public class PersistenceManager {
 			}
 			if (settings.containsKey(SETTINGS_KEY_LAST_OPENED_FILE)) {
 				File file = new File(settings.get(SETTINGS_KEY_LAST_OPENED_FILE));
-				tryOpeningFile(file, guiEventsSubscriber, window);
+				tryOpeningFile(file, mapRenderer, window);
 			}
 		} else {
 			settings.clear();

@@ -1,9 +1,8 @@
 package com.gadarts.necromine.editor.desktop.gui.commands;
 
-import com.gadarts.necromine.editor.desktop.ModesHandler;
+import com.gadarts.necromine.editor.desktop.ModesManager;
+import com.gadarts.necromine.editor.desktop.gui.DialogsManager;
 import com.gadarts.necromine.editor.desktop.gui.PersistenceManager;
-import com.gadarts.necromine.editor.desktop.gui.toolbar.MapperCommand;
-import com.necromine.editor.GuiEventsSubscriber;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,9 +14,10 @@ import static javax.swing.SwingUtilities.getWindowAncestor;
 
 public class LoadMapCommand extends MapperCommand {
 	public LoadMapCommand(PersistenceManager persistenceManager,
-						  GuiEventsSubscriber guiEventsSubscriber,
-						  ModesHandler modesHandler) {
-		super(persistenceManager, guiEventsSubscriber, modesHandler);
+						  com.necromine.editor.MapRenderer mapRenderer,
+						  ModesManager modesManager,
+						  DialogsManager dialogsManager) {
+		super(persistenceManager, mapRenderer, modesManager, dialogsManager);
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class LoadMapCommand extends MapperCommand {
 
 	private void tryOpeningFile(final File file, ActionEvent e) {
 		try {
-			getGuiEventsSubscriber().onLoadMapRequested(file.getPath());
+			getMapRenderer().onLoadMapRequested(file.getPath());
 			getPersistenceManager().updateCurrentlyOpenedFile(file);
 		} catch (final IOException error) {
 			error.printStackTrace();

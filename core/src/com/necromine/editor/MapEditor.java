@@ -19,9 +19,9 @@ import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.handlers.HandlersManager;
 import com.necromine.editor.handlers.HandlersManagerImpl;
 import com.necromine.editor.handlers.ResourcesHandler;
-import com.necromine.editor.mode.CameraModes;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
+import com.necromine.editor.mode.ViewModes;
 import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.PlacedElements;
@@ -39,7 +39,7 @@ import java.util.Set;
 /**
  * The world renderer.
  */
-public class MapEditor extends Editor implements GuiEventsSubscriber {
+public class MapEditor extends Editor implements MapRenderer {
 
 	/**
 	 * Camera's far.
@@ -173,7 +173,7 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	}
 
 	@Override
-	public void onCameraModeSet(final CameraModes mode) {
+	public void onViewModeSet(final ViewModes mode) {
 		handlers.onModeSet(mode);
 	}
 
@@ -268,9 +268,9 @@ public class MapEditor extends Editor implements GuiEventsSubscriber {
 	@Override
 	public boolean touchDragged(final int screenX, final int screenY, final int pointer) {
 		boolean result = true;
-		if (mode.getClass().equals(CameraModes.class)) {
+		if (mode.getClass().equals(ViewModes.class)) {
 			Vector3 rotationPoint = GeneralUtils.defineRotationPoint(auxVector3_1, camera);
-			((CameraModes) mode).getManipulation().run(lastMouseTouchPosition, camera, screenX, screenY, rotationPoint);
+			((ViewModes) mode).getManipulation().run(lastMouseTouchPosition, camera, screenX, screenY, rotationPoint);
 		} else {
 			result = handlers.getLogicHandlers().getCursorHandler().updateCursorByScreenCoords(screenX, screenY, camera, data.getMap());
 		}

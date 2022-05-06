@@ -1,39 +1,42 @@
-package com.gadarts.necromine.editor.desktop.toolbar;
+package com.gadarts.necromine.editor.desktop.gui.toolbar;
 
-import com.gadarts.necromine.editor.desktop.ModesHandler;
+import com.gadarts.necromine.editor.desktop.ModesManager;
+import com.gadarts.necromine.editor.desktop.gui.DialogsManager;
 import com.gadarts.necromine.editor.desktop.gui.PersistenceManager;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
-import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
-import com.necromine.editor.GuiEventsSubscriber;
+import com.necromine.editor.MapRenderer;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
 public class RadioToolBarButton extends JToggleButton {
 
-	public RadioToolBarButton(ImageIcon imageIcon,
-							  ToolbarButtonProperties buttonDefinition,
+	public RadioToolBarButton(ToolbarButtonProperties properties,
 							  PersistenceManager persistenceManager,
-							  GuiEventsSubscriber guiEventsSubscriber,
-							  ModesHandler modesHandler) {
-		super(imageIcon);
-		ActionListener action = createAction(buttonDefinition, persistenceManager, guiEventsSubscriber, modesHandler);
+							  MapRenderer mapRenderer,
+							  ModesManager modesManager,
+							  DialogsManager dialogsManager) throws IOException {
+		setIcon(ToolbarButtonProperties.createButtonIcon(properties));
+		ActionListener action = createAction(properties, persistenceManager, mapRenderer, modesManager, dialogsManager);
 		addActionListener(action);
 	}
 
 	private ActionListener createAction(ToolbarButtonProperties buttonDefinition,
 										PersistenceManager persistenceManager,
-										GuiEventsSubscriber guiEventsSubscriber,
-										ModesHandler modesHandler) {
+										MapRenderer mapRenderer,
+										ModesManager modesManager,
+										DialogsManager dialogsManager) {
 		if (buttonDefinition.getMenuItemDefinition() != null) {
 			MenuItemProperties menuItemProperties = buttonDefinition.getMenuItemDefinition().getMenuItemProperties();
 			setEnabled(!menuItemProperties.isDisabledOnStart());
 			try {
 				return (ActionListener) menuItemProperties.getActionClass().getConstructors()[0].newInstance(
 						persistenceManager,
-						guiEventsSubscriber,
-						modesHandler);
+						mapRenderer,
+						modesManager,
+						dialogsManager);
 			} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
 				throw new RuntimeException(e);
 			}

@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop.dialogs;
 
-import com.necromine.editor.GuiEventsSubscriber;
+import com.necromine.editor.MapRenderer;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.node.FlatNode;
 
@@ -11,11 +11,11 @@ public class DefineEnvObjectDialog extends DialogPane {
 
 	private static final String LABEL_HEIGHT = "Height: ";
 	private final PlacedEnvObject element;
-	private final GuiEventsSubscriber guiEventsSubscriber;
+	private final MapRenderer mapRenderer;
 
-	public DefineEnvObjectDialog(final PlacedEnvObject data, final GuiEventsSubscriber guiEventsSubscriber) {
+	public DefineEnvObjectDialog(final PlacedEnvObject data, final MapRenderer mapRenderer) {
 		this.element = data;
-		this.guiEventsSubscriber = guiEventsSubscriber;
+		this.mapRenderer = mapRenderer;
 		init();
 	}
 
@@ -28,7 +28,7 @@ public class DefineEnvObjectDialog extends DialogPane {
 		c.gridx = 0;
 		c.gridy++;
 		addOkButton(c, e -> {
-			guiEventsSubscriber.onEnvObjectDefined(element, ((Double) spinner.getModel().getValue()).floatValue());
+			mapRenderer.onEnvObjectDefined(element, ((Double) spinner.getModel().getValue()).floatValue());
 			closeDialog();
 		});
 	}

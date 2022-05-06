@@ -13,7 +13,7 @@ import lombok.Getter;
 import java.util.Set;
 
 @Getter
-public enum CameraModes implements EditorMode {
+public enum ViewModes implements EditorMode {
 	PAN((lastMouseTouchPosition, camera, screenX, screenY, vector3) -> {
 		Vector2 velocity = lastMouseTouchPosition.sub(screenX, screenY).scl(0.03f);
 		Vector3 left = Utils.auxVector3_1.set(camera.direction).crs(camera.up).nor().scl(0.3f);
@@ -34,7 +34,7 @@ public enum CameraModes implements EditorMode {
 
 	private final CameraManipulation manipulation;
 
-	CameraModes(final CameraManipulation cameraManipulation) {
+	ViewModes(final CameraManipulation cameraManipulation) {
 		this.manipulation = cameraManipulation;
 	}
 

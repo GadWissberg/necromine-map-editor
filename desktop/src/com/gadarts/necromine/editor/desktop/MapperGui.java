@@ -5,7 +5,7 @@ import com.gadarts.necromine.editor.desktop.dialogs.DialogPane;
 import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.google.gson.Gson;
-import com.necromine.editor.GuiEventsSubscriber;
+import com.necromine.editor.MapRenderer;
 import org.lwjgl.openal.AL;
 
 import javax.imageio.ImageIO;
@@ -54,7 +54,7 @@ private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
 
 
 	public MapperGui(final LwjglAWTCanvas lwjgl,
-					 final GuiEventsSubscriber guiEventsSubscriber,
+					 final MapRenderer mapRenderer,
 					 final Properties properties) {
 //		super(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
 //		this.assetsFolderLocation = new File(properties.getProperty(DesktopLauncher.PROPERTIES_KEY_ASSETS_PATH));

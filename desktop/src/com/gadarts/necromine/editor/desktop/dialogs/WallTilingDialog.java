@@ -3,7 +3,7 @@ package com.gadarts.necromine.editor.desktop.dialogs;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.GalleryButton;
 import com.gadarts.necromine.editor.desktop.GuiUtils;
-import com.necromine.editor.GuiEventsSubscriber;
+import com.necromine.editor.MapRenderer;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
 import com.necromine.editor.model.node.WallDefinition;
@@ -20,7 +20,7 @@ public class WallTilingDialog extends DialogPane {
 	private static final String LABEL_WEST = "West Wall:";
 	private static final String LABEL_NORTH = "North Wall:";
 	private final File assetsFolderLocation;
-	private final GuiEventsSubscriber guiEventsSubscriber;
+	private final MapRenderer mapRenderer;
 	private final FlatNode src;
 	private final FlatNode dst;
 	private GalleryButton eastImageButton;
@@ -41,11 +41,11 @@ public class WallTilingDialog extends DialogPane {
 	private JSpinner northWallVerticalOffset;
 
 	public WallTilingDialog(final File assetsFolderLocation,
-							final GuiEventsSubscriber guiEventsSubscriber,
+							final MapRenderer mapRenderer,
 							final FlatNode src,
 							final FlatNode dst) {
 		this.assetsFolderLocation = assetsFolderLocation;
-		this.guiEventsSubscriber = guiEventsSubscriber;
+		this.mapRenderer = mapRenderer;
 		this.src = src;
 		this.dst = dst;
 		init();
@@ -59,7 +59,7 @@ public class WallTilingDialog extends DialogPane {
 		addHorizontalTextureOffsetSelectors(c);
 		addVerticalTextureOffsetSelectors(c);
 		addOkButton(c, e -> {
-			guiEventsSubscriber.onNodeWallsDefined(
+			mapRenderer.onNodeWallsDefined(
 					new NodeWallsDefinitions(
 							createWallDefinition(eastImageButton, eastWallVScale, eastWallHorizontalOffset, eastWallVerticalOffset),
 							createWallDefinition(southImageButton, southWallVScale, southWallHorizontalOffset, southWallVerticalOffset),

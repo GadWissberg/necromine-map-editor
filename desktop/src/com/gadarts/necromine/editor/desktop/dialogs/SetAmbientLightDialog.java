@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop.dialogs;
 
-import com.necromine.editor.GuiEventsSubscriber;
+import com.necromine.editor.MapRenderer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,11 +11,11 @@ public class SetAmbientLightDialog extends DialogPane {
 	private static final String LABEL_AMBIENT = "Ambient: ";
 	private static final float STEP_SIZE = 0.1f;
 	private final float current;
-	private final GuiEventsSubscriber guiEventsSubscriber;
+	private final MapRenderer mapRenderer;
 
-	public SetAmbientLightDialog(final float current, final GuiEventsSubscriber guiEventsSubscriber) {
+	public SetAmbientLightDialog(final float current, final MapRenderer mapRenderer) {
 		this.current = current;
-		this.guiEventsSubscriber = guiEventsSubscriber;
+		this.mapRenderer = mapRenderer;
 		init();
 	}
 
@@ -27,7 +27,7 @@ public class SetAmbientLightDialog extends DialogPane {
 		c.gridx = 0;
 		c.gridy++;
 		addOkButton(c, (e -> {
-			guiEventsSubscriber.onAmbientLightValueSet(((Double) spinner.getValue()).floatValue());
+			mapRenderer.onAmbientLightValueSet(((Double) spinner.getValue()).floatValue());
 			closeDialog();
 		}));
 	}

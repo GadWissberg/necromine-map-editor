@@ -66,11 +66,6 @@ public final class GuiUtils {
 		dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
 		dialog.setContentPane(content);
 		dialog.setResizable(false);
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (final Exception e) {
-			e.printStackTrace();
-		}
 		dialog.pack();
 		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
