@@ -11,13 +11,12 @@ import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.CursorSelectionModel;
-import com.necromine.editor.MapEditor;
-import com.necromine.editor.MapEditorData;
 import com.necromine.editor.MapEditorEventsNotifier;
+import com.necromine.editor.MapRendererData;
+import com.necromine.editor.MapRendererImpl;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.tools.EditorTool;
-import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.CharacterDecal;
 import lombok.Getter;
 
@@ -33,7 +32,7 @@ public class HandlersManagerImpl implements HandlersManager, Disposable {
 	private RenderHandler renderHandler;
 
 
-	public HandlersManagerImpl(final MapEditorData data) {
+	public HandlersManagerImpl(final MapRendererData data) {
 		this.eventsNotifier = new MapEditorEventsNotifier();
 		handlersManagerRelatedData = new HandlersManagerRelatedData(data.getMap(), data.getPlacedElements());
 		this.logicHandlers = new LogicHandlers(eventsNotifier);
@@ -41,7 +40,7 @@ public class HandlersManagerImpl implements HandlersManager, Disposable {
 
 
 	@Override
-	public void dispose() {
+	public void dispose( ) {
 		logicHandlers.dispose();
 		resourcesHandler.dispose();
 		renderHandler.dispose();
@@ -115,21 +114,15 @@ public class HandlersManagerImpl implements HandlersManager, Disposable {
 	public void onModeSet(final EditorMode mode) {
 		logicHandlers.getSelectionHandler().setSelectedElement(null);
 		logicHandlers.getCursorHandler().setHighlighter(null);
-		MapEditor.mode = mode;
+		MapRendererImpl.mode = mode;
 	}
 
 	@Override
 	public void onToolSet(final EditorTool tool) {
 		logicHandlers.getSelectionHandler().setSelectedElement(null);
 		CursorHandler cursorHandler = logicHandlers.getCursorHandler();
-		if (tool != TilesTools.BRUSH) {
-			cursorHandler.setHighlighter(cursorHandler.getCursorHandlerModelData().getCursorTileModelInstance());
-		} else {
-			if (logicHandlers.getSelectionHandler().getSelectedElement() == null) {
-				cursorHandler.setHighlighter(null);
-			}
-		}
-		MapEditor.tool = tool;
+		cursorHandler.setHighlighter(cursorHandler.getCursorHandlerModelData().getCursorTileModelInstance());
+		MapRendererImpl.tool = tool;
 	}
 
 	@Override

@@ -10,17 +10,19 @@ import lombok.Getter;
 public class ModesManager {
 
 	@Getter
-	private static EditorMode currentMode = EditModes.TILES;
+	private static EditorMode selectedMode = EditModes.TILES;
 
 	@Getter
-	private static EditorTool tool = TilesTools.BRUSH;
+	private static EditorTool selectedTool = TilesTools.BRUSH;
 
 	public void applyMode(final EditorMode mode) {
-		if (ModesManager.currentMode == mode) return;
-		ModesManager.currentMode = mode;
+		if (ModesManager.selectedMode == mode) return;
+		ModesManager.selectedMode = mode;
 	}
 
-	public void setTool(final EditorTool tool) {
+	public void applyTool(final EditorTool tool) {
+		if (ModesManager.selectedTool == tool) return;
+		ModesManager.selectedTool = tool;
 	}
 
 }

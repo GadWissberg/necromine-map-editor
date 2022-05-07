@@ -10,9 +10,9 @@ import com.gadarts.necromine.model.map.Wall;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.necromine.editor.GameMap;
-import com.necromine.editor.MapEditorData;
+import com.necromine.editor.MapRendererData;
 import com.necromine.editor.mode.EditModes;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElements;
 
@@ -24,13 +24,13 @@ import java.util.Base64;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
-import static com.necromine.editor.MapEditor.TARGET_VERSION;
+import static com.necromine.editor.MapRendererImpl.TARGET_VERSION;
 
 
 public class MapDeflater {
 	private final Gson gson = new Gson();
 
-	public void deflate(final MapEditorData data, String path) {
+	public void deflate(final MapRendererData data, String path) {
 		JsonObject output = new JsonObject();
 		GameMap map = data.getMap();
 		output.addProperty(MapJsonKeys.AMBIENT, map.getAmbientLight());

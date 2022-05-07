@@ -33,7 +33,7 @@ public class MapEditorEventsNotifier {
 		subscribers.forEach(subscriber -> subscriber.onSelectedEnvObjectToDefine(data));
 	}
 
-	public void editorIsReady( ) {
+	public void rendererIsReady( ) {
 		subscribers.forEach(MapManagerEventsSubscriber::onEditorIsReady);
 	}
 }

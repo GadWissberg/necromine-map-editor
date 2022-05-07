@@ -4,8 +4,8 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.map.MapNodeData;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
-import com.necromine.editor.GameMap;
 import com.necromine.editor.actions.PlaceElementAction;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.elements.PlacedModelElement.PlacedModelElementParameters;
 import com.necromine.editor.model.elements.PlacedPickup;
 

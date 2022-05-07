@@ -1,12 +1,12 @@
 package com.necromine.editor.actions.types;
 
 import com.gadarts.necromine.model.map.MapNodeData;
-import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.actions.AnswerSubscriber;
 import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.mode.EditModes;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElements;
 import com.necromine.editor.model.node.FlatNode;

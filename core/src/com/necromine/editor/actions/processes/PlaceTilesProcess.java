@@ -2,8 +2,8 @@ package com.necromine.editor.actions.processes;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.map.MapNodeData;
-import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorEventsNotifier;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;

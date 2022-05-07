@@ -6,8 +6,8 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.map.MapNodeData;
-import com.necromine.editor.GameMap;
 import com.necromine.editor.actions.PlaceElementAction;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
 import com.necromine.editor.model.elements.PlacedLight;
 

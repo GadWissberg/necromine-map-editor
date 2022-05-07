@@ -27,12 +27,12 @@ import com.gadarts.necromine.model.map.MapNodeData;
 import com.gadarts.necromine.model.map.NodeWalls;
 import com.gadarts.necromine.model.map.Wall;
 import com.necromine.editor.CursorSelectionModel;
-import com.necromine.editor.MapEditor;
+import com.necromine.editor.MapRendererImpl;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
-import com.necromine.editor.mode.tools.EnvTools;
+import com.necromine.editor.mode.tools.ElementTools;
 import com.necromine.editor.model.elements.*;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.utils.Utils;
@@ -228,7 +228,7 @@ public class RenderHandler implements Disposable {
 	public void renderCursor(final EditorMode mode, final ElementDefinition selectedElement) {
 		ModelInstance highlighter = handlersManager.getLogicHandlers().getCursorHandler().getHighlighter();
 		if (highlighter == null) return;
-		if (MapEditor.getTool() != EnvTools.BRUSH) {
+		if (MapRendererImpl.getTool() != ElementTools.BRUSH) {
 			handlersManager.getRenderHandler().getModelBatch().render(highlighter);
 		}
 		renderCursorObjectModel(selectedElement, mode);

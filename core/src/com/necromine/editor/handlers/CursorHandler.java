@@ -17,10 +17,10 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.characters.CharacterTypes;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.env.EnvironmentDefinitions;
-import com.necromine.editor.GameMap;
-import com.necromine.editor.MapEditor;
+import com.necromine.editor.MapRendererImpl;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.elements.CharacterDecal;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.utils.Utils;
@@ -104,7 +104,7 @@ public class CursorHandler implements Disposable {
 		int z = MathUtils.clamp((int) collisionPoint.z, 0, map.getNodes().length - 1);
 		float y = (map.getNodes()[z][x] != null ? map.getNodes()[z][x].getHeight() : 0) + 0.01f;
 		highlighter.transform.setTranslation(x, y, z);
-		updateCursorAdditionals(x, y, z, MapEditor.getMode());
+		updateCursorAdditionals(x, y, z, MapRendererImpl.getMode());
 	}
 
 	/**

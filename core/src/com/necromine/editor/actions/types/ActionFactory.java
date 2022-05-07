@@ -1,6 +1,6 @@
 package com.necromine.editor.actions.types;
 
-import com.necromine.editor.GameMap;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 
 public final class ActionFactory {

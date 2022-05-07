@@ -24,7 +24,7 @@ public abstract class SetModeCommand extends MapperCommand {
 	}
 
 	private void applyMode( ) {
-		if (ModesManager.getCurrentMode() == getMode()) return;
+		if (ModesManager.getSelectedMode() == getMode()) return;
 		EditorMode mode = getMode();
 		getModesManager().applyMode(mode);
 		if (mode instanceof EditModes) {

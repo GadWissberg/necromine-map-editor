@@ -15,9 +15,8 @@ import com.gadarts.necromine.model.map.MapNodesTypes;
 import com.gadarts.necromine.model.map.Wall;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.CursorSelectionModel;
-import com.necromine.editor.GameMap;
-import com.necromine.editor.MapEditor;
 import com.necromine.editor.MapEditorEventsNotifier;
+import com.necromine.editor.MapRendererImpl;
 import com.necromine.editor.actions.ActionAnswer;
 import com.necromine.editor.actions.MappingAction;
 import com.necromine.editor.actions.processes.*;
@@ -25,8 +24,9 @@ import com.necromine.editor.actions.types.*;
 import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.handlers.CursorHandlerModelData;
 import com.necromine.editor.mode.EditModes;
-import com.necromine.editor.mode.tools.EnvTools;
+import com.necromine.editor.mode.tools.ElementTools;
 import com.necromine.editor.mode.tools.TilesTools;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.elements.*;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.model.node.NodeWallsDefinitions;
@@ -108,12 +108,12 @@ public class ActionsHandlerImpl implements ActionsHandler {
 							   final Set<MapNodeData> initializedTiles,
 							   final int button) {
 		if (button == Input.Buttons.LEFT) {
-			if (MapEditor.getMode().getClass().equals(EditModes.class)) {
-				MapEditor.getMode().onTouchDownLeft(currentProcess, this, assetsManager, initializedTiles);
+			if (MapRendererImpl.getMode().getClass().equals(EditModes.class)) {
+				MapRendererImpl.getMode().onTouchDownLeft(currentProcess, this, assetsManager, initializedTiles);
 			}
 		} else if (button == Input.Buttons.RIGHT) {
-			if (MapEditor.getMode() instanceof EditModes) {
-				if (MapEditor.getTool() == TilesTools.BRUSH || MapEditor.getTool() == EnvTools.BRUSH) {
+			if (MapRendererImpl.getMode() instanceof EditModes) {
+				if (MapRendererImpl.getTool() == TilesTools.BRUSH || MapRendererImpl.getTool() == ElementTools.BRUSH) {
 					return removeElementByMode();
 				}
 			}
@@ -125,7 +125,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	@Override
 	public void defineSelectedEnvObject( ) {
 		MapNodeData mapNodeData = getMapNodeDataFromCursor();
-		List<? extends PlacedElement> list = this.data.getPlacedElements().getPlacedObjects().get(MapEditor.getMode());
+		List<? extends PlacedElement> list = this.data.getPlacedElements().getPlacedObjects().get(MapRendererImpl.getMode());
 		List<PlacedElement> elementsInTheNode = list.stream()
 				.filter(placedElement -> placedElement.getNode().equals(mapNodeData))
 				.collect(Collectors.toList());
@@ -160,7 +160,7 @@ public class ActionsHandlerImpl implements ActionsHandler {
 				data.getMap(),
 				data.getPlacedElements(),
 				new FlatNode((int) position.z, (int) position.x),
-				(EditModes) MapEditor.getMode()));
+				(EditModes) MapRendererImpl.getMode()));
 		return true;
 	}
 
@@ -284,19 +284,21 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	}
 
 	private void finishProcess(final Assets.SurfaceTextures selectedTile, final Model cursorTileModel) {
-		CursorHandlerModelData cursorHandlerModelData = services.getCursorHandler().getCursorHandlerModelData();
-		Vector3 position = cursorHandlerModelData.getCursorTileModelInstance().transform.getTranslation(auxVector);
-		int dstRow = (int) position.z;
-		int dstCol = (int) position.x;
-		if (currentProcess instanceof PlaceTilesProcess) {
-			PlaceTilesProcess currentProcess = (PlaceTilesProcess) this.currentProcess;
-			currentProcess.finish(new PlaceTilesFinishProcessParameters(dstRow, dstCol, selectedTile, cursorTileModel));
-		} else if (currentProcess instanceof SelectTilesForLiftProcess) {
-			SelectTilesForLiftProcess currentProcess = (SelectTilesForLiftProcess) this.currentProcess;
-			currentProcess.finish(new SelectTilesForLiftFinishProcessParameters(dstRow, dstCol, services.getEventsNotifier()));
-		} else if (currentProcess instanceof SelectTilesForWallTilingProcess) {
-			SelectTilesForWallTilingProcess currentProcess = (SelectTilesForWallTilingProcess) this.currentProcess;
-			currentProcess.finish(new SelectTilesForWallTilingFinishProcessParameters(dstRow, dstCol, services.getEventsNotifier()));
+		if (selectedTile != null) {
+			CursorHandlerModelData cursorHandlerModelData = services.getCursorHandler().getCursorHandlerModelData();
+			Vector3 position = cursorHandlerModelData.getCursorTileModelInstance().transform.getTranslation(auxVector);
+			int dstRow = (int) position.z;
+			int dstCol = (int) position.x;
+			if (currentProcess instanceof PlaceTilesProcess) {
+				PlaceTilesProcess currentProcess = (PlaceTilesProcess) this.currentProcess;
+				currentProcess.finish(new PlaceTilesFinishProcessParameters(dstRow, dstCol, selectedTile, cursorTileModel));
+			} else if (currentProcess instanceof SelectTilesForLiftProcess) {
+				SelectTilesForLiftProcess currentProcess = (SelectTilesForLiftProcess) this.currentProcess;
+				currentProcess.finish(new SelectTilesForLiftFinishProcessParameters(dstRow, dstCol, services.getEventsNotifier()));
+			} else if (currentProcess instanceof SelectTilesForWallTilingProcess) {
+				SelectTilesForWallTilingProcess currentProcess = (SelectTilesForWallTilingProcess) this.currentProcess;
+				currentProcess.finish(new SelectTilesForWallTilingFinishProcessParameters(dstRow, dstCol, services.getEventsNotifier()));
+			}
 		}
 		this.currentProcess = null;
 	}

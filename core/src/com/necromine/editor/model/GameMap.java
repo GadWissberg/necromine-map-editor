@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.necromine.editor.model;
 
 import com.gadarts.necromine.model.map.MapNodeData;
 import com.gadarts.necromine.model.map.MapNodesTypes;

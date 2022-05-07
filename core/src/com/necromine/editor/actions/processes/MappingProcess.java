@@ -1,9 +1,9 @@
 package com.necromine.editor.actions.processes;
 
 
-import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.actions.MappingAction;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.node.FlatNode;
 import lombok.Getter;
 

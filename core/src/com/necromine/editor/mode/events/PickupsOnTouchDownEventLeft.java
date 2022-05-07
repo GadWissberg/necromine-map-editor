@@ -1,4 +1,4 @@
-package com.necromine.editor.mode;
+package com.necromine.editor.mode.events;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.map.MapNodeData;

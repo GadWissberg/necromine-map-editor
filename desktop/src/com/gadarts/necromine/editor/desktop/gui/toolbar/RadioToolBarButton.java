@@ -17,31 +17,43 @@ public class RadioToolBarButton extends JToggleButton {
 							  PersistenceManager persistenceManager,
 							  MapRenderer mapRenderer,
 							  ModesManager modesManager,
-							  DialogsManager dialogsManager) throws IOException {
+							  DialogsManager dialogsManager) throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
 		setIcon(ToolbarButtonProperties.createButtonIcon(properties));
 		ActionListener action = createAction(properties, persistenceManager, mapRenderer, modesManager, dialogsManager);
 		addActionListener(action);
 	}
 
-	private ActionListener createAction(ToolbarButtonProperties buttonDefinition,
+	private ActionListener createAction(ToolbarButtonProperties buttonDef,
 										PersistenceManager persistenceManager,
 										MapRenderer mapRenderer,
 										ModesManager modesManager,
-										DialogsManager dialogsManager) {
-		if (buttonDefinition.getMenuItemDefinition() != null) {
-			MenuItemProperties menuItemProperties = buttonDefinition.getMenuItemDefinition().getMenuItemProperties();
-			setEnabled(!menuItemProperties.isDisabledOnStart());
-			try {
-				return (ActionListener) menuItemProperties.getActionClass().getConstructors()[0].newInstance(
-						persistenceManager,
-						mapRenderer,
-						modesManager,
-						dialogsManager);
-			} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-				throw new RuntimeException(e);
-			}
+										DialogsManager dialogsManager) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+		if (buttonDef.getMenuItemDefinition() != null) {
+			return createActionFromMenuItem(buttonDef, persistenceManager, mapRenderer, modesManager, dialogsManager);
 		} else {
-			return buttonDefinition.getMapperCommand();
+			return (ActionListener) buttonDef.getMapperCommandClass().getConstructors()[0].newInstance(
+					persistenceManager,
+					mapRenderer,
+					modesManager,
+					dialogsManager);
+		}
+	}
+
+	private ActionListener createActionFromMenuItem(ToolbarButtonProperties buttonDefinition,
+													PersistenceManager persistenceManager,
+													MapRenderer mapRenderer,
+													ModesManager modesManager,
+													DialogsManager dialogsManager) {
+		MenuItemProperties menuItemProperties = buttonDefinition.getMenuItemDefinition().getMenuItemProperties();
+		setEnabled(!menuItemProperties.isDisabledOnStart());
+		try {
+			return (ActionListener) menuItemProperties.getActionClass().getConstructors()[0].newInstance(
+					persistenceManager,
+					mapRenderer,
+					modesManager,
+					dialogsManager);
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
 		}
 	}
 

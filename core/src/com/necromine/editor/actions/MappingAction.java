@@ -1,7 +1,7 @@
 package com.necromine.editor.actions;
 
-import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorEventsNotifier;
+import com.necromine.editor.model.GameMap;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

@@ -39,7 +39,7 @@ import java.util.Set;
 /**
  * The world renderer.
  */
-public class MapEditor extends Editor implements MapRenderer {
+public class MapRendererImpl extends Editor implements MapRenderer {
 
 	/**
 	 * Camera's far.
@@ -62,14 +62,14 @@ public class MapEditor extends Editor implements MapRenderer {
 	@Getter
 	public static EditorTool tool = TilesTools.BRUSH;
 
-	private final MapEditorData data;
+	private final MapRendererData data;
 	private final Vector2 lastMouseTouchPosition = new Vector2();
 	private final HandlersManager handlers;
 	private WallCreator wallCreator;
 	private OrthographicCamera camera;
 
-	public MapEditor(final int width, final int height, final String assetsLocation) {
-		data = new MapEditorData(new ViewportResolution(width / 50, height / 50));
+	public MapRendererImpl(final int width, final int height, final String assetsLocation) {
+		data = new MapRendererData(new ViewportResolution(width / 50, height / 50));
 		handlers = new HandlersManagerImpl(data);
 		ResourcesHandler resourcesHandler = handlers.getResourcesHandler();
 		resourcesHandler.init(assetsLocation);
@@ -89,7 +89,8 @@ public class MapEditor extends Editor implements MapRenderer {
 		camera = createCamera();
 		handlers.onCreate(camera, wallCreator, data.getMap().getDimension());
 		initializeInput();
-		handlers.getEventsNotifier().editorIsReady();
+		handlers.getEventsNotifier().rendererIsReady();
+		onToolSet(TilesTools.BRUSH);
 	}
 
 

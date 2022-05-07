@@ -13,12 +13,12 @@ import com.gadarts.necromine.model.map.MapNodeData;
 import com.gadarts.necromine.model.map.MapNodesTypes;
 import com.gadarts.necromine.model.map.Wall;
 import com.google.gson.*;
-import com.necromine.editor.GameMap;
-import com.necromine.editor.MapEditorData;
+import com.necromine.editor.MapRendererData;
 import com.necromine.editor.handlers.CursorHandler;
 import com.necromine.editor.handlers.CursorHandlerModelData;
 import com.necromine.editor.handlers.RenderHandler;
 import com.necromine.editor.mode.EditModes;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.elements.PlacedElement;
 import com.necromine.editor.model.elements.PlacedElement.PlacedElementParameters;
 import com.necromine.editor.model.elements.PlacedElements;
@@ -55,7 +55,7 @@ public class MapInflater {
 	 * @param renderHandler Stuff used for helping mapping.
 	 * @param path          The file path.
 	 */
-	public void inflateMap(final MapEditorData data,
+	public void inflateMap(final MapRendererData data,
 						   final WallCreator wallCreator,
 						   final RenderHandler renderHandler,
 						   final String path) throws IOException {

@@ -1,31 +1,39 @@
 package com.gadarts.necromine.editor.desktop.gui.toolbar.sub;
 
+import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetLiftToolCommand;
+import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetTilesBrushToolCommand;
+import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetWallTilingToolCommand;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
+import com.necromine.editor.mode.EditModes;
+import com.necromine.editor.mode.EditorMode;
 import lombok.Getter;
+
+import java.util.Arrays;
 
 @Getter
 public enum SubToolbarsDefinitions {
-//	EMPTY(null),
-//
-//	TILES(EditModes.TILES,
-//			new SubToolbarButtonDefinition(
-//					new ToolbarButtonProperties(
-//							"brush",
-//							"Place Tiles",
-//							new SetToolBrushCommand(TilesTools.BRUSH),
-//							Constants.TOOL)),
-//			new SubToolbarButtonDefinition(
-//					new ToolbarButtonProperties(
-//							"staircase",
-//							"Set Tile Height",
-//							new SetToolCommand(TilesTools.LIFT),
-//							Constants.TOOL)),
-//			new SubToolbarButtonDefinition(
-//					new ToolbarButtonProperties(
-//							"wall",
-//							"Tile Walls",
-//							new SetToolCommand(TilesTools.WALL_TILING),
-//							Constants.TOOL)));
-//
+	EMPTY(null),
+
+	TILES(EditModes.TILES,
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
+							"brush",
+							"Place Tiles",
+							SetTilesBrushToolCommand.class,
+							Constants.BUTTON_GROUP_TOOL)),
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
+							"staircase",
+							"Set Tile Height",
+							SetLiftToolCommand.class,
+							Constants.BUTTON_GROUP_TOOL)),
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
+							"wall",
+							"Tile Walls",
+							SetWallTilingToolCommand.class,
+							Constants.BUTTON_GROUP_TOOL)));
+	//
 ////	CHARACTERS(EditModes.CHARACTERS,
 ////			new SubToolbarButtonDefinition(
 ////					new ToolbarButtonProperties(
@@ -62,23 +70,22 @@ public enum SubToolbarsDefinitions {
 ////							"rotate_counter_clockwise",
 ////							"Rotate Object Counter Clock-Wise",
 ////							new RotateSelectionCommand(RotateSelectionCommand.COUNTER_CLOCKWISE))));
-//	;
-//	private final SubToolbarButtonDefinition[] buttons;
-//	private final EditModes mode;
-//
-//	SubToolbarsDefinitions(final EditModes mode, final SubToolbarButtonDefinition... buttons) {
-//		this.buttons = buttons;
-//		this.mode = mode;
-//	}
-//
-//	public static SubToolbarsDefinitions findByMode(final EditorMode mode) {
-//		return Arrays.stream(SubToolbarsDefinitions.values())
-//				.filter(def -> def.mode == mode)
-//				.findFirst()
-//				.orElse(null);
-//	}
-//
-//	private static class Constants {
-//		public static final String TOOL = "tool";
-//	}
+	private final SubToolbarButtonDefinition[] buttons;
+	private final EditModes mode;
+
+	SubToolbarsDefinitions(final EditModes mode, final SubToolbarButtonDefinition... buttons) {
+		this.buttons = buttons;
+		this.mode = mode;
+	}
+
+	public static SubToolbarsDefinitions findByMode(final EditorMode mode) {
+		return Arrays.stream(SubToolbarsDefinitions.values())
+				.filter(def -> def.mode == mode)
+				.findFirst()
+				.orElse(null);
+	}
+
+	private static class Constants {
+		public static final String BUTTON_GROUP_TOOL = "tool";
+	}
 }

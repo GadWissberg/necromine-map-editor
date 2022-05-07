@@ -3,7 +3,7 @@ package com.necromine.editor.handlers;
 import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.map.MapNodeData;
-import com.necromine.editor.MapEditorData;
+import com.necromine.editor.MapRendererData;
 import com.necromine.editor.utils.MapDeflater;
 import com.necromine.editor.utils.MapInflater;
 
@@ -20,11 +20,11 @@ public class MapFileHandler {
 		inflater = new MapInflater(assetsManager, cursorHandler, placedTiles);
 	}
 
-	public void onSaveMapRequested(final MapEditorData data, final String path) {
+	public void onSaveMapRequested(final MapRendererData data, final String path) {
 		deflater.deflate(data, path);
 	}
 
-	public void onLoadMapRequested(final MapEditorData data,
+	public void onLoadMapRequested(final MapRendererData data,
 								   final WallCreator wallCreator,
 								   final RenderHandler renderHandler,
 								   final String path) throws IOException {

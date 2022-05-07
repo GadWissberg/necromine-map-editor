@@ -7,15 +7,11 @@ import com.gadarts.necromine.model.map.MapNodeData;
 import com.gadarts.necromine.model.pickups.WeaponsDefinitions;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.handlers.action.ActionsHandler;
+import com.necromine.editor.mode.events.*;
 import com.necromine.editor.mode.tools.EditorTool;
-import com.necromine.editor.mode.tools.EnvTools;
+import com.necromine.editor.mode.tools.ElementTools;
 import com.necromine.editor.mode.tools.TilesTools;
-import com.necromine.editor.model.elements.PlacedCharacter;
-import com.necromine.editor.model.elements.PlacedElementCreation;
-import com.necromine.editor.model.elements.PlacedEnvObject;
-import com.necromine.editor.model.elements.PlacedLight;
-import com.necromine.editor.model.elements.PlacedModelElement;
-import com.necromine.editor.model.elements.PlacedPickup;
+import com.necromine.editor.model.elements.*;
 import lombok.Getter;
 
 import java.util.Set;
@@ -28,17 +24,17 @@ public enum EditModes implements EditorMode {
 			null,
 			true,
 			PlacedCharacter::new,
-			null,
+			ElementTools.values(),
 			new CharactersOnTouchDownLeftEvent()),
 
 	ENVIRONMENT(EnvironmentDefinitions.values(),
 			(params, assetsManager) -> new PlacedEnvObject(new PlacedModelElement.PlacedModelElementParameters(params), assetsManager),
-			EnvTools.values(),
+			ElementTools.values(),
 			new EnvOnTouchDownEventLeft()),
 
 	PICKUPS(WeaponsDefinitions.values(),
 			(params, am) -> new PlacedPickup(new PlacedModelElement.PlacedModelElementParameters(params), am),
-			null,
+			ElementTools.values(),
 			new PickupsOnTouchDownEventLeft()),
 
 	LIGHTS(true,
@@ -51,9 +47,9 @@ public enum EditModes implements EditorMode {
 	private final EditorTool[] tools;
 	private final OnTouchDownLeftEvent onTouchDownLeft;
 
-	EditModes(final boolean decalCursor,
-			  final PlacedElementCreation creation,
-			  final OnTouchDownLeftEvent onTouchDownLeftEvent) {
+	EditModes(boolean decalCursor,
+			  PlacedElementCreation creation,
+			  OnTouchDownLeftEvent onTouchDownLeftEvent) {
 		this(decalCursor,
 				null,
 				false,

@@ -5,9 +5,9 @@ import com.gadarts.necromine.model.Coords;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.env.EnvironmentDefinitions;
 import com.gadarts.necromine.model.map.MapNodeData;
-import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.actions.PlaceElementAction;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.elements.PlacedEnvObject;
 import com.necromine.editor.model.elements.PlacedModelElement.PlacedModelElementParameters;
 

@@ -1,8 +1,8 @@
-package com.necromine.editor.mode;
+package com.necromine.editor.mode.events;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.map.MapNodeData;
-import com.necromine.editor.MapEditor;
+import com.necromine.editor.MapRendererImpl;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.mode.tools.TilesTools;
@@ -17,11 +17,11 @@ public class TilesOnTouchDownLeftEvent implements OnTouchDownLeftEvent {
 					   final GameAssetsManager assetsManager,
 					   final Set<MapNodeData> initializedTiles) {
 		if (currentProcess != null) return false;
-		if (MapEditor.getTool() == TilesTools.BRUSH) {
+		if (MapRendererImpl.getTool() == TilesTools.BRUSH) {
 			actionsHandler.beginTilePlacingProcess(assetsManager, initializedTiles);
-		} else if (MapEditor.getTool() == TilesTools.LIFT) {
+		} else if (MapRendererImpl.getTool() == TilesTools.LIFT) {
 			actionsHandler.beginSelectingTileForLiftProcess(1, initializedTiles);
-		} else if (MapEditor.getTool() == TilesTools.WALL_TILING) {
+		} else if (MapRendererImpl.getTool() == TilesTools.WALL_TILING) {
 			actionsHandler.beginSelectingTilesForWallTiling();
 		}
 		return true;

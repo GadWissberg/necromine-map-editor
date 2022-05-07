@@ -2,9 +2,9 @@ package com.necromine.editor.actions.types;
 
 import com.gadarts.necromine.WallCreator;
 import com.gadarts.necromine.model.map.MapNodeData;
-import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.actions.MappingAction;
+import com.necromine.editor.model.GameMap;
 import com.necromine.editor.model.node.FlatNode;
 import lombok.AccessLevel;
 import lombok.Getter;

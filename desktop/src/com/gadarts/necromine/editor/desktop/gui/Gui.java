@@ -7,7 +7,7 @@ import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.Menus;
 import com.gadarts.necromine.editor.desktop.gui.toolbar.*;
-import com.google.gson.Gson;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.sub.SubToolbarsDefinitions;
 import com.necromine.editor.EntriesDisplayTypes;
 import com.necromine.editor.MapManagerEventsSubscriber;
 import com.necromine.editor.MapRenderer;
@@ -51,7 +51,6 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	private final LwjglAWTCanvas lwjgl;
 	private final MapRenderer mapRenderer;
 	private final File assetsFolderLocation;
-	private final Gson gson = new Gson();
 	private final Map<EditModes, EntriesDisplayTypes> modeToEntriesDisplayType = Map.of(
 			EditModes.CHARACTERS, EntriesDisplayTypes.TREE,
 			EditModes.TILES, EntriesDisplayTypes.GALLERY,
@@ -100,18 +99,47 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 			}
 		});
 		entitiesPanel.add(new JPanel(), NONE.name());
-		EditModes mode = (EditModes) ModesManager.getCurrentMode();
+		EditModes mode = (EditModes) ModesManager.getSelectedMode();
 		entitiesLayout.show(entitiesPanel, mode.name());
 	}
 
-//	private void addSubToolbars(final JPanel mainPanel) {
-//		CardLayout subToolbarsCardLayout = new CardLayout();
-//		subToolbarPanel = new JPanel(subToolbarsCardLayout);
-//		mainPanel.add(subToolbarPanel, BorderLayout.PAGE_START);
-//		Arrays.stream(SubToolbarsDefinitions.values()).forEach(sub ->
-//				addToolBar(sub.getButtons(), subToolbarPanel, sub.name()).add(Box.createHorizontalGlue()));
-//		subToolbarsCardLayout.show(subToolbarPanel, SubToolbarsDefinitions.TILES.name());
-//	}
+	protected JToolBar addToolBar(final ToolbarButtonDefinition[] toolbarOptions, final Container container) {
+		return addToolBar(toolbarOptions, container, BorderLayout.PAGE_START);
+	}
+
+	private void addSubToolbars(final JPanel mainPanel) {
+		CardLayout subToolbarsCardLayout = new CardLayout();
+		subToolbarPanel = new JPanel(subToolbarsCardLayout);
+		mainPanel.add(subToolbarPanel, BorderLayout.PAGE_START);
+		Arrays.stream(SubToolbarsDefinitions.values()).forEach(sub ->
+				addToolBar(sub.getButtons(), subToolbarPanel, sub.name()).add(Box.createHorizontalGlue()));
+		subToolbarsCardLayout.show(subToolbarPanel, SubToolbarsDefinitions.TILES.name());
+	}
+
+	protected JToolBar addToolBar(final ToolbarButtonDefinition[] toolbarOptions,
+								  final Container container,
+								  final String name) {
+		JToolBar toolBar = new JToolBar();
+		toolBar.setFloatable(false);
+		Arrays.stream(toolbarOptions).forEach(option -> {
+			if (option.getButtonProperties() != null) {
+				AbstractButton jButton;
+				try {
+					jButton = createToolbarButtonOfMenuItem(option);
+					toolBar.add(jButton);
+					toolBar.setName(name);
+				} catch (final IOException e) {
+					e.printStackTrace();
+				} catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+					throw new RuntimeException(e);
+				}
+			} else {
+				toolBar.addSeparator();
+			}
+		});
+		container.add(toolBar, name);
+		return toolBar;
+	}
 
 	private void addMenuBar( ) {
 		JMenuBar menuBar = new JMenuBar();
@@ -170,7 +198,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	}
 
 	private AbstractButton createToolbarRadioButtonOfMenuItem(ToolbarButtonDefinition button,
-															  ToolbarButtonProperties buttonProperties) throws IOException {
+															  ToolbarButtonProperties buttonProperties) throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
 		AbstractButton toolBarButton;
 		MenuItemDefinition menuItemDefinition = button.getButtonProperties().getMenuItemDefinition();
 		String groupName;
@@ -199,7 +227,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		return toolBarButton;
 	}
 
-	private AbstractButton createToolbarButtonOfMenuItem(final ToolbarButtonDefinition buttonDefinition) throws IOException {
+	private AbstractButton createToolbarButtonOfMenuItem(final ToolbarButtonDefinition buttonDefinition) throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
 		ToolbarButtonProperties props = buttonDefinition.getButtonProperties();
 		AbstractButton button;
 		MenuItemDefinition def = props.getMenuItemDefinition();
@@ -228,6 +256,8 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 					toolBar.setName(BorderLayout.PAGE_START);
 				} catch (final IOException e) {
 					e.printStackTrace();
+				} catch (InvocationTargetException | IllegalAccessException | InstantiationException e) {
+					throw new RuntimeException(e);
 				}
 			} else {
 				toolBar.addSeparator();
@@ -243,9 +273,14 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		JSplitPane splitPane = createSplitPane(lwjgl.getCanvas(), entitiesPanel);
 		mainPanel.add(splitPane);
 		addMenuBar();
-		addToolBar(ToolbarDefinitions.values()).add(Box.createHorizontalGlue());
+		addToolbars(mainPanel);
 		addEntitiesDataSelectors();
 		getContentPane().add(mainPanel);
+	}
+
+	private void addToolbars(JPanel mainPanel) {
+		addToolBar(ToolbarDefinitions.values()).add(Box.createHorizontalGlue());
+		addSubToolbars(mainPanel);
 	}
 
 	private JSplitPane createSplitPane(final Canvas canvas, final JPanel entitiesPanel) {

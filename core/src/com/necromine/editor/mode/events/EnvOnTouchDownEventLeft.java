@@ -1,12 +1,12 @@
-package com.necromine.editor.mode;
+package com.necromine.editor.mode.events;
 
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.map.MapNodeData;
-import com.necromine.editor.MapEditor;
+import com.necromine.editor.MapRendererImpl;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.mode.tools.EditorTool;
-import com.necromine.editor.mode.tools.EnvTools;
+import com.necromine.editor.mode.tools.ElementTools;
 
 import java.util.Set;
 
@@ -16,10 +16,10 @@ public class EnvOnTouchDownEventLeft implements OnTouchDownLeftEvent {
 					   final ActionsHandler actionsHandler,
 					   final GameAssetsManager assetsManager,
 					   final Set<MapNodeData> initializedTiles) {
-		EditorTool tool = MapEditor.getTool();
-		if (tool == EnvTools.BRUSH && actionsHandler.getSelectedElement() != null) {
+		EditorTool tool = MapRendererImpl.getTool();
+		if (tool == ElementTools.BRUSH && actionsHandler.getSelectedElement() != null) {
 			actionsHandler.placeEnvObject(assetsManager);
-		} else if (tool == EnvTools.DEFINE) {
+		} else if (tool == ElementTools.DEFINE) {
 			actionsHandler.defineSelectedEnvObject();
 		}
 		return true;

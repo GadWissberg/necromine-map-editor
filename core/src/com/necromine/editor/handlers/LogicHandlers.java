@@ -9,12 +9,12 @@ import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.env.EnvironmentDefinitions;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.CursorSelectionModel;
-import com.necromine.editor.GameMap;
 import com.necromine.editor.MapEditorEventsNotifier;
 import com.necromine.editor.handlers.action.ActionHandlerRelatedData;
 import com.necromine.editor.handlers.action.ActionHandlerRelatedServices;
 import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.handlers.action.ActionsHandlerImpl;
+import com.necromine.editor.model.GameMap;
 import lombok.Getter;
 
 @Getter

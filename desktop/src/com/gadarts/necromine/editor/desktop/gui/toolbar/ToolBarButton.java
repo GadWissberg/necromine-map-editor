@@ -9,10 +9,10 @@ import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinit
 import com.necromine.editor.MapRenderer;
 
 import javax.swing.*;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Optional;
 
 import static com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties.createButtonIcon;
 
@@ -22,25 +22,47 @@ public class ToolBarButton extends JButton {
 						 PersistenceManager persistenceManager,
 						 MapRenderer mapRenderer,
 						 ModesManager modesManager,
-						 DialogsManager dialogsManager) throws IOException {
+						 DialogsManager dialogsManager) throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
 		setIcon(createButtonIcon(properties));
 		MenuItemDefinition menuItemDefinition = properties.getMenuItemDefinition();
-		Optional.ofNullable(menuItemDefinition).ifPresentOrElse(menuItem -> {
-			MenuItemProperties menuItemProperties = menuItem.getMenuItemProperties();
-			setEnabled(!menuItemProperties.isDisabledOnStart());
-			MapperCommand action;
-			try {
-				Constructor<?> constructor = menuItemProperties.getActionClass().getConstructors()[0];
-				action = (MapperCommand) constructor.newInstance(
-						persistenceManager,
-						mapRenderer,
-						modesManager,
-						dialogsManager);
-			} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-			addActionListener(action);
-		}, ( ) -> addActionListener(properties.getMapperCommand()));
+		if (menuItemDefinition != null) {
+			addActionFromMenuItem(persistenceManager, mapRenderer, modesManager, dialogsManager, menuItemDefinition);
+		} else {
+			addActionFromProperties(properties, persistenceManager, mapRenderer, modesManager, dialogsManager);
+		}
+	}
+
+	private void addActionFromProperties(ToolbarButtonProperties properties,
+										 PersistenceManager persistenceManager,
+										 MapRenderer mapRenderer,
+										 ModesManager modesManager,
+										 DialogsManager dialogsManager) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+		addActionListener((ActionListener) properties.getMapperCommandClass().getConstructors()[0].newInstance(
+				persistenceManager,
+				mapRenderer,
+				modesManager,
+				dialogsManager));
+	}
+
+	private void addActionFromMenuItem(PersistenceManager persistenceManager,
+									   MapRenderer mapRenderer,
+									   ModesManager modesManager,
+									   DialogsManager dialogsManager,
+									   MenuItemDefinition menuItemDefinition) {
+		MenuItemProperties menuItemProperties = menuItemDefinition.getMenuItemProperties();
+		setEnabled(!menuItemProperties.isDisabledOnStart());
+		MapperCommand action;
+		try {
+			Constructor<?> constructor = menuItemProperties.getActionClass().getConstructors()[0];
+			action = (MapperCommand) constructor.newInstance(
+					persistenceManager,
+					mapRenderer,
+					modesManager,
+					dialogsManager);
+		} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+		addActionListener(action);
 	}
 
 
