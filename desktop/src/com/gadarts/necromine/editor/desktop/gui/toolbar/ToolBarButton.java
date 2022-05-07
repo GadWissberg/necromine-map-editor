@@ -1,8 +1,6 @@
 package com.gadarts.necromine.editor.desktop.gui.toolbar;
 
-import com.gadarts.necromine.editor.desktop.ModesManager;
-import com.gadarts.necromine.editor.desktop.gui.DialogsManager;
-import com.gadarts.necromine.editor.desktop.gui.PersistenceManager;
+import com.gadarts.necromine.editor.desktop.gui.Managers;
 import com.gadarts.necromine.editor.desktop.gui.commands.MapperCommand;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
@@ -19,35 +17,27 @@ import static com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProp
 public class ToolBarButton extends JButton {
 
 	public ToolBarButton(ToolbarButtonProperties properties,
-						 PersistenceManager persistenceManager,
 						 MapRenderer mapRenderer,
-						 ModesManager modesManager,
-						 DialogsManager dialogsManager) throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+						 Managers managers) throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
 		setIcon(createButtonIcon(properties));
 		MenuItemDefinition menuItemDefinition = properties.getMenuItemDefinition();
 		if (menuItemDefinition != null) {
-			addActionFromMenuItem(persistenceManager, mapRenderer, modesManager, dialogsManager, menuItemDefinition);
+			addActionFromMenuItem(mapRenderer, managers, menuItemDefinition);
 		} else {
-			addActionFromProperties(properties, persistenceManager, mapRenderer, modesManager, dialogsManager);
+			addActionFromProperties(properties, mapRenderer, managers);
 		}
 	}
 
 	private void addActionFromProperties(ToolbarButtonProperties properties,
-										 PersistenceManager persistenceManager,
 										 MapRenderer mapRenderer,
-										 ModesManager modesManager,
-										 DialogsManager dialogsManager) throws InstantiationException, IllegalAccessException, InvocationTargetException {
+										 Managers managers) throws InstantiationException, IllegalAccessException, InvocationTargetException {
 		addActionListener((ActionListener) properties.getMapperCommandClass().getConstructors()[0].newInstance(
-				persistenceManager,
 				mapRenderer,
-				modesManager,
-				dialogsManager));
+				managers));
 	}
 
-	private void addActionFromMenuItem(PersistenceManager persistenceManager,
-									   MapRenderer mapRenderer,
-									   ModesManager modesManager,
-									   DialogsManager dialogsManager,
+	private void addActionFromMenuItem(MapRenderer mapRenderer,
+									   Managers managers,
 									   MenuItemDefinition menuItemDefinition) {
 		MenuItemProperties menuItemProperties = menuItemDefinition.getMenuItemProperties();
 		setEnabled(!menuItemProperties.isDisabledOnStart());
@@ -55,10 +45,8 @@ public class ToolBarButton extends JButton {
 		try {
 			Constructor<?> constructor = menuItemProperties.getActionClass().getConstructors()[0];
 			action = (MapperCommand) constructor.newInstance(
-					persistenceManager,
 					mapRenderer,
-					modesManager,
-					dialogsManager);
+					managers);
 		} catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
 			throw new RuntimeException(e);
 		}

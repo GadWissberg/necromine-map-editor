@@ -1,19 +1,15 @@
 package com.gadarts.necromine.editor.desktop.gui.commands.mode.view;
 
-import com.gadarts.necromine.editor.desktop.ModesManager;
-import com.gadarts.necromine.editor.desktop.gui.DialogsManager;
-import com.gadarts.necromine.editor.desktop.gui.PersistenceManager;
+import com.gadarts.necromine.editor.desktop.gui.Managers;
 import com.gadarts.necromine.editor.desktop.gui.commands.mode.SetModeCommand;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.ViewModes;
 
 public class SetPanModeCommand extends SetModeCommand {
 
-	public SetPanModeCommand(PersistenceManager persistenceManager,
-							 com.necromine.editor.MapRenderer mapRenderer,
-							 ModesManager modesManager,
-							 DialogsManager dialogsManager) {
-		super(persistenceManager, mapRenderer, modesManager, dialogsManager);
+	public SetPanModeCommand(com.necromine.editor.MapRenderer mapRenderer,
+							 Managers managers) {
+		super(mapRenderer, managers);
 	}
 
 	@Override

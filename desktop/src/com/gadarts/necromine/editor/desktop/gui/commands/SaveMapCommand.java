@@ -1,8 +1,6 @@
 package com.gadarts.necromine.editor.desktop.gui.commands;
 
-import com.gadarts.necromine.editor.desktop.ModesManager;
-import com.gadarts.necromine.editor.desktop.gui.DialogsManager;
-import com.gadarts.necromine.editor.desktop.gui.PersistenceManager;
+import com.gadarts.necromine.editor.desktop.gui.Managers;
 import com.necromine.editor.MapRenderer;
 
 import javax.swing.*;
@@ -15,16 +13,14 @@ import static com.gadarts.necromine.editor.desktop.gui.Gui.PROGRAM_TILE;
 import static javax.swing.SwingUtilities.getWindowAncestor;
 
 public class SaveMapCommand extends MapperCommand {
-	public SaveMapCommand(PersistenceManager persistenceManager,
-						  MapRenderer mapRenderer,
-						  ModesManager modesManager,
-						  DialogsManager dialogsManager) {
-		super(persistenceManager, mapRenderer, modesManager, dialogsManager);
+	public SaveMapCommand(MapRenderer mapRenderer,
+						  Managers managers) {
+		super(mapRenderer, managers);
 	}
 
 	@Override
 	public void actionPerformed(final ActionEvent e) {
-		File file = getPersistenceManager().getCurrentlyOpenedMap();
+		File file = getManagers().getPersistenceManager().getCurrentlyOpenedMap();
 		Window windowAncestor = getWindowAncestor((Component) e.getSource());
 		if (file == null) {
 			JFileChooser chooser = new JFileChooser();
@@ -35,7 +31,7 @@ public class SaveMapCommand extends MapperCommand {
 		Optional.ofNullable(file).ifPresent(f -> {
 			try {
 				getMapRenderer().onSaveMapRequested(f.getPath());
-				getPersistenceManager().updateCurrentlyOpenedFile(f);
+				getManagers().getPersistenceManager().updateCurrentlyOpenedFile(f);
 				String message = String.format("Map was saved successfully to: %s", f.getPath());
 				JOptionPane.showMessageDialog(
 						windowAncestor,

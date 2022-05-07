@@ -1,7 +1,6 @@
 package com.gadarts.necromine.editor.desktop.gui.commands;
 
-import com.gadarts.necromine.editor.desktop.ModesManager;
-import com.gadarts.necromine.editor.desktop.gui.DialogsManager;
+import com.gadarts.necromine.editor.desktop.gui.Managers;
 import com.gadarts.necromine.editor.desktop.gui.PersistenceManager;
 
 import java.awt.event.ActionEvent;
@@ -12,11 +11,9 @@ import static org.lwjgl.opengl.Display.setTitle;
 
 public class NewMapCommand extends MapperCommand {
 
-	public NewMapCommand(PersistenceManager persistenceManager,
-						 com.necromine.editor.MapRenderer mapRenderer,
-						 ModesManager modesManager,
-						 DialogsManager dialogsManager) {
-		super(persistenceManager, mapRenderer, modesManager, dialogsManager);
+	public NewMapCommand(com.necromine.editor.MapRenderer mapRenderer,
+						 Managers managers) {
+		super(mapRenderer, managers);
 	}
 
 	@Override
@@ -26,7 +23,7 @@ public class NewMapCommand extends MapperCommand {
 	}
 
 	private void resetCurrentlyOpenedFile( ) {
-		PersistenceManager persistenceManager = getPersistenceManager();
+		PersistenceManager persistenceManager = getManagers().getPersistenceManager();
 		persistenceManager.setCurrentlyOpenedMap(null);
 		setTitle(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
 		persistenceManager.getSettings().put(SETTINGS_KEY_LAST_OPENED_FILE, null);

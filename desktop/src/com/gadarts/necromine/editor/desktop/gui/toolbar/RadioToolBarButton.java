@@ -1,8 +1,6 @@
 package com.gadarts.necromine.editor.desktop.gui.toolbar;
 
-import com.gadarts.necromine.editor.desktop.ModesManager;
-import com.gadarts.necromine.editor.desktop.gui.DialogsManager;
-import com.gadarts.necromine.editor.desktop.gui.PersistenceManager;
+import com.gadarts.necromine.editor.desktop.gui.Managers;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.necromine.editor.MapRenderer;
 
@@ -14,44 +12,34 @@ import java.lang.reflect.InvocationTargetException;
 public class RadioToolBarButton extends JToggleButton {
 
 	public RadioToolBarButton(ToolbarButtonProperties properties,
-							  PersistenceManager persistenceManager,
 							  MapRenderer mapRenderer,
-							  ModesManager modesManager,
-							  DialogsManager dialogsManager) throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+							  Managers managers) throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
 		setIcon(ToolbarButtonProperties.createButtonIcon(properties));
-		ActionListener action = createAction(properties, persistenceManager, mapRenderer, modesManager, dialogsManager);
+		ActionListener action = createAction(properties, mapRenderer, managers);
 		addActionListener(action);
 	}
 
 	private ActionListener createAction(ToolbarButtonProperties buttonDef,
-										PersistenceManager persistenceManager,
 										MapRenderer mapRenderer,
-										ModesManager modesManager,
-										DialogsManager dialogsManager) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+										Managers managers) throws InvocationTargetException, InstantiationException, IllegalAccessException {
 		if (buttonDef.getMenuItemDefinition() != null) {
-			return createActionFromMenuItem(buttonDef, persistenceManager, mapRenderer, modesManager, dialogsManager);
+			return createActionFromMenuItem(buttonDef, mapRenderer, managers);
 		} else {
 			return (ActionListener) buttonDef.getMapperCommandClass().getConstructors()[0].newInstance(
-					persistenceManager,
 					mapRenderer,
-					modesManager,
-					dialogsManager);
+					managers);
 		}
 	}
 
 	private ActionListener createActionFromMenuItem(ToolbarButtonProperties buttonDefinition,
-													PersistenceManager persistenceManager,
 													MapRenderer mapRenderer,
-													ModesManager modesManager,
-													DialogsManager dialogsManager) {
+													Managers managers) {
 		MenuItemProperties menuItemProperties = buttonDefinition.getMenuItemDefinition().getMenuItemProperties();
 		setEnabled(!menuItemProperties.isDisabledOnStart());
 		try {
 			return (ActionListener) menuItemProperties.getActionClass().getConstructors()[0].newInstance(
-					persistenceManager,
 					mapRenderer,
-					modesManager,
-					dialogsManager);
+					managers);
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
