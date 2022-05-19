@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop.gui.commands;
 
-import com.gadarts.necromine.editor.desktop.gui.Managers;
+import com.gadarts.necromine.editor.desktop.gui.managers.Managers;
 import com.necromine.editor.MapRenderer;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

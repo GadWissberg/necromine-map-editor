@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop.gui.toolbar;
 
-import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetToolCommand;
+import com.gadarts.necromine.editor.desktop.gui.commands.MapperCommand;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
 import lombok.Getter;
 
@@ -23,17 +23,17 @@ public class ToolbarButtonProperties {
 	private final String toolTip;
 	private final MenuItemDefinition menuItemDefinition;
 	private String buttonGroup;
-	private Class<? extends SetToolCommand> mapperCommandClass;
+	private Class<? extends MapperCommand> mapperCommandClass;
 
 	public ToolbarButtonProperties(String icon,
 								   String toolTip,
-								   Class<? extends SetToolCommand> mapperCommandClass) {
+								   Class<? extends MapperCommand> mapperCommandClass) {
 		this(icon, toolTip, mapperCommandClass, null);
 	}
 
 	public ToolbarButtonProperties(final String icon,
 								   final String toolTip,
-								   final Class<? extends SetToolCommand> setToolCommand,
+								   final Class<? extends MapperCommand> setToolCommand,
 								   final String buttonGroup) {
 		this(icon, toolTip, (MenuItemDefinition) null);
 		this.mapperCommandClass = setToolCommand;

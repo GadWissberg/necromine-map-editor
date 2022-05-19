@@ -1,7 +1,7 @@
 package com.gadarts.necromine.editor.desktop.gui.toolbar;
 
-import com.gadarts.necromine.editor.desktop.gui.Managers;
 import com.gadarts.necromine.editor.desktop.gui.commands.MapperCommand;
+import com.gadarts.necromine.editor.desktop.gui.managers.Managers;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
 import com.necromine.editor.MapRenderer;

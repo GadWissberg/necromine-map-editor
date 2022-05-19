@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public final class GuiUtils {
+
+	private static final int GALLERY_VIEW_WIDTH = 420;
+
 	public static GalleryButton createTextureImageButton(final File assetsFolderLocation,
 														 final Assets.SurfaceTextures texture) throws IOException {
 		return createTextureImageButton(assetsFolderLocation, texture, null);
@@ -25,6 +28,7 @@ public final class GuiUtils {
 		ImageIcon imageIcon = loadImage(assetsFolderLocation, texture);
 		GalleryButton button = new GalleryButton(texture, imageIcon);
 		button.setPreferredSize(new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight()));
+		button.setMaximumSize(new Dimension(imageIcon.getIconWidth(), imageIcon.getIconHeight() + 40));
 		Optional.ofNullable(onClick).ifPresent(click -> button.addItemListener(onClick));
 		return button;
 	}
@@ -53,6 +57,8 @@ public final class GuiUtils {
 			}
 		});
 
+		buttonGroup.setSelected(buttonGroup.getElements().nextElement().getModel(), true);
+		gallery.setPreferredSize(new Dimension(GALLERY_VIEW_WIDTH, gallery.getPreferredSize().height));
 		jScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		jScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		jScrollPane.setPreferredSize(new Dimension(jScrollPane.getPreferredSize().width, 480));

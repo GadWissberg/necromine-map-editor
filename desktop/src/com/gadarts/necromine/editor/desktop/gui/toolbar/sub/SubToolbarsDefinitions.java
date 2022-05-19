@@ -1,5 +1,7 @@
 package com.gadarts.necromine.editor.desktop.gui.toolbar.sub;
 
+import com.gadarts.necromine.editor.desktop.gui.commands.editing.RotateSelectionClockwiseCommand;
+import com.gadarts.necromine.editor.desktop.gui.commands.editing.RotateSelectionCounterClockwiseCommand;
 import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetLiftToolCommand;
 import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetTilesBrushToolCommand;
 import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetWallTilingToolCommand;
@@ -32,21 +34,21 @@ public enum SubToolbarsDefinitions {
 							"wall",
 							"Tile Walls",
 							SetWallTilingToolCommand.class,
-							Constants.BUTTON_GROUP_TOOL)));
-	//
-////	CHARACTERS(EditModes.CHARACTERS,
-////			new SubToolbarButtonDefinition(
-////					new ToolbarButtonProperties(
-////							"rotate_clockwise",
-////							"Rotate Character Clock-Wise",
-////							new RotateSelectionCommand(RotateSelectionCommand.CLOCKWISE))),
-////			new SubToolbarButtonDefinition(
-////					new ToolbarButtonProperties(
-////							"rotate_counter_clockwise",
-////							"Rotate Character Counter Clock-Wise",
-////							new RotateSelectionCommand(RotateSelectionCommand.COUNTER_CLOCKWISE)))),
-////
-////	ENVIRONMENT(EditModes.ENVIRONMENT,
+							Constants.BUTTON_GROUP_TOOL))),
+
+	CHARACTERS(EditModes.CHARACTERS,
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
+							"rotate_clockwise",
+							"Rotate Character Clock-Wise",
+							RotateSelectionClockwiseCommand.class)),
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
+							"rotate_counter_clockwise",
+							"Rotate Character Counter Clock-Wise",
+							RotateSelectionCounterClockwiseCommand.class)));
+
+	////	ENVIRONMENT(EditModes.ENVIRONMENT,
 ////			new SubToolbarButtonDefinition(
 ////					new ToolbarButtonProperties(
 ////							"brush",

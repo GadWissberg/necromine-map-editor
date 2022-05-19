@@ -1,12 +1,15 @@
-package com.gadarts.necromine.editor.desktop.gui;
+package com.gadarts.necromine.editor.desktop.gui.managers;
 
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
-import com.gadarts.necromine.editor.desktop.gui.toolbar.*;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.RadioToolBarButton;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolBarButton;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonDefinition;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarDefinitions;
 import com.gadarts.necromine.editor.desktop.gui.toolbar.sub.SubToolbarsDefinitions;
 import com.necromine.editor.MapRenderer;
 import com.necromine.editor.mode.EditorMode;
-import lombok.RequiredArgsConstructor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,14 +20,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@RequiredArgsConstructor
-public class ToolbarsManager {
+public class ToolbarsManager extends BaseManager {
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
-	private final MapRenderer mapRenderer;
 	private final Managers managers;
 	private JPanel subToolbarPanel;
 
-	void addToolbars(JPanel mainPanel, JFrame parent) {
+	public ToolbarsManager(MapRenderer mapRenderer, Managers managers) {
+		super(mapRenderer);
+		this.managers = managers;
+	}
+
+	public void onApplicationStart(JPanel mainPanel, JFrame parent) {
 		JToolBar toolbar = createToolBar(ToolbarDefinitions.values(), parent, BorderLayout.PAGE_START);
 		mainPanel.add(toolbar.add(Box.createHorizontalGlue()), BorderLayout.PAGE_START);
 		addSubToolbars(mainPanel);
@@ -48,7 +54,7 @@ public class ToolbarsManager {
 		}
 		toolBarButton = new RadioToolBarButton(
 				buttonProperties,
-				mapRenderer,
+				getMapRenderer(),
 				managers);
 		ButtonGroup buttonGroup = buttonGroups.get(groupName);
 		buttonGroup.add(toolBarButton);
@@ -63,7 +69,7 @@ public class ToolbarsManager {
 		AbstractButton button;
 		MenuItemDefinition def = props.getMenuItemDefinition();
 		if (isRegularToolbarButton(props, def)) {
-			button = new ToolBarButton(props, mapRenderer, managers);
+			button = new ToolBarButton(props, getMapRenderer(), managers);
 		} else {
 			button = createToolbarRadioButtonOfMenuItem(buttonDefinition, props);
 		}
@@ -113,6 +119,6 @@ public class ToolbarsManager {
 		CardLayout subToolbarLayout = (CardLayout) subToolbarPanel.getLayout();
 		Optional.ofNullable(SubToolbarsDefinitions.findByMode(mode))
 				.ifPresentOrElse(sub -> subToolbarLayout.show(subToolbarPanel, sub.name()),
-						( ) -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
+						() -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
 	}
 }

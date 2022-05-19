@@ -10,8 +10,7 @@ import java.awt.*;
 @Getter
 public class GalleryButton extends JToggleButton {
 	private static final Color COLOR_SELECTED = Color.decode("0x14a9ff");
-	private static final int WIDTH = 75;
-	private static final int HEIGHT = 25;
+	private static final Color BACKGROUND_COLOR = Color.decode("0x45433B");
 	private Assets.SurfaceTextures textureDefinition;
 
 	public GalleryButton(final Assets.SurfaceTextures textureDefinition, final ImageIcon imageIcon) {
@@ -22,10 +21,7 @@ public class GalleryButton extends JToggleButton {
 
 	private void defineButton(final Assets.SurfaceTextures textureDefinition) {
 		String name = textureDefinition.getName();
-		setText(name);
-		setBorder(BorderFactory.createEtchedBorder());
-		setHorizontalTextPosition(JButton.CENTER);
-		setVerticalTextPosition(JButton.BOTTOM);
+		setBorderPainted(false);
 		setToolTipText(name);
 		setUI(new MetalToggleButtonUI() {
 			@Override
@@ -33,7 +29,7 @@ public class GalleryButton extends JToggleButton {
 				return COLOR_SELECTED;
 			}
 		});
-		setPreferredSize(new Dimension(WIDTH, HEIGHT));
+		setBackground(BACKGROUND_COLOR);
 	}
 
 	public void applyTexture(final Assets.SurfaceTextures texture, final ImageIcon imageIcon) {

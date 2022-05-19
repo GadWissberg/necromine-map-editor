@@ -1,8 +1,8 @@
 package com.gadarts.necromine.editor.desktop.gui.commands.tools;
 
 import com.gadarts.necromine.editor.desktop.ModesManager;
-import com.gadarts.necromine.editor.desktop.gui.Managers;
 import com.gadarts.necromine.editor.desktop.gui.commands.MapperCommand;
+import com.gadarts.necromine.editor.desktop.gui.managers.Managers;
 import com.necromine.editor.mode.tools.EditorTool;
 
 import java.awt.event.ActionEvent;

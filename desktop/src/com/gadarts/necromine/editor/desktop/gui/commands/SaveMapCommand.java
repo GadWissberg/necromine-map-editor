@@ -1,6 +1,6 @@
 package com.gadarts.necromine.editor.desktop.gui.commands;
 
-import com.gadarts.necromine.editor.desktop.gui.Managers;
+import com.gadarts.necromine.editor.desktop.gui.managers.Managers;
 import com.necromine.editor.MapRenderer;
 
 import javax.swing.*;
@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.Optional;
 
 import static com.gadarts.necromine.editor.desktop.gui.Gui.PROGRAM_TILE;
+import static com.gadarts.necromine.editor.desktop.gui.Gui.SETTINGS_FILE;
 import static javax.swing.SwingUtilities.getWindowAncestor;
 
 public class SaveMapCommand extends MapperCommand {
@@ -31,7 +32,7 @@ public class SaveMapCommand extends MapperCommand {
 		Optional.ofNullable(file).ifPresent(f -> {
 			try {
 				getMapRenderer().onSaveMapRequested(f.getPath());
-				getManagers().getPersistenceManager().updateCurrentlyOpenedFile(f);
+				getManagers().getPersistenceManager().updateCurrentlyOpenedFile(f, SETTINGS_FILE);
 				String message = String.format("Map was saved successfully to: %s", f.getPath());
 				JOptionPane.showMessageDialog(
 						windowAncestor,

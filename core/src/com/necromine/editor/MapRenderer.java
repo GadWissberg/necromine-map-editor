@@ -16,6 +16,9 @@ import java.awt.*;
 import java.io.IOException;
 
 public interface MapRenderer {
+	int CLOCKWISE = -1;
+	int COUNTER_CLOCKWISE = 1;
+
 	void onTileSelected(Assets.SurfaceTextures texture);
 
 	void onEditModeSet(EditModes mode);
@@ -32,7 +35,7 @@ public interface MapRenderer {
 
 	void onSaveMapRequested(String path);
 
-	void onNewMapRequested( );
+	void onNewMapRequested();
 
 	void onLoadMapRequested(String path) throws IOException;
 
@@ -42,7 +45,7 @@ public interface MapRenderer {
 
 	void onTilesLift(FlatNode src, FlatNode dst, float value);
 
-	float getAmbientLightValue( );
+	float getAmbientLightValue();
 
 	void onAmbientLightValueSet(float value);
 

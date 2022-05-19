@@ -1,8 +1,8 @@
 package com.gadarts.necromine.editor.desktop.gui.commands;
 
 import com.gadarts.necromine.editor.desktop.dialogs.SetAmbientLightDialog;
-import com.gadarts.necromine.editor.desktop.gui.DialogsManager;
-import com.gadarts.necromine.editor.desktop.gui.Managers;
+import com.gadarts.necromine.editor.desktop.gui.managers.DialogsManager;
+import com.gadarts.necromine.editor.desktop.gui.managers.Managers;
 import com.necromine.editor.MapRenderer;
 
 import java.awt.event.ActionEvent;
