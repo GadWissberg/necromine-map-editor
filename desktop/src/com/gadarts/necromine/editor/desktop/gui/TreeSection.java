@@ -1,4 +1,4 @@
-package com.necromine.editor;
+package com.gadarts.necromine.editor.desktop.gui;
 
 import com.gadarts.necromine.model.ElementDefinition;
 import lombok.Getter;

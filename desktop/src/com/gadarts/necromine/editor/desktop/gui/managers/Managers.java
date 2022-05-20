@@ -17,7 +17,7 @@ public interface Managers {
 
 	ToolbarsManager getToolbarsManager();
 
-	ToolbarsManager getEntitiesSelectionPanelManager();
+	EntitiesSelectionPanelManager getEntitiesSelectionPanelManager( );
 
 	DialogsManager getDialogsManager();
 }

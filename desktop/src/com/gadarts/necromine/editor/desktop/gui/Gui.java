@@ -2,7 +2,6 @@ package com.gadarts.necromine.editor.desktop.gui;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.gadarts.necromine.editor.desktop.DesktopLauncher;
-import com.gadarts.necromine.editor.desktop.MapperGui;
 import com.gadarts.necromine.editor.desktop.gui.managers.ManagersImpl;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
@@ -36,9 +35,9 @@ import java.util.Properties;
 
 
 public class Gui extends JFrame implements MapManagerEventsSubscriber {
+	public static final String FOLDER_TOOLBAR_BUTTONS = "toolbar_buttons";
 	public static final int WIDTH = 1280;
 	public static final int HEIGHT = 720;
-	public static final String FOLDER_TOOLBAR_BUTTONS = "toolbar_buttons";
 	public static final int MENU_ITEM_IMAGE_SIZE = 16;
 	public static final int MENU_LABEL_PAD = 4;
 	public static final String DEFAULT_MAP_NAME = "Unnamed map";
@@ -46,6 +45,14 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	public static final String PROGRAM_TILE = "Necronemes Map Editor";
 	public static final String SETTINGS_KEY_LAST_OPENED_FILE = "last_opened_file";
 	public static final String SETTINGS_FILE = "settings.json";
+	private static final String FOLDER_ASSETS = "core" + File.separator + "assets";
+	private static final String ICON_FORMAT = ".png";
+	public static final String UI_ASSETS_FOLDER_PATH = FOLDER_ASSETS
+			+ File.separator
+			+ "%s"
+			+ File.separator
+			+ "%s"
+			+ ICON_FORMAT;
 	private final LwjglAWTCanvas lwjgl;
 	private final MapRenderer mapRenderer;
 	private final File assetsFolderLocation;
@@ -67,7 +74,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	}
 
 
-	private void addMenuBar() {
+	private void addMenuBar( ) {
 		JMenuBar menuBar = new JMenuBar();
 		Arrays.stream(Menus.values()).forEach(menu -> {
 			JMenu jMenu = new JMenu(menu.getLabel());
@@ -101,18 +108,18 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	}
 
 	private ImageIcon createMenuItemIcon(MenuItemProperties prop) throws IOException {
-		String path = String.format(MapperGui.UI_ASSETS_FOLDER_PATH, FOLDER_TOOLBAR_BUTTONS, prop.getIcon());
+		String path = String.format(UI_ASSETS_FOLDER_PATH, FOLDER_TOOLBAR_BUTTONS, prop.getIcon());
 		ImageIcon icon = new ImageIcon(ImageIO.read(new File(path)));
 		icon = new ImageIcon(icon.getImage().getScaledInstance(MENU_ITEM_IMAGE_SIZE, MENU_ITEM_IMAGE_SIZE, 0));
 		return icon;
 	}
 
-	private JPanel createEntitiesPanel() {
+	private JPanel createEntitiesPanel( ) {
 		CardLayout entitiesLayout = new CardLayout();
 		return new JPanel(entitiesLayout);
 	}
 
-	private void defineWindow() {
+	private void defineWindow( ) {
 		addWindowComponents();
 		defineWindowClose();
 		setSize(WIDTH, HEIGHT);
@@ -122,7 +129,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	}
 
 
-	private void addWindowComponents() {
+	private void addWindowComponents( ) {
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		JPanel entitiesPanel = createEntitiesPanel();
 		JSplitPane splitPane = createSplitPane(lwjgl.getCanvas(), entitiesPanel);
@@ -140,7 +147,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		splitPane.setBorder(BorderFactory.createEmptyBorder());
 		BasicSplitPaneUI flatDividerSplitPaneUI = new BasicSplitPaneUI() {
 			@Override
-			public BasicSplitPaneDivider createDefaultDivider() {
+			public BasicSplitPaneDivider createDefaultDivider( ) {
 				return new BasicSplitPaneDivider(this) {
 					@Override
 					public void setBorder(Border b) {
@@ -152,7 +159,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		return splitPane;
 	}
 
-	private void defineWindowClose() {
+	private void defineWindowClose( ) {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -186,7 +193,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 
 
 	@Override
-	public void onMapRendererIsReady() {
+	public void onMapRendererIsReady( ) {
 		managers.onMapRendererIsReady(mapRenderer, this);
 	}
 }

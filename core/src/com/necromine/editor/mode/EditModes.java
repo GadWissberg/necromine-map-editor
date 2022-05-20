@@ -13,33 +13,39 @@ import com.necromine.editor.mode.tools.ElementTools;
 import com.necromine.editor.mode.tools.TilesTools;
 import com.necromine.editor.model.elements.*;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Set;
 
 @Getter
+@RequiredArgsConstructor
 public enum EditModes implements EditorMode {
-	TILES(true, TilesTools.values(), new TilesOnTouchDownLeftEvent()),
+	TILES("Tiles Mode", true, TilesTools.values(), new TilesOnTouchDownLeftEvent()),
 
-	CHARACTERS(true,
-			null,
+	CHARACTERS("Characters Mode",
 			true,
 			PlacedCharacter::new,
+			null,
+			true,
 			ElementTools.values(),
 			new CharactersOnTouchDownLeftEvent()),
 
-	ENVIRONMENT(EnvironmentDefinitions.values(),
-			(params, assetsManager) -> new PlacedEnvObject(new PlacedModelElement.PlacedModelElementParameters(params), assetsManager),
+	ENVIRONMENT("Environment Objects Mode", EnvironmentDefinitions.values(),
+			(params, assetsManager) -> new PlacedEnvObject(
+					new PlacedModelElement.PlacedModelElementParameters(params),
+					assetsManager),
 			ElementTools.values(),
 			new EnvOnTouchDownEventLeft()),
 
-	PICKUPS(WeaponsDefinitions.values(),
+	PICKUPS("Pickups Mode", WeaponsDefinitions.values(),
 			(params, am) -> new PlacedPickup(new PlacedModelElement.PlacedModelElementParameters(params), am),
 			ElementTools.values(),
 			new PickupsOnTouchDownEventLeft()),
 
-	LIGHTS(true,
+	LIGHTS("Lights Mode", true,
 			PlacedLight::new,
 			new LightsOnTouchDownEventLeft());
+	private final String displayName;
 	private final boolean decalCursor;
 	private final PlacedElementCreation creationProcess;
 	private final ElementDefinition[] definitions;
@@ -47,49 +53,46 @@ public enum EditModes implements EditorMode {
 	private final EditorTool[] tools;
 	private final OnTouchDownLeftEvent onTouchDownLeft;
 
-	EditModes(boolean decalCursor,
+	EditModes(String displayName,
+			  boolean decalCursor,
 			  PlacedElementCreation creation,
 			  OnTouchDownLeftEvent onTouchDownLeftEvent) {
-		this(decalCursor,
+		this(displayName,
+				decalCursor,
+				creation,
 				null,
 				false,
-				creation,
 				null,
 				onTouchDownLeftEvent);
 	}
 
-	EditModes(final boolean skipGenericElementLoading,
-			  final EditorTool[] tools,
-			  final OnTouchDownLeftEvent onTouchDownLeftEvent) {
-		this(false, null, skipGenericElementLoading, null, tools, onTouchDownLeftEvent);
-	}
-
-	EditModes(final ElementDefinition[] definitions,
-			  final PlacedElementCreation creation,
-			  final EditorTool[] tools,
-			  final OnTouchDownLeftEvent onTouchDownLeftEvent) {
-		this(
+	EditModes(String displayName,
+			  boolean skipGenericElementLoading,
+			  EditorTool[] tools,
+			  OnTouchDownLeftEvent onTouchDownLeftEvent) {
+		this(displayName,
 				false,
-				definitions,
-				false,
-				creation,
+				null,
+				null,
+				skipGenericElementLoading,
 				tools,
 				onTouchDownLeftEvent);
 	}
 
-	EditModes(final boolean decalCursor,
-			  final ElementDefinition[] definitions,
-			  final boolean skipGenericElementLoading,
-			  final PlacedElementCreation creation,
-			  final EditorTool[] tools,
-			  final OnTouchDownLeftEvent onTouchDownLeftEvent) {
-		this.decalCursor = decalCursor;
-		this.creationProcess = creation;
-		this.skipGenericElementLoading = skipGenericElementLoading;
-		this.definitions = definitions;
-		this.tools = tools;
-		this.onTouchDownLeft = onTouchDownLeftEvent;
+	EditModes(String displayName,
+			  ElementDefinition[] definitions,
+			  PlacedElementCreation creation,
+			  EditorTool[] tools,
+			  OnTouchDownLeftEvent onTouchDownLeftEvent) {
+		this(displayName,
+				false,
+				creation,
+				definitions,
+				false,
+				tools,
+				onTouchDownLeftEvent);
 	}
+
 
 	@Override
 	public void onTouchDownLeft(final MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess,
@@ -98,4 +101,10 @@ public enum EditModes implements EditorMode {
 								final Set<MapNodeData> initializedTiles) {
 		onTouchDownLeft.run(currentProcess, actionsHandler, assetsManager, initializedTiles);
 	}
+
+	@Override
+	public String getDisplayName( ) {
+		return displayName;
+	}
+
 }

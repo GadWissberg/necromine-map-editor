@@ -2,8 +2,9 @@ package com.gadarts.necromine.editor.desktop.gui.toolbar.sub;
 
 import com.gadarts.necromine.editor.desktop.gui.commands.editing.RotateSelectionClockwiseCommand;
 import com.gadarts.necromine.editor.desktop.gui.commands.editing.RotateSelectionCounterClockwiseCommand;
+import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetBrushToolCommand;
+import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetEnvDefineToolCommand;
 import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetLiftToolCommand;
-import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetTilesBrushToolCommand;
 import com.gadarts.necromine.editor.desktop.gui.commands.tools.SetWallTilingToolCommand;
 import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
 import com.necromine.editor.mode.EditModes;
@@ -11,6 +12,9 @@ import com.necromine.editor.mode.EditorMode;
 import lombok.Getter;
 
 import java.util.Arrays;
+
+import static com.gadarts.necromine.editor.desktop.gui.toolbar.sub.SubToolbarsDefinitions.Constants.BUTTON_GROUP_TOOL;
+
 
 @Getter
 public enum SubToolbarsDefinitions {
@@ -21,20 +25,20 @@ public enum SubToolbarsDefinitions {
 					new ToolbarButtonProperties(
 							"brush",
 							"Place Tiles",
-							SetTilesBrushToolCommand.class,
-							Constants.BUTTON_GROUP_TOOL)),
+							SetBrushToolCommand.class,
+							BUTTON_GROUP_TOOL)),
 			new SubToolbarButtonDefinition(
 					new ToolbarButtonProperties(
 							"staircase",
 							"Set Tile Height",
 							SetLiftToolCommand.class,
-							Constants.BUTTON_GROUP_TOOL)),
+							BUTTON_GROUP_TOOL)),
 			new SubToolbarButtonDefinition(
 					new ToolbarButtonProperties(
 							"wall",
 							"Tile Walls",
 							SetWallTilingToolCommand.class,
-							Constants.BUTTON_GROUP_TOOL))),
+							BUTTON_GROUP_TOOL))),
 
 	CHARACTERS(EditModes.CHARACTERS,
 			new SubToolbarButtonDefinition(
@@ -46,32 +50,32 @@ public enum SubToolbarsDefinitions {
 					new ToolbarButtonProperties(
 							"rotate_counter_clockwise",
 							"Rotate Character Counter Clock-Wise",
-							RotateSelectionCounterClockwiseCommand.class)));
+							RotateSelectionCounterClockwiseCommand.class))),
 
-	////	ENVIRONMENT(EditModes.ENVIRONMENT,
-////			new SubToolbarButtonDefinition(
-////					new ToolbarButtonProperties(
-////							"brush",
-////							"Place environment objects",
-////							new SetToolCommand(EnvTools.BRUSH),
-////							Constants.TOOL)),
-////			new SubToolbarButtonDefinition(
-////					new ToolbarButtonProperties(
-////							"define",
-////							"Define a placed environment object",
-////							new SetToolCommand(EnvTools.DEFINE),
-////							Constants.TOOL)),
-////			new SubToolbarButtonDefinition(),
-////			new SubToolbarButtonDefinition(
-////					new ToolbarButtonProperties(
-////							"rotate_clockwise",
-////							"Rotate Object Clock-Wise",
-////							new RotateSelectionCommand(RotateSelectionCommand.CLOCKWISE))),
-////			new SubToolbarButtonDefinition(
-////					new ToolbarButtonProperties(
-////							"rotate_counter_clockwise",
-////							"Rotate Object Counter Clock-Wise",
-////							new RotateSelectionCommand(RotateSelectionCommand.COUNTER_CLOCKWISE))));
+	ENVIRONMENT(EditModes.ENVIRONMENT,
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
+							"brush",
+							"Place environment objects",
+							SetBrushToolCommand.class,
+							BUTTON_GROUP_TOOL)),
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
+							"define",
+							"Define a placed environment object",
+							SetEnvDefineToolCommand.class,
+							BUTTON_GROUP_TOOL)),
+			new SubToolbarButtonDefinition(),
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
+							"rotate_clockwise",
+							"Rotate Object Clock-Wise",
+							RotateSelectionClockwiseCommand.class)),
+			new SubToolbarButtonDefinition(
+					new ToolbarButtonProperties(
+							"rotate_counter_clockwise",
+							"Rotate Object Counter Clock-Wise",
+							RotateSelectionCounterClockwiseCommand.class)));
 	private final SubToolbarButtonDefinition[] buttons;
 	private final EditModes mode;
 
@@ -87,7 +91,7 @@ public enum SubToolbarsDefinitions {
 				.orElse(null);
 	}
 
-	private static class Constants {
+	static class Constants {
 		public static final String BUTTON_GROUP_TOOL = "tool";
 	}
 }

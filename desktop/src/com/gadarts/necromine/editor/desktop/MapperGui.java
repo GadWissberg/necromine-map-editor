@@ -25,13 +25,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.gadarts.necromine.editor.desktop.gui.Gui.UI_ASSETS_FOLDER_PATH;
+
 public class MapperGui extends JFrame implements PropertyChangeListener {
 	public static final String FOLDER_TOOLBAR_BUTTONS = "toolbar_buttons";
 	public static final int WIDTH = 1280;
 	public static final int HEIGHT = 720;
-	private static final String ICON_FORMAT = ".png";
-	private static final String FOLDER_ASSETS = "core" + File.separator + "assets";
-	public static final String UI_ASSETS_FOLDER_PATH = FOLDER_ASSETS + File.separator + "%s" + File.separator + "%s" + ICON_FORMAT;
 	private static final String MSG_FAILED_TO_OPEN_MAP_FILE = "Failed to open map file!";
 	private static final String MSG_FAILED_TO_SAVE_MAP_FILE = "Failed to save map file!";
 	private static final String MSG_FAILED_TO_READ_SETTINGS = "Failed to read the editor's settings!";

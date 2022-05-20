@@ -1,13 +1,13 @@
 package com.gadarts.necromine.editor.desktop.tree;
 
-import com.gadarts.necromine.editor.desktop.MapperGui;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+
+import static com.gadarts.necromine.editor.desktop.gui.Gui.UI_ASSETS_FOLDER_PATH;
 
 public class ResourcesTreeCellRenderer extends EditorTreeCellRenderer {
 
@@ -31,7 +31,7 @@ public class ResourcesTreeCellRenderer extends EditorTreeCellRenderer {
 												  final boolean hasFocus) {
 		JLabel result = (JLabel) super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
-		final String UNDEFINED = String.format(MapperGui.UI_ASSETS_FOLDER_PATH, FOLDER_NAME, ICON_UNDEFINED);
+		final String UNDEFINED = String.format(UI_ASSETS_FOLDER_PATH, FOLDER_NAME, ICON_UNDEFINED);
 		String text = node.getUserObject().toString();
 		String icon;
 		if (tree.getModel().getRoot().equals(node)) {
@@ -43,7 +43,7 @@ public class ResourcesTreeCellRenderer extends EditorTreeCellRenderer {
 		}
 		result.setText(text);
 		try {
-			String iconPath = String.format(MapperGui.UI_ASSETS_FOLDER_PATH, FOLDER_NAME, icon);
+			String iconPath = String.format(UI_ASSETS_FOLDER_PATH, FOLDER_NAME, icon);
 			result.setIcon(new ImageIcon(ImageIO.read(new File(iconPath))));
 		} catch (final IOException e) {
 			try {

@@ -25,6 +25,7 @@ public abstract class SetModeCommand extends MapperCommand {
 		EditorMode mode = getMode();
 		getManagers().getModesManager().applyMode(mode);
 		getManagers().getToolbarsManager().updateSubToolbar(mode);
+		getManagers().getEntitiesSelectionPanelManager().changeEntitiesSelectionMode(mode);
 		if (mode instanceof EditModes) {
 			getMapRenderer().onEditModeSet((EditModes) mode);
 		} else if (mode instanceof ViewModes) {
