@@ -27,12 +27,11 @@ import com.gadarts.necromine.model.map.MapNodeData;
 import com.gadarts.necromine.model.map.NodeWalls;
 import com.gadarts.necromine.model.map.Wall;
 import com.necromine.editor.CursorSelectionModel;
-import com.necromine.editor.MapRendererImpl;
 import com.necromine.editor.actions.processes.MappingProcess;
 import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
-import com.necromine.editor.mode.tools.ElementTools;
+import com.necromine.editor.mode.ModeType;
 import com.necromine.editor.model.elements.*;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.utils.Utils;
@@ -85,7 +84,7 @@ public class RenderHandler implements Disposable {
 		this.modelBatch = new ModelBatch();
 	}
 
-	private Model createRectModel() {
+	private Model createRectModel( ) {
 		ModelBuilder builder = new ModelBuilder();
 		BlendingAttribute highlightBlend = new BlendingAttribute(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		Material material = new Material(highlightBlend);
@@ -100,7 +99,10 @@ public class RenderHandler implements Disposable {
 		);
 	}
 
-	public void draw(final EditorMode mode, final PlacedElements placedElements, final Set<MapNodeData> initializedTiles, final ElementDefinition selectedElement) {
+	public void draw(EditorMode mode,
+					 PlacedElements placedElements,
+					 Set<MapNodeData> initializedTiles,
+					 ElementDefinition selectedElement) {
 		int sam = Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0;
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | sam);
@@ -124,7 +126,7 @@ public class RenderHandler implements Disposable {
 	}
 
 	private void createGrid(final Dimension levelSize) {
-		Gdx.app.postRunnable(() -> {
+		Gdx.app.postRunnable(( ) -> {
 			if (gridModel != null) {
 				gridModel.dispose();
 			}
@@ -167,8 +169,9 @@ public class RenderHandler implements Disposable {
 										 final Camera camera) {
 		CursorHandler cursorHandler = handlersManager.getLogicHandlers().getCursorHandler();
 		if (mode == EditModes.CHARACTERS) {
-			CharacterDecal cursorCharacterDecal = cursorHandler.getCursorCharacterDecal();
-			renderCharacter(cursorCharacterDecal, cursorCharacterDecal.getSpriteDirection(), camera, handlersManager);
+			CharacterDecal cursorCharDecal = cursorHandler.getCursorCharacterDecal();
+			Optional.ofNullable(cursorCharDecal)
+					.ifPresent(c -> renderCharacter(c, cursorCharDecal.getSpriteDirection(), camera, handlersManager));
 		} else {
 			handlersManager.getRenderHandler().renderDecal(cursorHandler.getCursorSimpleDecal(), camera);
 		}
@@ -226,9 +229,10 @@ public class RenderHandler implements Disposable {
 	}
 
 	public void renderCursor(final EditorMode mode, final ElementDefinition selectedElement) {
-		ModelInstance highlighter = handlersManager.getLogicHandlers().getCursorHandler().getHighlighter();
-		if (highlighter == null) return;
-		if (MapRendererImpl.getTool() != ElementTools.BRUSH) {
+		LogicHandlers logicHandlers = handlersManager.getLogicHandlers();
+		ModelInstance highlighter = logicHandlers.getCursorHandler().getHighlighter();
+		SelectionHandler selectionHandler = logicHandlers.getSelectionHandler();
+		if (mode.getType() == ModeType.EDIT && (selectedElement != null || selectionHandler.getSelectedTile() != null)) {
 			handlersManager.getRenderHandler().getModelBatch().render(highlighter);
 		}
 		renderCursorObjectModel(selectedElement, mode);
@@ -280,7 +284,7 @@ public class RenderHandler implements Disposable {
 	}
 
 
-	private void renderExistingProcess() {
+	private void renderExistingProcess( ) {
 		ActionsHandler actionsHandler = handlersManager.getLogicHandlers().getActionsHandler();
 		MappingProcess<? extends MappingProcess.FinishProcessParameters> p = actionsHandler.getCurrentProcess();
 		Optional.ofNullable(p).ifPresent(process -> {
@@ -301,7 +305,7 @@ public class RenderHandler implements Disposable {
 	}
 
 	@Override
-	public void dispose() {
+	public void dispose( ) {
 		tileModel.dispose();
 		modelBatch.dispose();
 		decalBatch.dispose();

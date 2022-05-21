@@ -7,7 +7,9 @@ import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.ViewModes;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.Optional;
 
 public abstract class SetModeCommand extends MapperCommand {
 	public SetModeCommand(com.necromine.editor.MapRenderer mapRenderer,
@@ -26,11 +28,23 @@ public abstract class SetModeCommand extends MapperCommand {
 		getManagers().getModesManager().applyMode(mode);
 		getManagers().getToolbarsManager().updateSubToolbar(mode);
 		getManagers().getEntitiesSelectionPanelManager().changeEntitiesSelectionMode(mode);
+		updateTool(mode);
+		notifyRenderer(mode);
+	}
+
+	private void notifyRenderer(EditorMode mode) {
 		if (mode instanceof EditModes) {
 			getMapRenderer().onEditModeSet((EditModes) mode);
 		} else if (mode instanceof ViewModes) {
 			getMapRenderer().onViewModeSet((ViewModes) mode);
 		}
+	}
+
+	private void updateTool(EditorMode mode) {
+		Managers managers = getManagers();
+		ButtonGroup buttonGroup = managers.getToolbarsManager().getButtonGroups().get(mode.name());
+		Optional.ofNullable(buttonGroup).ifPresent(b ->
+				getMapRenderer().onToolSet(managers.getToolbarsManager().getLatestSelectedToolPerMode(mode)));
 	}
 
 	protected abstract EditorMode getMode( );

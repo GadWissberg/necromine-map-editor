@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
-import com.gadarts.necromine.model.characters.CharacterTypes;
+import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.characters.Direction;
 import com.gadarts.necromine.model.env.EnvironmentDefinitions;
 import com.necromine.editor.MapRendererImpl;
@@ -26,6 +26,8 @@ import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Optional;
 
 import static com.gadarts.necromine.model.characters.CharacterTypes.BILLBOARD_Y;
 import static com.gadarts.necromine.model.characters.Direction.NORTH;
@@ -131,7 +133,7 @@ public class CursorHandler implements Disposable {
 		float yFinal = y + BILLBOARD_Y;
 		float zFinal = z + 0.5f;
 		if (mode == EditModes.CHARACTERS) {
-			cursorCharacterDecal.getDecal().setPosition(xFinal, yFinal, zFinal);
+			Optional.ofNullable(cursorCharacterDecal).ifPresent(c -> c.getDecal().setPosition(xFinal, yFinal, zFinal));
 		} else {
 			cursorSimpleDecal.setPosition(xFinal, yFinal, zFinal);
 		}
@@ -154,11 +156,9 @@ public class CursorHandler implements Disposable {
 	@SuppressWarnings("JavaDoc")
 	public void createCursors(final GameAssetsManager assetsManager, final Model tileModel) {
 		cursorHandlerModelData.createCursors(tileModel);
-		createCursorCharacterDecal(assetsManager);
+//		createCursorCharacterDecal(assetsManager);
 		createCursorSimpleDecal(assetsManager);
 	}
-
-
 
 
 	/**
@@ -203,10 +203,10 @@ public class CursorHandler implements Disposable {
 		}
 	}
 
-	private void createCursorCharacterDecal(final GameAssetsManager assetsManager) {
+	private void createCursorCharacterDecal(final GameAssetsManager assetsManager, CharacterDefinition definition) {
 		cursorCharacterDecal = Utils.createCharacterDecal(
 				assetsManager,
-				CharacterTypes.PLAYER.getDefinitions()[0],
+				definition,
 				new FlatNode(0, 0),
 				SOUTH);
 		Color color = cursorCharacterDecal.getDecal().getColor();
@@ -222,5 +222,9 @@ public class CursorHandler implements Disposable {
 
 	@Override
 	public void dispose( ) {
+	}
+
+	public void initializeCursorCharacterDecal(GameAssetsManager assetsManager, CharacterDefinition definition) {
+		createCursorCharacterDecal(assetsManager, definition);
 	}
 }

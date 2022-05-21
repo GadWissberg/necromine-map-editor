@@ -6,7 +6,9 @@ import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.map.MapNodeData;
 import com.necromine.editor.CameraManipulation;
 import com.necromine.editor.actions.processes.MappingProcess;
+import com.necromine.editor.handlers.SelectionHandler;
 import com.necromine.editor.handlers.action.ActionsHandler;
+import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.utils.Utils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -44,12 +46,22 @@ public enum ViewModes implements EditorMode {
 	public void onTouchDownLeft(final MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess,
 								final ActionsHandler tool,
 								final GameAssetsManager actionsHandler,
-								final Set<MapNodeData> initializedTiles) {
+								final Set<MapNodeData> initializedTiles, SelectionHandler selectionHandler) {
 
 	}
 
 	@Override
 	public String getDisplayName( ) {
 		return displayName;
+	}
+
+	@Override
+	public EditorTool[] getTools( ) {
+		return null;
+	}
+
+	@Override
+	public ModeType getType( ) {
+		return ModeType.VIEW;
 	}
 }

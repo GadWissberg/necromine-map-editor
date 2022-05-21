@@ -13,7 +13,6 @@ import lombok.Getter;
 
 import java.util.Arrays;
 
-import static com.gadarts.necromine.editor.desktop.gui.toolbar.sub.SubToolbarsDefinitions.Constants.BUTTON_GROUP_TOOL;
 
 
 @Getter
@@ -26,19 +25,19 @@ public enum SubToolbarsDefinitions {
 							"brush",
 							"Place Tiles",
 							SetBrushToolCommand.class,
-							BUTTON_GROUP_TOOL)),
+							EditModes.TILES.name())),
 			new SubToolbarButtonDefinition(
 					new ToolbarButtonProperties(
 							"staircase",
 							"Set Tile Height",
 							SetLiftToolCommand.class,
-							BUTTON_GROUP_TOOL)),
+							EditModes.TILES.name())),
 			new SubToolbarButtonDefinition(
 					new ToolbarButtonProperties(
 							"wall",
 							"Tile Walls",
 							SetWallTilingToolCommand.class,
-							BUTTON_GROUP_TOOL))),
+							EditModes.TILES.name()))),
 
 	CHARACTERS(EditModes.CHARACTERS,
 			new SubToolbarButtonDefinition(
@@ -58,13 +57,13 @@ public enum SubToolbarsDefinitions {
 							"brush",
 							"Place environment objects",
 							SetBrushToolCommand.class,
-							BUTTON_GROUP_TOOL)),
+							EditModes.ENVIRONMENT.name())),
 			new SubToolbarButtonDefinition(
 					new ToolbarButtonProperties(
 							"define",
 							"Define a placed environment object",
 							SetEnvDefineToolCommand.class,
-							BUTTON_GROUP_TOOL)),
+							EditModes.ENVIRONMENT.name())),
 			new SubToolbarButtonDefinition(),
 			new SubToolbarButtonDefinition(
 					new ToolbarButtonProperties(
@@ -89,9 +88,5 @@ public enum SubToolbarsDefinitions {
 				.filter(def -> def.mode == mode)
 				.findFirst()
 				.orElse(null);
-	}
-
-	static class Constants {
-		public static final String BUTTON_GROUP_TOOL = "tool";
 	}
 }

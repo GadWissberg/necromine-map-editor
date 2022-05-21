@@ -24,6 +24,7 @@ public abstract class SetToolCommand extends MapperCommand {
 
 	private void applyTool( ) {
 		if (ModesManager.getSelectedTool() == getTool()) return;
+		getManagers().getToolbarsManager().setLatestSelectedToolPerMode(getTool());
 		getMapRenderer().onToolSet(getTool());
 	}
 }

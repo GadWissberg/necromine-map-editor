@@ -17,15 +17,19 @@ import com.necromine.editor.handlers.action.ActionsHandlerImpl;
 import com.necromine.editor.model.GameMap;
 import lombok.Getter;
 
+import java.util.Optional;
+
 @Getter
 public class LogicHandlers implements Disposable {
 	private final CursorHandler cursorHandler = new CursorHandler();
 	private final SelectionHandler selectionHandler = new SelectionHandler();
 	private final MapEditorEventsNotifier eventsNotifier;
+	private final ResourcesHandler resourcesHandler;
 	private ActionsHandler actionsHandler;
 
-	public LogicHandlers(final MapEditorEventsNotifier eventsNotifier) {
+	public LogicHandlers(final MapEditorEventsNotifier eventsNotifier, ResourcesHandler resourcesHandler) {
 		this.eventsNotifier = eventsNotifier;
+		this.resourcesHandler = resourcesHandler;
 	}
 
 	private void createActionsHandler(final HandlersManagerRelatedData handlersManagerRelatedData,
@@ -33,16 +37,16 @@ public class LogicHandlers implements Disposable {
 									  final ResourcesHandler resourcesHandler) {
 		GameMap map = handlersManagerRelatedData.getMap();
 		ActionHandlerRelatedData data = new ActionHandlerRelatedData(map, handlersManagerRelatedData.getPlacedElements());
-		ActionHandlerRelatedServices services = new ActionHandlerRelatedServices(
+		actionsHandler = new ActionsHandlerImpl(data, new ActionHandlerRelatedServices(
 				getCursorHandler(),
 				wallCreator,
 				eventsNotifier,
-				resourcesHandler.getAssetsManager());
-		actionsHandler = new ActionsHandlerImpl(data, services, eventsNotifier);
+				resourcesHandler.getAssetsManager(),
+				selectionHandler));
 	}
 
 	@Override
-	public void dispose() {
+	public void dispose( ) {
 		cursorHandler.dispose();
 	}
 
@@ -61,8 +65,11 @@ public class LogicHandlers implements Disposable {
 	}
 
 	public void onTreeCharacterSelected(final CharacterDefinition definition) {
-		actionsHandler.setSelectedElement(definition);
-		cursorHandler.getCursorCharacterDecal().setCharacterDefinition(definition);
+		Optional.ofNullable(cursorHandler.getCursorCharacterDecal()).ifPresentOrElse(
+				c -> cursorHandler.getCursorCharacterDecal().setCharacterDefinition(definition),
+				( ) -> cursorHandler.initializeCursorCharacterDecal(
+						resourcesHandler.getAssetsManager(),
+						definition));
 		cursorHandler.setHighlighter(cursorHandler.getCursorHandlerModelData().getCursorTileModelInstance());
 		selectionHandler.setSelectedElement(definition);
 	}
@@ -70,7 +77,6 @@ public class LogicHandlers implements Disposable {
 	public void onTreeEnvSelected(final ElementDefinition selectedElement) {
 		selectionHandler.setSelectedElement(selectedElement);
 		cursorHandler.setHighlighter(cursorHandler.getCursorHandlerModelData().getCursorTileModelInstance());
-		actionsHandler.setSelectedElement(selectedElement);
 		CursorSelectionModel cursorSelectionModel = cursorHandler.getCursorHandlerModelData().getCursorSelectionModel();
 		cursorSelectionModel.setSelection(selectedElement, ((EnvironmentDefinitions) selectedElement).getModelDefinition());
 		cursorHandler.applyOpacity();
@@ -80,7 +86,6 @@ public class LogicHandlers implements Disposable {
 		selectionHandler.setSelectedElement(selectedElement);
 		CursorHandlerModelData cursorHandlerModelData = cursorHandler.getCursorHandlerModelData();
 		cursorHandler.setHighlighter(cursorHandlerModelData.getCursorTileModelInstance());
-		actionsHandler.setSelectedElement(selectedElement);
 		Assets.Models modelDefinition = selectedElement.getModelDefinition();
 		cursorHandlerModelData.getCursorSelectionModel().setSelection(selectedElement, modelDefinition);
 		cursorHandler.applyOpacity();

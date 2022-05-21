@@ -6,6 +6,7 @@ import com.gadarts.necromine.model.env.EnvironmentDefinitions;
 import com.gadarts.necromine.model.map.MapNodeData;
 import com.gadarts.necromine.model.pickups.WeaponsDefinitions;
 import com.necromine.editor.actions.processes.MappingProcess;
+import com.necromine.editor.handlers.SelectionHandler;
 import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.mode.events.*;
 import com.necromine.editor.mode.tools.EditorTool;
@@ -95,16 +96,22 @@ public enum EditModes implements EditorMode {
 
 
 	@Override
-	public void onTouchDownLeft(final MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess,
-								final ActionsHandler actionsHandler,
-								final GameAssetsManager assetsManager,
-								final Set<MapNodeData> initializedTiles) {
-		onTouchDownLeft.run(currentProcess, actionsHandler, assetsManager, initializedTiles);
+	public void onTouchDownLeft(MappingProcess<? extends MappingProcess.FinishProcessParameters> currentProcess,
+								ActionsHandler actionsHandler,
+								GameAssetsManager assetsManager,
+								Set<MapNodeData> initializedTiles,
+								SelectionHandler selectionHandler) {
+		onTouchDownLeft.run(currentProcess, actionsHandler, assetsManager, initializedTiles, selectionHandler);
 	}
 
 	@Override
 	public String getDisplayName( ) {
 		return displayName;
+	}
+
+	@Override
+	public ModeType getType( ) {
+		return ModeType.EDIT;
 	}
 
 }

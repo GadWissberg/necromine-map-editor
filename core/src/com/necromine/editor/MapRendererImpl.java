@@ -118,7 +118,10 @@ public class MapRendererImpl extends Editor implements MapRenderer {
 	public void render( ) {
 		update();
 		PlacedElements placedElements = data.getPlacedElements();
-		handlers.getRenderHandler().render(mode, placedElements, handlers.getLogicHandlers().getSelectionHandler().getSelectedElement());
+		handlers.getRenderHandler().render(
+				mode,
+				placedElements,
+				handlers.getLogicHandlers().getSelectionHandler().getSelectedElement());
 	}
 
 

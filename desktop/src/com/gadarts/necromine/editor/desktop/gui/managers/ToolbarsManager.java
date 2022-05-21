@@ -1,15 +1,15 @@
 package com.gadarts.necromine.editor.desktop.gui.managers;
 
+import com.gadarts.necromine.editor.desktop.ModesManager;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
-import com.gadarts.necromine.editor.desktop.gui.toolbar.RadioToolBarButton;
-import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolBarButton;
-import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonDefinition;
-import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
-import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarDefinitions;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.*;
 import com.gadarts.necromine.editor.desktop.gui.toolbar.sub.SubToolbarsDefinitions;
 import com.necromine.editor.MapRenderer;
+import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
+import com.necromine.editor.mode.tools.EditorTool;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,13 +21,20 @@ import java.util.Map;
 import java.util.Optional;
 
 public class ToolbarsManager extends BaseManager {
+
+	@Getter
 	private final Map<String, ButtonGroup> buttonGroups = new HashMap<>();
 	private final Managers managers;
+
+	private final Map<EditorMode, EditorTool> latestSelectedToolPerMode = new HashMap<>();
 	private JPanel subToolbarPanel;
 
 	public ToolbarsManager(MapRenderer mapRenderer, Managers managers) {
 		super(mapRenderer);
 		this.managers = managers;
+		Arrays.stream(EditModes.values()).filter(editModes -> editModes.getTools() != null).forEach(mode -> {
+			latestSelectedToolPerMode.put(mode, mode.getTools()[0]);
+		});
 	}
 
 	public void onApplicationStart(JPanel mainPanel, JFrame parent) {
@@ -119,6 +126,15 @@ public class ToolbarsManager extends BaseManager {
 		CardLayout subToolbarLayout = (CardLayout) subToolbarPanel.getLayout();
 		Optional.ofNullable(SubToolbarsDefinitions.findByMode(mode))
 				.ifPresentOrElse(sub -> subToolbarLayout.show(subToolbarPanel, sub.name()),
-						() -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
+						( ) -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
+	}
+
+
+	public void setLatestSelectedToolPerMode(EditorTool tool) {
+		latestSelectedToolPerMode.put(ModesManager.getSelectedMode(), tool);
+	}
+
+	public EditorTool getLatestSelectedToolPerMode(EditorMode mode) {
+		return latestSelectedToolPerMode.get(mode);
 	}
 }

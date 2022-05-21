@@ -11,9 +11,12 @@ import java.lang.reflect.InvocationTargetException;
 
 public class RadioToolBarButton extends JToggleButton {
 
+	private final ToolbarButtonProperties properties;
+
 	public RadioToolBarButton(ToolbarButtonProperties properties,
 							  MapRenderer mapRenderer,
 							  Managers managers) throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+		this.properties = properties;
 		setIcon(ToolbarButtonProperties.createButtonIcon(properties));
 		ActionListener action = createAction(properties, mapRenderer, managers);
 		addActionListener(action);

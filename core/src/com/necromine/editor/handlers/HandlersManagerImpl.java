@@ -16,6 +16,7 @@ import com.necromine.editor.MapRendererData;
 import com.necromine.editor.MapRendererImpl;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
+import com.necromine.editor.mode.ModeType;
 import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.model.elements.CharacterDecal;
 import lombok.Getter;
@@ -35,7 +36,7 @@ public class HandlersManagerImpl implements HandlersManager, Disposable {
 	public HandlersManagerImpl(final MapRendererData data) {
 		this.eventsNotifier = new MapEditorEventsNotifier();
 		handlersManagerRelatedData = new HandlersManagerRelatedData(data.getMap(), data.getPlacedElements());
-		this.logicHandlers = new LogicHandlers(eventsNotifier);
+		this.logicHandlers = new LogicHandlers(eventsNotifier, resourcesHandler);
 	}
 
 
@@ -79,9 +80,7 @@ public class HandlersManagerImpl implements HandlersManager, Disposable {
 		onModeSet(mode);
 		CursorHandler cursorHandler = logicHandlers.getCursorHandler();
 		if (mode != EditModes.LIGHTS && mode != EditModes.PICKUPS) {
-			if (mode != EditModes.TILES || logicHandlers.getSelectionHandler().getSelectedTile() == null) {
-				cursorHandler.setHighlighter(null);
-			} else {
+			if (mode == EditModes.TILES && logicHandlers.getSelectionHandler().getSelectedTile() != null) {
 				onTileSelected(logicHandlers.getSelectionHandler().getSelectedTile());
 			}
 		} else {
@@ -113,7 +112,9 @@ public class HandlersManagerImpl implements HandlersManager, Disposable {
 	@Override
 	public void onModeSet(final EditorMode mode) {
 		logicHandlers.getSelectionHandler().setSelectedElement(null);
-		logicHandlers.getCursorHandler().setHighlighter(null);
+		if (mode.getType() != ModeType.EDIT) {
+			logicHandlers.getCursorHandler().setHighlighter(null);
+		}
 		MapRendererImpl.mode = mode;
 	}
 

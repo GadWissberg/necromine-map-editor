@@ -23,9 +23,9 @@ import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Map;
@@ -107,19 +107,38 @@ public class EntitiesSelectionPanelManager extends BaseManager {
 		Arrays.stream(modeToTreeSections.get(mode)).forEach(modeSection -> {
 			top.add(createSectionNodeForTree(modeSection.getHeader(), modeSection.getDefinitions()));
 			tree.setCellRenderer(new ResourcesTreeCellRenderer(modeSection.getEntryIcon()));
-			tree.addMouseListener(new MouseAdapter() {
+			tree.addTreeSelectionListener(e -> {
+				TreePath path = e.getPath();
+				tree.setSelectionPath(path);
+				if (path != null) {
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
+					if (node.isLeaf()) {
+						leafSelected(node, mode);
+					}
+				}
+			});
+			tree.addComponentListener(new ComponentListener() {
+				@Override
+				public void componentResized(ComponentEvent e) {
+
+				}
 
 				@Override
-				public void mouseClicked(final MouseEvent e) {
-					super.mouseClicked(e);
-					TreePath path = tree.getPathForLocation(e.getX(), e.getY());
-					tree.setSelectionPath(path);
-					if (path != null && e.getClickCount() > 1) {
-						DefaultMutableTreeNode node = (DefaultMutableTreeNode) path.getLastPathComponent();
-						if (node.isLeaf()) {
-							leafSelected(node, mode);
-						}
-					}
+				public void componentMoved(ComponentEvent e) {
+
+				}
+
+				@Override
+				public void componentShown(ComponentEvent e) {
+					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+					tree.clearSelection();
+					Optional.ofNullable(selectedNode)
+							.ifPresent(s -> tree.getSelectionModel().setSelectionPath(new TreePath(s.getPath())));
+				}
+
+				@Override
+				public void componentHidden(ComponentEvent e) {
+
 				}
 			});
 		});

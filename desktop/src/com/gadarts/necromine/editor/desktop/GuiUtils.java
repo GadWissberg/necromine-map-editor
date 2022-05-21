@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 public final class GuiUtils {
 
@@ -41,23 +42,26 @@ public final class GuiUtils {
 		return imageIcon;
 	}
 
-	public static JScrollPane createEntitiesGallery(final File assetsFolderLocation, final ItemListener onClick) {
+	public static JScrollPane createEntitiesGallery(final File assetsFolderLoc, final ItemListener onClick) {
 		GridLayout layout = new GridLayout(0, 3);
 		JPanel gallery = new JPanel(layout);
 		JScrollPane jScrollPane = new JScrollPane(gallery);
 
 		ButtonGroup buttonGroup = new ButtonGroup();
-		Arrays.stream(Assets.SurfaceTextures.values()).forEach(texture -> {
+		Assets.SurfaceTextures[] surfaceTextures = Assets.SurfaceTextures.values();
+		IntStream.range(0, surfaceTextures.length).forEach(i -> {
 			try {
-				GalleryButton button = GuiUtils.createTextureImageButton(assetsFolderLocation, texture, onClick);
+				GalleryButton button = GuiUtils.createTextureImageButton(assetsFolderLoc, surfaceTextures[i], onClick);
 				buttonGroup.add(button);
 				gallery.add(button);
+				if (i == 0) {
+					buttonGroup.setSelected(button.getModel(), true);
+				}
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}
 		});
 
-		buttonGroup.setSelected(buttonGroup.getElements().nextElement().getModel(), true);
 		gallery.setPreferredSize(new Dimension(GALLERY_VIEW_WIDTH, gallery.getPreferredSize().height));
 		jScrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		jScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
