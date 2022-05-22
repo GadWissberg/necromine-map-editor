@@ -3,12 +3,14 @@ package com.gadarts.necromine.editor.desktop.gui.toolbar;
 import com.gadarts.necromine.editor.desktop.gui.managers.Managers;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.necromine.editor.MapRenderer;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+@Getter
 public class RadioToolBarButton extends JToggleButton {
 
 	private final ToolbarButtonProperties properties;

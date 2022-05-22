@@ -1,9 +1,15 @@
 package com.gadarts.necromine.editor.desktop.gui.managers;
 
 import com.gadarts.necromine.editor.desktop.ModesManager;
+import com.gadarts.necromine.editor.desktop.gui.commands.mode.SetModeCommand;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
-import com.gadarts.necromine.editor.desktop.gui.toolbar.*;
+import com.gadarts.necromine.editor.desktop.gui.menu.definitions.Menus;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.RadioToolBarButton;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolBarButton;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonDefinition;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties;
+import com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarDefinitions;
 import com.gadarts.necromine.editor.desktop.gui.toolbar.sub.SubToolbarsDefinitions;
 import com.necromine.editor.MapRenderer;
 import com.necromine.editor.mode.EditModes;
@@ -17,6 +23,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
 
@@ -126,7 +133,7 @@ public class ToolbarsManager extends BaseManager {
 		CardLayout subToolbarLayout = (CardLayout) subToolbarPanel.getLayout();
 		Optional.ofNullable(SubToolbarsDefinitions.findByMode(mode))
 				.ifPresentOrElse(sub -> subToolbarLayout.show(subToolbarPanel, sub.name()),
-						( ) -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
+						() -> subToolbarLayout.show(subToolbarPanel, SubToolbarsDefinitions.EMPTY.name()));
 	}
 
 
@@ -136,5 +143,32 @@ public class ToolbarsManager extends BaseManager {
 
 	public EditorTool getLatestSelectedToolPerMode(EditorMode mode) {
 		return latestSelectedToolPerMode.get(mode);
+	}
+
+	public void onSetModeCommandInvoked(SetModeCommand setModeCommand) {
+		ButtonGroup buttonGroup = buttonGroups.get(Menus.Constants.BUTTON_GROUP_MODES);
+		Optional.ofNullable(buttonGroup).ifPresent(g -> {
+			Iterator<AbstractButton> it = buttonGroup.getElements().asIterator();
+			while (it.hasNext()) {
+				updateToolbarModeButton(setModeCommand, buttonGroup, it);
+			}
+		});
+	}
+
+	private void updateToolbarModeButton(SetModeCommand setModeCommand,
+										 ButtonGroup buttonGroup,
+										 Iterator<AbstractButton> it) {
+		AbstractButton button = it.next();
+		MenuItemDefinition menuItemDefinition = null;
+		if (button instanceof ToolBarButton toolBarButton) {
+			menuItemDefinition = toolBarButton.getMenuItemDefinition();
+		} else if (button instanceof RadioToolBarButton radioToolBarButton) {
+			menuItemDefinition = radioToolBarButton.getProperties().getMenuItemDefinition();
+		}
+		Optional.ofNullable(menuItemDefinition).ifPresent(d -> {
+			if (d.getMenuItemProperties().getActionClass() == setModeCommand.getClass()) {
+				buttonGroup.setSelected(button.getModel(), true);
+			}
+		});
 	}
 }

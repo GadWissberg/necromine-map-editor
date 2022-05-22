@@ -12,17 +12,18 @@ import java.awt.event.ActionEvent;
 import java.util.Optional;
 
 public abstract class SetModeCommand extends MapperCommand {
-	public SetModeCommand(com.necromine.editor.MapRenderer mapRenderer,
-						  Managers managers) {
+	protected SetModeCommand(com.necromine.editor.MapRenderer mapRenderer,
+							 Managers managers) {
 		super(mapRenderer, managers);
 	}
 
 	@Override
-	public void actionPerformed(final ActionEvent e) {
+	public void actionPerformed(ActionEvent e) {
 		applyMode();
+		getManagers().getToolbarsManager().onSetModeCommandInvoked(this);
 	}
 
-	private void applyMode( ) {
+	private void applyMode() {
 		if (ModesManager.getSelectedMode() == getMode()) return;
 		EditorMode mode = getMode();
 		getManagers().getModesManager().applyMode(mode);
@@ -33,10 +34,10 @@ public abstract class SetModeCommand extends MapperCommand {
 	}
 
 	private void notifyRenderer(EditorMode mode) {
-		if (mode instanceof EditModes) {
-			getMapRenderer().onEditModeSet((EditModes) mode);
-		} else if (mode instanceof ViewModes) {
-			getMapRenderer().onViewModeSet((ViewModes) mode);
+		if (mode instanceof EditModes editModes) {
+			getMapRenderer().onEditModeSet(editModes);
+		} else if (mode instanceof ViewModes viewModes) {
+			getMapRenderer().onViewModeSet(viewModes);
 		}
 	}
 
@@ -47,5 +48,5 @@ public abstract class SetModeCommand extends MapperCommand {
 				getMapRenderer().onToolSet(managers.getToolbarsManager().getLatestSelectedToolPerMode(mode)));
 	}
 
-	protected abstract EditorMode getMode( );
+	protected abstract EditorMode getMode();
 }

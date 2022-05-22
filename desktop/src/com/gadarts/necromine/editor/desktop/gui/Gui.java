@@ -30,7 +30,10 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 
@@ -53,10 +56,12 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 			+ File.separator
 			+ "%s"
 			+ ICON_FORMAT;
+	public static final int MENU_SEPARATOR_HEIGHT = 10;
 	private final LwjglAWTCanvas lwjgl;
 	private final MapRenderer mapRenderer;
 	private final File assetsFolderLocation;
 	private final ManagersImpl managers;
+	private Map<String, ButtonGroup> menuItemGroups = new HashMap<>();
 
 	public Gui(final LwjglAWTCanvas lwjgl, final MapRenderer mapRenderer, final Properties properties) {
 		super(String.format(WINDOW_HEADER, PROGRAM_TILE, DEFAULT_MAP_NAME));
@@ -74,19 +79,55 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	}
 
 
-	private void addMenuBar( ) {
+	private void addMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 		Arrays.stream(Menus.values()).forEach(menu -> {
 			JMenu jMenu = new JMenu(menu.getLabel());
 			jMenu.setBorder(new EmptyBorder(MENU_LABEL_PAD, MENU_LABEL_PAD, MENU_LABEL_PAD, MENU_LABEL_PAD));
-			Arrays.stream(menu.getDefinitions()).forEach(item -> jMenu.add(createMenuItem(item)));
+			Arrays.stream(menu.getDefinitions()).forEach(item -> {
+				JMenuItem menuItem = createMenuItem(item);
+				Optional.ofNullable(menuItem).ifPresentOrElse(jMenu::add, () -> {
+					JPopupMenu.Separator sep = new JPopupMenu.Separator();
+					sep.setPreferredSize(new Dimension(1, MENU_SEPARATOR_HEIGHT));
+					jMenu.add(sep);
+				});
+			});
 			menuBar.add(jMenu);
 		});
 		setJMenuBar(menuBar);
 	}
 
 	private JMenuItem createMenuItem(MenuItemDefinition item) {
-		JMenuItem menuItem = new JMenuItem(item.getMenuItemProperties().getLabel());
+		MenuItemProperties prop = item.getMenuItemProperties();
+		if (prop != null) {
+			JMenuItem menuItem;
+			menuItem = new JMenuItem(prop.getLabel());
+			defineMenuItem(item, prop, menuItem);
+			return menuItem;
+		}
+		return null;
+	}
+
+	private void defineMenuItem(MenuItemDefinition item, MenuItemProperties menuItemProperties, JMenuItem menuItem) {
+		applyIconToMenuItem(item, menuItem);
+		try {
+			Constructor<?> constructor = menuItemProperties.getActionClass().getConstructors()[0];
+			menuItem.addActionListener((ActionListener) constructor.newInstance(
+					mapRenderer,
+					managers));
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
+		menuItem.setBorder(new EmptyBorder(MENU_LABEL_PAD, MENU_LABEL_PAD, MENU_LABEL_PAD, MENU_LABEL_PAD));
+	}
+
+	private ButtonGroup addMenuItemsGroup(String buttonGroupName) {
+		ButtonGroup buttonGroup = new ButtonGroup();
+		menuItemGroups.put(buttonGroupName, buttonGroup);
+		return buttonGroup;
+	}
+
+	private void applyIconToMenuItem(MenuItemDefinition item, JMenuItem menuItem) {
 		if (item.getMenuItemProperties().getIcon() != null) {
 			try {
 				ImageIcon icon = createMenuItemIcon(item.getMenuItemProperties());
@@ -95,16 +136,6 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 				throw new RuntimeException(e);
 			}
 		}
-		try {
-			Constructor<?> constructor = item.getMenuItemProperties().getActionClass().getConstructors()[0];
-			menuItem.addActionListener((ActionListener) constructor.newInstance(
-					mapRenderer,
-					managers));
-		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-			throw new RuntimeException(e);
-		}
-		menuItem.setBorder(new EmptyBorder(MENU_LABEL_PAD, MENU_LABEL_PAD, MENU_LABEL_PAD, MENU_LABEL_PAD));
-		return menuItem;
 	}
 
 	private ImageIcon createMenuItemIcon(MenuItemProperties prop) throws IOException {
@@ -114,12 +145,12 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		return icon;
 	}
 
-	private JPanel createEntitiesPanel( ) {
+	private JPanel createEntitiesPanel() {
 		CardLayout entitiesLayout = new CardLayout();
 		return new JPanel(entitiesLayout);
 	}
 
-	private void defineWindow( ) {
+	private void defineWindow() {
 		addWindowComponents();
 		defineWindowClose();
 		setSize(WIDTH, HEIGHT);
@@ -129,7 +160,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	}
 
 
-	private void addWindowComponents( ) {
+	private void addWindowComponents() {
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		JPanel entitiesPanel = createEntitiesPanel();
 		JSplitPane splitPane = createSplitPane(lwjgl.getCanvas(), entitiesPanel);
@@ -147,7 +178,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		splitPane.setBorder(BorderFactory.createEmptyBorder());
 		BasicSplitPaneUI flatDividerSplitPaneUI = new BasicSplitPaneUI() {
 			@Override
-			public BasicSplitPaneDivider createDefaultDivider( ) {
+			public BasicSplitPaneDivider createDefaultDivider() {
 				return new BasicSplitPaneDivider(this) {
 					@Override
 					public void setBorder(Border b) {
@@ -159,7 +190,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 		return splitPane;
 	}
 
-	private void defineWindowClose( ) {
+	private void defineWindowClose() {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -193,7 +224,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 
 
 	@Override
-	public void onMapRendererIsReady( ) {
+	public void onMapRendererIsReady() {
 		managers.onMapRendererIsReady(mapRenderer, this);
 	}
 }

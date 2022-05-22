@@ -5,6 +5,7 @@ import com.gadarts.necromine.editor.desktop.gui.managers.Managers;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
 import com.necromine.editor.MapRenderer;
+import lombok.Getter;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -14,13 +15,16 @@ import java.lang.reflect.InvocationTargetException;
 
 import static com.gadarts.necromine.editor.desktop.gui.toolbar.ToolbarButtonProperties.createButtonIcon;
 
+@Getter
 public class ToolBarButton extends JButton {
+
+	private final MenuItemDefinition menuItemDefinition;
 
 	public ToolBarButton(ToolbarButtonProperties properties,
 						 MapRenderer mapRenderer,
 						 Managers managers) throws IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
 		setIcon(createButtonIcon(properties));
-		MenuItemDefinition menuItemDefinition = properties.getMenuItemDefinition();
+		menuItemDefinition = properties.getMenuItemDefinition();
 		if (menuItemDefinition != null) {
 			addActionFromMenuItem(mapRenderer, managers, menuItemDefinition);
 		} else {
