@@ -24,7 +24,7 @@ public class DefineEnvObjectDialog extends DialogPane {
 		c.gridx = 0;
 		addLabel(c, LABEL_HEIGHT);
 		c.gridx++;
-		JSpinner spinner = addSpinner(element.getHeight(), FlatNode.MAX_HEIGHT, TilesLiftDialog.STEP, c);
+		JSpinner spinner = addSpinner(element.getHeight(), FlatNode.MAX_HEIGHT, TilesLiftDialog.STEP, c, false);
 		c.gridx = 0;
 		c.gridy++;
 		addOkButton(c, e -> {

@@ -70,16 +70,16 @@ public final class GuiUtils {
 	}
 
 	public static void openNewDialog(final Component parent, final DialogPane content) {
-		JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(parent));
-
-		dialog.setTitle(content.getDialogTitle());
-		dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
-		dialog.setContentPane(content);
-		dialog.setResizable(false);
-		dialog.pack();
-		dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-
-		dialog.setVisible(true);
+		JDialog d = new JDialog(SwingUtilities.getWindowAncestor(parent));
+		d.setTitle(content.getDialogTitle());
+		d.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
+		d.setContentPane(content);
+		d.setResizable(false);
+		d.pack();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		d.setLocation((screenSize.width) / 2 - d.getWidth() / 2, (screenSize.height) / 2 - d.getHeight() / 2);
+		d.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		d.setVisible(true);
 	}
 
 	public static Component findByNameInPanel(final JPanel container, final String name) {

@@ -45,7 +45,7 @@ public class SetMapSizeDialog extends DialogPane {
 
 	private JSpinner addValueSpinner(final GridBagConstraints c, final float currentValue) {
 		c.gridx++;
-		return addSpinner(currentValue, MAXIMUM, STEP_SIZE, c);
+		return addSpinner(currentValue, MAXIMUM, STEP_SIZE, c, false);
 	}
 
 	@Override

@@ -34,6 +34,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -83,7 +84,7 @@ public class MapRendererImpl extends Editor implements MapRenderer {
 
 
 	@Override
-	public void create( ) {
+	public void create() {
 		GameAssetsManager assetsManager = handlers.getResourcesHandler().getAssetsManager();
 		wallCreator = new WallCreator(assetsManager);
 		camera = createCamera();
@@ -94,7 +95,7 @@ public class MapRendererImpl extends Editor implements MapRenderer {
 	}
 
 
-	private OrthographicCamera createCamera( ) {
+	private OrthographicCamera createCamera() {
 		ViewportResolution viewportResolution = data.getViewportResolution();
 		OrthographicCamera cam = new OrthographicCamera(
 				viewportResolution.VIEWPORT_WIDTH,
@@ -115,7 +116,7 @@ public class MapRendererImpl extends Editor implements MapRenderer {
 	}
 
 	@Override
-	public void render( ) {
+	public void render() {
 		update();
 		PlacedElements placedElements = data.getPlacedElements();
 		handlers.getRenderHandler().render(
@@ -125,7 +126,7 @@ public class MapRendererImpl extends Editor implements MapRenderer {
 	}
 
 
-	private void update( ) {
+	private void update() {
 		InputProcessor inputProcessor = Gdx.input.getInputProcessor();
 		if (inputProcessor != null && DefaultSettings.ENABLE_DEBUG_INPUT) {
 			CameraInputController cameraInputController = (CameraInputController) inputProcessor;
@@ -140,7 +141,7 @@ public class MapRendererImpl extends Editor implements MapRenderer {
 
 
 	@Override
-	public void dispose( ) {
+	public void dispose() {
 		handlers.dispose();
 		wallCreator.dispose();
 	}
@@ -187,7 +188,7 @@ public class MapRendererImpl extends Editor implements MapRenderer {
 	}
 
 	@Override
-	public void onNewMapRequested( ) {
+	public void onNewMapRequested() {
 		data.reset();
 		initializeCameraPosition(camera);
 		handlers.getRenderHandler().createModels(data.getMap().getDimension());
@@ -214,7 +215,7 @@ public class MapRendererImpl extends Editor implements MapRenderer {
 	}
 
 	@Override
-	public float getAmbientLightValue( ) {
+	public float getAmbientLightValue() {
 		return data.getMap().getAmbientLight();
 	}
 
@@ -237,13 +238,28 @@ public class MapRendererImpl extends Editor implements MapRenderer {
 	}
 
 	@Override
-	public Dimension getMapSize( ) {
+	public Dimension getMapSize() {
 		MapNodeData[][] nodes = data.getMap().getNodes();
 		return new Dimension(nodes.length, nodes[0].length);
 	}
 
+	@Override
+	public List<MapNodeData> getRegion(FlatNode src, FlatNode dst) {
+		List<MapNodeData> result = new ArrayList<>();
+		int startRow = Math.min(src.getRow(), dst.getRow());
+		int endRow = Math.max(src.getRow(), dst.getRow());
+		int startCol = Math.min(src.getCol(), dst.getCol());
+		int endCol = Math.max(src.getCol(), dst.getCol());
+		for (int row = startRow; row <= endRow; row++) {
+			for (int col = startCol; col <= endCol; col++) {
+				result.add(data.getMap().getNodes()[row][col]);
+			}
+		}
+		return result;
+	}
 
-	void initializeInput( ) {
+
+	void initializeInput() {
 		if (DefaultSettings.ENABLE_DEBUG_INPUT) {
 			CameraInputController processor = new CameraInputController(camera);
 			Gdx.input.setInputProcessor(processor);

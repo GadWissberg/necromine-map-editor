@@ -34,7 +34,7 @@ public class SetAmbientLightDialog extends DialogPane {
 
 	private JSpinner addValueSpinner(final GridBagConstraints c) {
 		c.gridx++;
-		return addSpinner(current, MAXIMUM, STEP_SIZE, c);
+		return addSpinner(current, MAXIMUM, STEP_SIZE, c, false);
 	}
 
 	@Override

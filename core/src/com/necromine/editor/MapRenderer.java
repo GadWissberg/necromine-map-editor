@@ -4,6 +4,7 @@ package com.necromine.editor;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.model.characters.CharacterDefinition;
 import com.gadarts.necromine.model.env.EnvironmentDefinitions;
+import com.gadarts.necromine.model.map.MapNodeData;
 import com.gadarts.necromine.model.pickups.ItemDefinition;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.ViewModes;
@@ -14,6 +15,7 @@ import com.necromine.editor.model.node.NodeWallsDefinitions;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.List;
 
 public interface MapRenderer {
 	int CLOCKWISE = -1;
@@ -54,4 +56,6 @@ public interface MapRenderer {
 	void onMapSizeSet(int width, int depth);
 
 	Dimension getMapSize();
+
+	List<MapNodeData> getRegion(FlatNode src, FlatNode dst);
 }

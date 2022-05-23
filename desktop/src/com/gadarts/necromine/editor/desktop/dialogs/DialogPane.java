@@ -8,17 +8,18 @@ public abstract class DialogPane extends JPanel {
 	private static final int PADDING = 10;
 	private static final String BUTTON_LABEL_OK = "OK";
 	private static final int SPINNER_WIDTH = 50;
+	private static final Color TEXT_COLOR = Color.BLACK;
 
-	public DialogPane( ) {
+	protected DialogPane() {
 		setLayout(new GridBagLayout());
 	}
 
-	void init( ) {
+	void init() {
 		GridBagConstraints c = createGridBagConstraints();
 		initializeView(c);
 	}
 
-	protected GridBagConstraints createGridBagConstraints( ) {
+	protected GridBagConstraints createGridBagConstraints() {
 		GridBagConstraints c = new GridBagConstraints();
 		c.insets = new Insets(PADDING, PADDING, PADDING, PADDING);
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -33,30 +34,40 @@ public abstract class DialogPane extends JPanel {
 		c.gridwidth = 2;
 		Button ok = new Button(BUTTON_LABEL_OK);
 		ok.addActionListener(actionListener);
+		ok.setForeground(TEXT_COLOR);
 		add(ok, c);
 		return ok;
 	}
 
-	protected JSpinner addSpinner(final float value, final int maximum, final float step, final GridBagConstraints c) {
-		return addSpinner(value, maximum, step, c, false);
+	protected JSpinner addSpinner(double value,
+								  int maximum,
+								  float step,
+								  GridBagConstraints c) {
+		return addSpinner(value, maximum, step, c, true);
 	}
 
-	protected JSpinner addSpinner(final float value,
-								  final int maximum,
-								  final float step,
-								  final GridBagConstraints c,
-								  final boolean allowNegative) {
-		SpinnerModel model = new SpinnerNumberModel(value, allowNegative ? -1F : 0, maximum, step);
+	protected JSpinner addSpinner(double value,
+								  int maximum,
+								  float step,
+								  GridBagConstraints c,
+								  boolean allowNegative) {
+		SpinnerModel model = new SpinnerNumberModel(value, -1, maximum, step);
+		model.setValue(value);
 		JSpinner jSpinner = new JSpinner(model);
 		add(jSpinner, c);
 		Dimension preferredSize = jSpinner.getPreferredSize();
 		jSpinner.setPreferredSize(new Dimension(SPINNER_WIDTH, preferredSize.height));
+		jSpinner.addChangeListener(e -> {
+			if (!allowNegative && ((Double) jSpinner.getValue()) < 0) {
+				jSpinner.setValue(0.0);
+			}
+		});
 		return jSpinner;
 	}
 
-	public abstract String getDialogTitle( );
+	public abstract String getDialogTitle();
 
-	void closeDialog( ) {
+	void closeDialog() {
 		((Dialog) getRootPane().getParent()).dispose();
 	}
 

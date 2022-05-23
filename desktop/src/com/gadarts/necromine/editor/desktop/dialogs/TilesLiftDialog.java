@@ -1,10 +1,12 @@
 package com.gadarts.necromine.editor.desktop.dialogs;
 
+import com.gadarts.necromine.model.map.MapNodeData;
 import com.necromine.editor.MapRenderer;
 import com.necromine.editor.model.node.FlatNode;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 import static com.necromine.editor.model.node.FlatNode.MAX_HEIGHT;
 
@@ -31,7 +33,7 @@ public class TilesLiftDialog extends DialogPane {
 		c.gridy++;
 		addOkButton(c, e -> {
 			float value = ((Double) model.getValue()).floatValue();
-			if (value > 0) {
+			if (value >= 0) {
 				mapRenderer.onTilesLift(src, dst, value);
 			}
 			closeDialog();
@@ -40,7 +42,12 @@ public class TilesLiftDialog extends DialogPane {
 
 	private JSpinner addHeightSpinner(final GridBagConstraints c) {
 		c.gridx++;
-		return addSpinner(0, MAX_HEIGHT, STEP, c);
+		List<MapNodeData> nodes = mapRenderer.getRegion(src, dst);
+		float initialValue = -1;
+		if (nodes.stream().allMatch(n -> n.getHeight() == nodes.get(0).getHeight())) {
+			initialValue = nodes.get(0).getHeight();
+		}
+		return addSpinner(initialValue, MAX_HEIGHT, STEP, c, false);
 	}
 
 	@Override

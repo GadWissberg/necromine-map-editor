@@ -3,7 +3,7 @@ package com.gadarts.necromine.editor.desktop.gui.managers;
 import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.editor.desktop.GalleryButton;
 import com.gadarts.necromine.editor.desktop.GuiUtils;
-import com.gadarts.necromine.editor.desktop.ModesManager;
+import com.gadarts.necromine.editor.desktop.gui.EditorCardLayout;
 import com.gadarts.necromine.editor.desktop.gui.TreeSection;
 import com.gadarts.necromine.editor.desktop.tree.EditorTree;
 import com.gadarts.necromine.editor.desktop.tree.ResourcesTreeCellRenderer;
@@ -18,6 +18,8 @@ import com.necromine.editor.EntriesDisplayTypes;
 import com.necromine.editor.MapRenderer;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
+import com.necromine.editor.mode.tools.EditorTool;
+import com.necromine.editor.mode.tools.TilesTools;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -84,15 +86,14 @@ public class EntitiesSelectionPanelManager extends BaseManager {
 						});
 					}
 				});
-				entitiesPanel.add(entitiesGallery, EditModes.TILES.name());
+				entitiesPanel.add(entitiesGallery, mode.name() + "_" + TilesTools.BRUSH.name());
 			} else if (entriesDisplayType == EntriesDisplayTypes.TREE) {
 				EditorTree resourcesTree = createResourcesTree(mode);
-				entitiesPanel.add(resourcesTree, mode.name());
+				entitiesPanel.add(resourcesTree, mode.name() + "_" + TilesTools.BRUSH.name());
 			}
 		});
 		entitiesPanel.add(new JPanel(), NONE.name());
-		EditModes mode = (EditModes) ModesManager.getSelectedMode();
-		entitiesLayout.show(entitiesPanel, mode.name());
+		entitiesLayout.show(entitiesPanel, EditModes.TILES.name() + "_" + TilesTools.BRUSH.name());
 	}
 
 	private DefaultMutableTreeNode createSectionNodeForTree(final String header, final ElementDefinition[] definitions) {
@@ -163,8 +164,18 @@ public class EntitiesSelectionPanelManager extends BaseManager {
 		addEntitiesDataSelectors(assetsFolderLocation);
 	}
 
-	public void changeEntitiesSelectionMode(EditorMode mode) {
-		CardLayout entitiesLayout = (CardLayout) entitiesPanel.getLayout();
-		entitiesLayout.show(entitiesPanel, mode.name());
+	public void changeEntitiesSelectionModePerTool(EditorMode mode) {
+		changeEntitiesSelectionModePerTool(mode, null);
+	}
+
+	public void changeEntitiesSelectionModePerTool(EditorMode mode, EditorTool tool) {
+		EditorCardLayout entitiesLayout = (EditorCardLayout) entitiesPanel.getLayout();
+		String modeName = mode.name();
+		String cardName = tool != null ? modeName + "_" + tool.name() : modeName;
+		if (entitiesLayout.getCards().contains(cardName)) {
+			entitiesLayout.show(entitiesPanel, cardName);
+		} else {
+			entitiesLayout.show(entitiesPanel, NONE.name());
+		}
 	}
 }

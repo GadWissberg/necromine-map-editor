@@ -9,6 +9,7 @@ import com.necromine.editor.model.node.NodeWallsDefinitions;
 import com.necromine.editor.model.node.WallDefinition;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.File;
@@ -40,10 +41,7 @@ public class WallTilingDialog extends DialogPane {
 	private JSpinner northWallHorizontalOffset;
 	private JSpinner northWallVerticalOffset;
 
-	public WallTilingDialog(final File assetsFolderLocation,
-							final MapRenderer mapRenderer,
-							final FlatNode src,
-							final FlatNode dst) {
+	public WallTilingDialog(final File assetsFolderLocation, final MapRenderer mapRenderer, final FlatNode src, final FlatNode dst) {
 		this.assetsFolderLocation = assetsFolderLocation;
 		this.mapRenderer = mapRenderer;
 		this.src = src;
@@ -53,19 +51,25 @@ public class WallTilingDialog extends DialogPane {
 
 	@Override
 	void initializeView(final GridBagConstraints c) {
-		addLabels(c);
-		addImageButtons(assetsFolderLocation, c);
-		addVScaleSelectors(c);
-		addHorizontalTextureOffsetSelectors(c);
-		addVerticalTextureOffsetSelectors(c);
+		try {
+			c.gridx++;
+			JPanel eastSection = new JPanel(new GridBagLayout());
+			Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+			eastSection.setBorder(BorderFactory.createCompoundBorder(padding, BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(LABEL_EAST), padding)));
+			eastSection.add(createImageButton());
+			add(eastSection);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+
+//		addLabels(c);
+//		addImageButtons(assetsFolderLocation, c);
+//		addVScaleSelectors(c);
+//		addHorizontalTextureOffsetSelectors(c);
+//		addVerticalTextureOffsetSelectors(c);
 		addOkButton(c, e -> {
-			mapRenderer.onNodeWallsDefined(
-					new NodeWallsDefinitions(
-							createWallDefinition(eastImageButton, eastWallVScale, eastWallHorizontalOffset, eastWallVerticalOffset),
-							createWallDefinition(southImageButton, southWallVScale, southWallHorizontalOffset, southWallVerticalOffset),
-							createWallDefinition(westImageButton, westWallVScale, westWallHorizontalOffset, westWallVerticalOffset),
-							createWallDefinition(northImageButton, northWallVScale, northWallHorizontalOffset, northWallVerticalOffset)),
-					src, dst);
+			mapRenderer.onNodeWallsDefined(new NodeWallsDefinitions(createWallDefinition(eastImageButton, eastWallVScale, eastWallHorizontalOffset, eastWallVerticalOffset), createWallDefinition(southImageButton, southWallVScale, southWallHorizontalOffset, southWallVerticalOffset), createWallDefinition(westImageButton, westWallVScale, westWallHorizontalOffset, westWallVerticalOffset), createWallDefinition(northImageButton, northWallVScale, northWallHorizontalOffset, northWallVerticalOffset)), src, dst);
 			closeDialog();
 		});
 	}
@@ -73,40 +77,34 @@ public class WallTilingDialog extends DialogPane {
 	private void addHorizontalTextureOffsetSelectors(final GridBagConstraints c) {
 		c.gridx = 3;
 		c.gridy = 0;
-		eastWallHorizontalOffset = addSpinner(0, 1, 0.1F, c, true);
+		eastWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		southWallHorizontalOffset = addSpinner(0, 1, 0.1F, c, true);
+		southWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		westWallHorizontalOffset = addSpinner(0, 1, 0.1F, c, true);
+		westWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		northWallHorizontalOffset = addSpinner(0, 1, 0.1F, c, true);
+		northWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
 	}
 
 	private void addVerticalTextureOffsetSelectors(final GridBagConstraints c) {
 		c.gridx = 4;
 		c.gridy = 0;
-		eastWallVerticalOffset = addSpinner(0, 1, 0.1F, c, true);
+		eastWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		southWallVerticalOffset = addSpinner(0, 1, 0.1F, c, true);
+		southWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		westWallVerticalOffset = addSpinner(0, 1, 0.1F, c, true);
+		westWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		northWallVerticalOffset = addSpinner(0, 1, 0.1F, c, true);
+		northWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
 	}
 
-	private WallDefinition createWallDefinition(final GalleryButton imageButton,
-												final JSpinner vScaleSpinner,
-												final JSpinner horizontalOffsetSpinner,
-												final JSpinner verticalOffsetSpinner) {
+	private WallDefinition createWallDefinition(final GalleryButton imageButton, final JSpinner vScaleSpinner, final JSpinner horizontalOffsetSpinner, final JSpinner verticalOffsetSpinner) {
 		Assets.SurfaceTextures def = imageButton.getTextureDefinition();
 		float vScale = ((Double) vScaleSpinner.getModel().getValue()).floatValue();
 		float horizontalOffsetValue = ((Double) horizontalOffsetSpinner.getModel().getValue()).floatValue();
 		float verticalOffsetValue = ((Double) verticalOffsetSpinner.getModel().getValue()).floatValue();
 		boolean isDefined = def != Assets.SurfaceTextures.MISSING;
-		return new WallDefinition(
-				isDefined ? def : null,
-				isDefined ? vScale : null,
-				isDefined ? horizontalOffsetValue : null, isDefined ? verticalOffsetValue : null);
+		return new WallDefinition(isDefined ? def : null, isDefined ? vScale : null, isDefined ? horizontalOffsetValue : null, isDefined ? verticalOffsetValue : null);
 	}
 
 	private void addVScaleSelectors(final GridBagConstraints c) {
@@ -121,44 +119,44 @@ public class WallTilingDialog extends DialogPane {
 		northWallVScale = addSpinner(0, 10, 1, c);
 	}
 
-	public String getDialogTitle( ) {
+	public String getDialogTitle() {
 		return "Tile Walls";
 	}
 
-	private void addImageButtons(final File assetsFolderLocation,
-								 final GridBagConstraints c) {
+	private void addImageButtons(final File assetsFolderLocation, final GridBagConstraints c) {
 		c.gridy = 0;
-		eastImageButton = addImageButton(assetsFolderLocation, c);
-		southImageButton = addImageButton(assetsFolderLocation, c);
-		westImageButton = addImageButton(assetsFolderLocation, c);
-		northImageButton = addImageButton(assetsFolderLocation, c);
+		eastImageButton = addImageButton(c);
+		southImageButton = addImageButton(c);
+		westImageButton = addImageButton(c);
+		northImageButton = addImageButton(c);
 	}
 
-	private GalleryButton addImageButton(final File assetsLocation,
-										 final GridBagConstraints c) {
+	private GalleryButton addImageButton(final GridBagConstraints c) {
 		GalleryButton button = null;
 		try {
-			button = GuiUtils.createTextureImageButton(
-					assetsLocation,
-					Assets.SurfaceTextures.MISSING);
-			GalleryButton finalButton = button;
-			button.addItemListener(itemEvent -> {
-				if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
-					GuiUtils.openNewDialog(getParent(), new TexturesGalleryDialog(assetsLocation, image -> {
-						try {
-							finalButton.applyTexture(image, GuiUtils.loadImage(assetsLocation, image));
-						} catch (final IOException e) {
-							e.printStackTrace();
-						}
-					}));
-				}
-			});
+			button = createImageButton();
 			c.gridx = 1;
 			add(button, c);
 			c.gridy += 1;
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
+		return button;
+	}
+
+	private GalleryButton createImageButton() throws IOException {
+		GalleryButton button = GuiUtils.createTextureImageButton(assetsFolderLocation, Assets.SurfaceTextures.MISSING);
+		button.addItemListener(itemEvent -> {
+			if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
+				GuiUtils.openNewDialog(getParent(), new TexturesGalleryDialog(assetsFolderLocation, image -> {
+					try {
+						button.applyTexture(image, GuiUtils.loadImage(assetsFolderLocation, image));
+					} catch (final IOException e) {
+						e.printStackTrace();
+					}
+				}));
+			}
+		});
 		return button;
 	}
 

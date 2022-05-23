@@ -2,6 +2,10 @@ package com.gadarts.necromine.editor.desktop.gui;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglAWTCanvas;
 import com.gadarts.necromine.editor.desktop.DesktopLauncher;
+import com.gadarts.necromine.editor.desktop.dialogs.DefineEnvObjectDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.SelectObjectInNodeDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.TilesLiftDialog;
+import com.gadarts.necromine.editor.desktop.dialogs.WallTilingDialog;
 import com.gadarts.necromine.editor.desktop.gui.managers.ManagersImpl;
 import com.gadarts.necromine.editor.desktop.gui.menu.MenuItemProperties;
 import com.gadarts.necromine.editor.desktop.gui.menu.definitions.MenuItemDefinition;
@@ -146,7 +150,7 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 	}
 
 	private JPanel createEntitiesPanel() {
-		CardLayout entitiesLayout = new CardLayout();
+		EditorCardLayout entitiesLayout = new EditorCardLayout();
 		return new JPanel(entitiesLayout);
 	}
 
@@ -204,22 +208,24 @@ public class Gui extends JFrame implements MapManagerEventsSubscriber {
 
 	@Override
 	public void onTileSelectedUsingWallTilingTool(final FlatNode src, final FlatNode dst) {
-
+		managers.getDialogsManager().openDialog(new WallTilingDialog(assetsFolderLocation, mapRenderer, src, dst));
 	}
 
 	@Override
 	public void onTilesSelectedForLifting(final int srcRow, final int srcCol, final int dstRow, final int dstCol) {
-
+		managers.getDialogsManager()
+				.openDialog(new TilesLiftDialog(new FlatNode(srcRow, srcCol), new FlatNode(dstRow, dstCol), mapRenderer));
 	}
 
 	@Override
-	public void onNodeSelectedToSelectPlacedObjectsInIt(final List<? extends PlacedElement> elementsInTheNode, final ActionAnswer<PlacedElement> answer) {
-
+	public void onNodeSelectedToSelectPlacedObjectsInIt(List<? extends PlacedElement> elementsInTheNode,
+														ActionAnswer<PlacedElement> answer) {
+		managers.getDialogsManager().openDialog(new SelectObjectInNodeDialog(elementsInTheNode, answer));
 	}
 
 	@Override
 	public void onSelectedEnvObjectToDefine(final PlacedEnvObject data) {
-
+		managers.getDialogsManager().openDialog(new DefineEnvObjectDialog(data, mapRenderer));
 	}
 
 
