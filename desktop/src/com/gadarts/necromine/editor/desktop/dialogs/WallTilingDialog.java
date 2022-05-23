@@ -10,16 +10,27 @@ import com.necromine.editor.model.node.WallDefinition;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
+
+import static javax.swing.BorderFactory.*;
 
 public class WallTilingDialog extends DialogPane {
 	private static final String LABEL_EAST = "East Wall:";
 	private static final String LABEL_SOUTH = "South Wall:";
 	private static final String LABEL_WEST = "West Wall:";
 	private static final String LABEL_NORTH = "North Wall:";
+	public static final String LABEL_VERTICAL_SCALE = "V. scale: ";
+	public static final String LABEL_HORIZONTAL_OFFSET = "H. offset: ";
+	public static final String LABEL_VERTICAL_OFFSET = "V. offset: ";
+	public static final int SECTION_PADDING = 10;
+	public static final int STEP_SIZE_VERTICAL_SCALE = 1;
+	public static final float STEP_SIZE_OFFSET = 0.1F;
+	public static final int SPINNER_VALUE_MAX = 10;
+	public static final int SPINNER_VALUE_MIN = -10;
 	private final File assetsFolderLocation;
 	private final MapRenderer mapRenderer;
 	private final FlatNode src;
@@ -32,14 +43,14 @@ public class WallTilingDialog extends DialogPane {
 	private JSpinner southWallVScale;
 	private JSpinner westWallVScale;
 	private JSpinner northWallVScale;
-	private JSpinner eastWallHorizontalOffset;
-	private JSpinner eastWallVerticalOffset;
-	private JSpinner southWallHorizontalOffset;
-	private JSpinner southWallVerticalOffset;
-	private JSpinner westWallHorizontalOffset;
-	private JSpinner westWallVerticalOffset;
-	private JSpinner northWallHorizontalOffset;
-	private JSpinner northWallVerticalOffset;
+	private JSpinner eastWallHorOffset;
+	private JSpinner eastWallVerOffset;
+	private JSpinner southWallHorOffset;
+	private JSpinner southWallVerOffset;
+	private JSpinner westWallHorOffset;
+	private JSpinner westWallVerOffset;
+	private JSpinner northWallHorOffset;
+	private JSpinner northWallVeOffset;
 
 	public WallTilingDialog(final File assetsFolderLocation, final MapRenderer mapRenderer, final FlatNode src, final FlatNode dst) {
 		this.assetsFolderLocation = assetsFolderLocation;
@@ -52,53 +63,117 @@ public class WallTilingDialog extends DialogPane {
 	@Override
 	void initializeView(final GridBagConstraints c) {
 		try {
-			c.gridx++;
-			JPanel eastSection = new JPanel(new GridBagLayout());
-			Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
-			eastSection.setBorder(BorderFactory.createCompoundBorder(padding, BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(LABEL_EAST), padding)));
-			eastSection.add(createImageButton());
-			add(eastSection);
+			c.gridx = 0;
+			c.gridy = 0;
+			JPanel sectionsPanel = new JPanel();
+			sectionsPanel.setLayout(new GridLayout(2, 2));
+			addEastSection(sectionsPanel);
+			addNorthSection(sectionsPanel);
+			addSouthSection(sectionsPanel);
+			addWestSection(sectionsPanel);
+			add(sectionsPanel);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
-
-//		addLabels(c);
-//		addImageButtons(assetsFolderLocation, c);
-//		addVScaleSelectors(c);
-//		addHorizontalTextureOffsetSelectors(c);
-//		addVerticalTextureOffsetSelectors(c);
 		addOkButton(c, e -> {
-			mapRenderer.onNodeWallsDefined(new NodeWallsDefinitions(createWallDefinition(eastImageButton, eastWallVScale, eastWallHorizontalOffset, eastWallVerticalOffset), createWallDefinition(southImageButton, southWallVScale, southWallHorizontalOffset, southWallVerticalOffset), createWallDefinition(westImageButton, westWallVScale, westWallHorizontalOffset, westWallVerticalOffset), createWallDefinition(northImageButton, northWallVScale, northWallHorizontalOffset, northWallVerticalOffset)), src, dst);
+			mapRenderer.onNodeWallsDefined(new NodeWallsDefinitions(
+							createWallDef(eastImageButton, eastWallVScale, eastWallHorOffset, eastWallVerOffset),
+							createWallDef(southImageButton, southWallVScale, southWallHorOffset, southWallVerOffset),
+							createWallDef(westImageButton, westWallVScale, westWallHorOffset, westWallVerOffset),
+							createWallDef(northImageButton, northWallVScale, northWallHorOffset, northWallVeOffset)),
+					src, dst);
 			closeDialog();
 		});
 	}
 
+	private void addEastSection(JPanel sectionsPanel) throws IOException {
+		JPanel eastSection = createSection(sectionsPanel, LABEL_EAST);
+		eastWallVScale = addSpinnerLine(eastSection, LABEL_VERTICAL_SCALE, 1);
+		eastWallHorOffset = addSpinnerLine(eastSection, LABEL_HORIZONTAL_OFFSET, 0.1F);
+		eastWallVerOffset = addSpinnerLine(eastSection, LABEL_VERTICAL_OFFSET, 0.1F);
+	}
+
+	private void addNorthSection(JPanel sectionsPanel) throws IOException {
+		JPanel northSection = createSection(sectionsPanel, LABEL_NORTH);
+		northWallVScale = addSpinnerLine(northSection, LABEL_VERTICAL_SCALE, STEP_SIZE_VERTICAL_SCALE);
+		northWallHorOffset = addSpinnerLine(northSection, LABEL_HORIZONTAL_OFFSET, STEP_SIZE_OFFSET);
+		northWallVeOffset = addSpinnerLine(northSection, LABEL_VERTICAL_OFFSET, STEP_SIZE_OFFSET);
+	}
+
+	private void addSouthSection(JPanel sectionsPanel) throws IOException {
+		JPanel southSection = createSection(sectionsPanel, LABEL_SOUTH);
+		southWallVScale = addSpinnerLine(southSection, LABEL_VERTICAL_SCALE, STEP_SIZE_VERTICAL_SCALE);
+		southWallHorOffset = addSpinnerLine(southSection, LABEL_HORIZONTAL_OFFSET, STEP_SIZE_OFFSET);
+		southWallVerOffset = addSpinnerLine(southSection, LABEL_VERTICAL_OFFSET, STEP_SIZE_OFFSET);
+	}
+
+	private void addWestSection(JPanel sectionsPanel) throws IOException {
+		JPanel westSection = createSection(sectionsPanel, LABEL_WEST);
+		westWallVScale = addSpinnerLine(westSection, LABEL_VERTICAL_SCALE, STEP_SIZE_VERTICAL_SCALE);
+		westWallHorOffset = addSpinnerLine(westSection, LABEL_HORIZONTAL_OFFSET, STEP_SIZE_OFFSET);
+		westWallVerOffset = addSpinnerLine(westSection, LABEL_VERTICAL_OFFSET, STEP_SIZE_OFFSET);
+	}
+
+	private JPanel createSection(JPanel sectionsPanel, String header) throws IOException {
+		JPanel section = new JPanel(new GridBagLayout());
+		addSectionBorder(header, section);
+		section.add(createImageButton());
+		JPanel spinnersPanel = addSpinnersPanel(section);
+		sectionsPanel.add(section);
+		return spinnersPanel;
+	}
+
+	private JPanel addSpinnersPanel(JPanel section) {
+		JPanel spinnersPanel = new JPanel();
+		spinnersPanel.setBorder(createEmptyBorder(SECTION_PADDING, SECTION_PADDING, SECTION_PADDING, SECTION_PADDING));
+		spinnersPanel.setLayout(new GridLayout(3, 2));
+		section.add(spinnersPanel);
+		return spinnersPanel;
+	}
+
+	private void addSectionBorder(String header, JPanel section) {
+		Border pad = createEmptyBorder(SECTION_PADDING, SECTION_PADDING, SECTION_PADDING, SECTION_PADDING);
+		CompoundBorder compoundBorder = createCompoundBorder(
+				pad,
+				createCompoundBorder(createTitledBorder(header), pad));
+		section.setBorder(compoundBorder);
+	}
+
+	private JSpinner addSpinnerLine(JPanel spinnersPanel, String label, float step) {
+		spinnersPanel.add(new JLabel(label));
+		JSpinner spinner = createSpinner(0, SPINNER_VALUE_MAX, step, SPINNER_VALUE_MIN);
+		JPanel paddingPanel = new JPanel();
+		paddingPanel.add(spinner);
+		spinnersPanel.add(paddingPanel);
+		return spinner;
+	}
+
+
 	private void addHorizontalTextureOffsetSelectors(final GridBagConstraints c) {
 		c.gridx = 3;
 		c.gridy = 0;
-		eastWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
+		eastWallHorOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		southWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
+		southWallHorOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		westWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
+		westWallHorOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		northWallHorizontalOffset = addSpinner(0, 1, 0.1F, c);
+		northWallHorOffset = addSpinner(0, 1, 0.1F, c);
 	}
 
 	private void addVerticalTextureOffsetSelectors(final GridBagConstraints c) {
 		c.gridx = 4;
 		c.gridy = 0;
-		eastWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
+		eastWallVerOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		southWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
+		southWallVerOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		westWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
+		westWallVerOffset = addSpinner(0, 1, 0.1F, c);
 		c.gridy++;
-		northWallVerticalOffset = addSpinner(0, 1, 0.1F, c);
+		northWallVeOffset = addSpinner(0, 1, 0.1F, c);
 	}
 
-	private WallDefinition createWallDefinition(final GalleryButton imageButton, final JSpinner vScaleSpinner, final JSpinner horizontalOffsetSpinner, final JSpinner verticalOffsetSpinner) {
+	private WallDefinition createWallDef(final GalleryButton imageButton, final JSpinner vScaleSpinner, final JSpinner horizontalOffsetSpinner, final JSpinner verticalOffsetSpinner) {
 		Assets.SurfaceTextures def = imageButton.getTextureDefinition();
 		float vScale = ((Double) vScaleSpinner.getModel().getValue()).floatValue();
 		float horizontalOffsetValue = ((Double) horizontalOffsetSpinner.getModel().getValue()).floatValue();
@@ -119,7 +194,7 @@ public class WallTilingDialog extends DialogPane {
 		northWallVScale = addSpinner(0, 10, 1, c);
 	}
 
-	public String getDialogTitle() {
+	public String getDialogTitle( ) {
 		return "Tile Walls";
 	}
 
@@ -144,7 +219,7 @@ public class WallTilingDialog extends DialogPane {
 		return button;
 	}
 
-	private GalleryButton createImageButton() throws IOException {
+	private GalleryButton createImageButton( ) throws IOException {
 		GalleryButton button = GuiUtils.createTextureImageButton(assetsFolderLocation, Assets.SurfaceTextures.MISSING);
 		button.addItemListener(itemEvent -> {
 			if (itemEvent.getStateChange() == ItemEvent.SELECTED) {
