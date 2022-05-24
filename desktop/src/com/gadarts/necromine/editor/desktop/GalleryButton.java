@@ -7,6 +7,8 @@ import javax.swing.*;
 import javax.swing.plaf.metal.MetalToggleButtonUI;
 import java.awt.*;
 
+import static java.awt.Image.SCALE_SMOOTH;
+
 @Getter
 public class GalleryButton extends JToggleButton {
 	private static final Color COLOR_SELECTED = Color.decode("0x14a9ff");
@@ -25,15 +27,33 @@ public class GalleryButton extends JToggleButton {
 		setToolTipText(name);
 		setUI(new MetalToggleButtonUI() {
 			@Override
-			protected Color getSelectColor() {
+			protected Color getSelectColor( ) {
 				return COLOR_SELECTED;
 			}
 		});
 		setBackground(BACKGROUND_COLOR);
 	}
 
-	public void applyTexture(final Assets.SurfaceTextures texture, final ImageIcon imageIcon) {
+	public void applyTexture(Assets.SurfaceTextures texture, ImageIcon imageIcon) {
+		Dimension preferredSize = getPreferredSize();
+		int iconWidth = imageIcon.getIconWidth();
+		int iconHeight = imageIcon.getIconHeight();
+		if (iconWidth > preferredSize.width || iconHeight > preferredSize.height) {
+			imageIcon = scaleDownProportionally(imageIcon, preferredSize, iconWidth, iconHeight);
+		}
 		setIcon(imageIcon);
 		textureDefinition = texture;
+	}
+
+	private ImageIcon scaleDownProportionally(ImageIcon imageIcon,
+											  Dimension preferredSize,
+											  int iconWidth,
+											  int iconHeight) {
+		int bigger = Math.max(iconWidth, iconHeight);
+		int ratio = bigger / preferredSize.width;
+		Image image = imageIcon.getImage();
+		Image scaled = image.getScaledInstance(iconWidth / ratio, iconHeight / ratio, SCALE_SMOOTH);
+		imageIcon = new ImageIcon(scaled);
+		return imageIcon;
 	}
 }

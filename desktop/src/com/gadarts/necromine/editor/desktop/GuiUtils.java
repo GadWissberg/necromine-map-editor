@@ -54,9 +54,6 @@ public final class GuiUtils {
 				GalleryButton button = GuiUtils.createTextureImageButton(assetsFolderLoc, surfaceTextures[i], onClick);
 				buttonGroup.add(button);
 				gallery.add(button);
-				if (i == 0) {
-					buttonGroup.setSelected(button.getModel(), true);
-				}
 			} catch (final IOException e) {
 				e.printStackTrace();
 			}

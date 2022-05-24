@@ -22,10 +22,10 @@ public class SetMapSizeDialog extends DialogPane {
 	}
 
 	@Override
-	void initializeView(final GridBagConstraints c) {
-		JSpinner widthSpinner = addInputLine(c, LABEL_WIDTH, current.width);
-		JSpinner heightSpinner = addInputLine(c, LABEL_DEPTH, current.height);
-		addOkButton(c, (e -> {
+	void initializeView( ) {
+		JSpinner widthSpinner = addInputLine(LABEL_WIDTH, current.width);
+		JSpinner heightSpinner = addInputLine(LABEL_DEPTH, current.height);
+		addGeneralButtons((e -> {
 			int width = ((Double) widthSpinner.getValue()).intValue();
 			int depth = ((Double) heightSpinner.getValue()).intValue();
 			mapRenderer.onMapSizeSet(width, depth);
@@ -33,23 +33,20 @@ public class SetMapSizeDialog extends DialogPane {
 		}));
 	}
 
-	private JSpinner addInputLine(final GridBagConstraints c, final String labelWidth, final float currentValue) {
-		c.gridx = 0;
-		addLabel(c, labelWidth);
-		JSpinner spinner = addValueSpinner(c, currentValue);
+	private JSpinner addInputLine(final String labelWidth, final float currentValue) {
+		addLabel(labelWidth);
+		JSpinner spinner = addValueSpinner(currentValue);
 		JFormattedTextField editor = ((JSpinner.NumberEditor) spinner.getEditor()).getTextField();
 		((NumberFormatter) editor.getFormatter()).setAllowsInvalid(false);
-		c.gridy++;
 		return spinner;
 	}
 
-	private JSpinner addValueSpinner(final GridBagConstraints c, final float currentValue) {
-		c.gridx++;
-		return addSpinner(currentValue, MAXIMUM, STEP_SIZE, c, false);
+	private JSpinner addValueSpinner(final float currentValue) {
+		return addSpinner(currentValue, MAXIMUM, STEP_SIZE, false);
 	}
 
 	@Override
-	public String getDialogTitle() {
+	public String getDialogTitle( ) {
 //		return ToolbarDefinition.MAP_SIZE.getButtonProperties().getToolTip();
 		return "";
 	}

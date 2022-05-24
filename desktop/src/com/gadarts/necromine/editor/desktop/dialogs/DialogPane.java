@@ -7,61 +7,57 @@ import java.awt.event.ActionListener;
 public abstract class DialogPane extends JPanel {
 	private static final int PADDING = 10;
 	private static final String BUTTON_LABEL_OK = "OK";
+	public static final int GENERAL_BUTTON_WIDTH = 100;
 	private static final int SPINNER_WIDTH = 50;
 	private static final Color TEXT_COLOR = Color.BLACK;
+	public static final int GENERAL_BUTTON_HEIGHT = 25;
+	private static final String BUTTON_LABEL_CANCEL = "Cancel";
 
 	protected DialogPane( ) {
-		setLayout(new GridBagLayout());
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 
 	void init( ) {
-		GridBagConstraints c = createGridBagConstraints();
-		initializeView(c);
+		initializeView();
 	}
 
-	protected GridBagConstraints createGridBagConstraints( ) {
-		GridBagConstraints c = new GridBagConstraints();
-		c.insets = new Insets(PADDING, PADDING, PADDING, PADDING);
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridy = 0;
-		return c;
+	abstract void initializeView( );
+
+	protected Button addGeneralButtons(final ActionListener okClick) {
+		add(new JSeparator());
+		JPanel panel = new JPanel();
+		panel.setLayout(new FlowLayout());
+		Button okButton = addGeneralButton(BUTTON_LABEL_OK, okClick, panel);
+		addGeneralButton(BUTTON_LABEL_CANCEL, (e) -> closeDialog(), panel);
+		add(panel);
+		return okButton;
 	}
 
-	abstract void initializeView(GridBagConstraints c);
-
-	protected Button addOkButton(final GridBagConstraints c, final ActionListener actionListener) {
-		c.gridy++;
-		c.gridwidth = 1;
-		Button ok = new Button(BUTTON_LABEL_OK);
-		ok.addActionListener(actionListener);
-		ok.setForeground(TEXT_COLOR);
+	public Button addGeneralButton(String buttonLabelCancel,
+								   ActionListener actionListener,
+								   JPanel parent) {
+		Button button = createGeneralButton(buttonLabelCancel, actionListener);
 		JPanel padding = new JPanel();
-		ok.setPreferredSize(new Dimension(100, 25));
-		padding.add(ok, c);
-		add(padding, c);
-		return ok;
+		padding.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
+		padding.add(button);
+		parent.add(padding);
+		return button;
 	}
 
-	protected JSpinner addSpinner(double value,
-								  int maximum,
-								  float step) {
-		return addSpinner(value, maximum, step, null, true);
-	}
-
-	protected JSpinner addSpinner(double value,
-								  int maximum,
-								  float step,
-								  GridBagConstraints c) {
-		return addSpinner(value, maximum, step, c, true);
+	private Button createGeneralButton(String buttonLabelCancel, ActionListener actionListener) {
+		Button button = new Button(buttonLabelCancel);
+		button.addActionListener(actionListener);
+		button.setForeground(TEXT_COLOR);
+		button.setPreferredSize(new Dimension(GENERAL_BUTTON_WIDTH, GENERAL_BUTTON_HEIGHT));
+		return button;
 	}
 
 	protected JSpinner addSpinner(double value,
 								  int maximum,
 								  float step,
-								  GridBagConstraints c,
 								  boolean allowNegative) {
 		JSpinner jSpinner = createSpinner(value, maximum, step, allowNegative, -1);
-		add(jSpinner, c);
+		add(jSpinner);
 		return jSpinner;
 	}
 
@@ -89,7 +85,7 @@ public abstract class DialogPane extends JPanel {
 		((Dialog) getRootPane().getParent()).dispose();
 	}
 
-	protected void addLabel(final GridBagConstraints c, final String label) {
-		add(new JLabel(label), c);
+	protected void addLabel(final String label) {
+		add(new JLabel(label));
 	}
 }

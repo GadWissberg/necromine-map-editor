@@ -19,13 +19,13 @@ public class SelectObjectInNodeDialog extends DialogPane {
 	}
 
 	@Override
-	void initializeView(final GridBagConstraints c) {
+	void initializeView( ) {
 		DefaultListModel<PlacedElement> jLabelDefaultListModel = new DefaultListModel<>();
 		JList<PlacedElement> list = new JList<>(jLabelDefaultListModel);
 		ListSelectionModel listSelectionModel = list.getSelectionModel();
 		elementsInTheNode.forEach(jLabelDefaultListModel::addElement);
 		add(list);
-		Button ok = addOkButton(c, e -> {
+		Button ok = addGeneralButtons(e -> {
 			answer.apply(elementsInTheNode.get(listSelectionModel.getSelectedIndices()[0]));
 			closeDialog();
 		});
