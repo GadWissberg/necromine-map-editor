@@ -84,4 +84,23 @@ public final class GuiUtils {
 				.filter(component -> component.getName() != null && component.getName().equals(name))
 				.findFirst().orElse(null);
 	}
+
+	public static JSpinner createSpinner(double value,
+										 int minimum,
+										 int maximum,
+										 float step,
+										 boolean allowNegative,
+										 int spinnerWidth) {
+		SpinnerModel model = new SpinnerNumberModel(value, minimum, maximum, step);
+		model.setValue(value);
+		JSpinner jSpinner = new JSpinner(model);
+		Dimension preferredSize = jSpinner.getPreferredSize();
+		jSpinner.setPreferredSize(new Dimension(spinnerWidth, preferredSize.height));
+		jSpinner.addChangeListener(e -> {
+			if (!allowNegative && ((Double) jSpinner.getValue()) < 0) {
+				jSpinner.setValue(0.0);
+			}
+		});
+		return jSpinner;
+	}
 }

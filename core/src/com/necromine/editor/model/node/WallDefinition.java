@@ -1,17 +1,17 @@
 package com.necromine.editor.model.node;
 
 import com.gadarts.necromine.assets.Assets;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class WallDefinition {
-	private final Assets.SurfaceTextures texture;
-	private final Float vScale;
-	private final Float horizontalOffset;
-	private final Float verticalOffset;
+	private Assets.SurfaceTextures texture;
+	private Float vScale;
+	private Float horizontalOffset;
+	private Float verticalOffset;
 
 }
