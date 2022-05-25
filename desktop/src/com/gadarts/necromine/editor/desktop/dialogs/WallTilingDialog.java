@@ -18,20 +18,15 @@ import java.awt.event.ItemEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.gadarts.necromine.assets.Assets.SurfaceTextures.MISSING;
-import static com.gadarts.necromine.editor.desktop.dialogs.WallSpinners.DEF_H_OFFSET;
-import static com.gadarts.necromine.editor.desktop.dialogs.WallSpinners.DEF_V_OFFSET;
-import static com.gadarts.necromine.editor.desktop.dialogs.WallSpinners.DEF_V_SCALE;
-import static javax.swing.BorderFactory.createCompoundBorder;
-import static javax.swing.BorderFactory.createEmptyBorder;
-import static javax.swing.BorderFactory.createTitledBorder;
+import static com.gadarts.necromine.editor.desktop.dialogs.WallSpinners.*;
+import static javax.swing.BorderFactory.*;
 
 public class WallTilingDialog extends DialogPane {
 	public static final int SECTION_PADDING = 10;
-	public static final int STEP_SIZE_VERTICAL_SCALE = 1;
-	public static final float STEP_SIZE_OFFSET = 0.1F;
 	private static final String LABEL_EAST = "East Wall:";
 	private static final String LABEL_SOUTH = "South Wall:";
 	private static final String LABEL_WEST = "West Wall:";
@@ -45,15 +40,9 @@ public class WallTilingDialog extends DialogPane {
 	private GalleryButton westImageButton;
 	private GalleryButton northImageButton;
 	private WallSpinners eastWallSpinners;
-	private JSpinner southWallVScale;
-	private JSpinner westWallVScale;
-	private JSpinner northWallVScale;
-	private JSpinner southWallHorOffset;
-	private JSpinner southWallVerOffset;
-	private JSpinner westWallHorOffset;
-	private JSpinner westWallVerOffset;
-	private JSpinner northWallHorOffset;
-	private JSpinner northWallVerOffset;
+	private WallSpinners northWallSpinners;
+	private WallSpinners southWallSpinners;
+	private WallSpinners westWallSpinners;
 
 	public WallTilingDialog(File assetsFolderLocation, MapRenderer mapRenderer, FlatNode src, FlatNode dst) {
 		this.assetsFolderLocation = assetsFolderLocation;
@@ -64,27 +53,36 @@ public class WallTilingDialog extends DialogPane {
 	}
 
 	@Override
-	void initializeView() {
+	void initializeView( ) {
 		try {
 			List<MapNodeData> nodes = mapRenderer.getRegion(src, dst);
 			JPanel sectionsPanel = new JPanel();
 			sectionsPanel.setLayout(new GridLayout(2, 2));
 			addEastSection(sectionsPanel, decideEastInitialValues(nodes));
-//			addNorthSection(sectionsPanel, decideNorthInitialValues(nodes));
-//			addSouthSection(sectionsPanel, decideSouthIcon(nodes));
-//			addWestSection(sectionsPanel, decideWestIcon(nodes));
+			addNorthSection(sectionsPanel, decideNorthInitialValues(nodes));
+			addSouthSection(sectionsPanel, decideSouthInitialValues(nodes));
+			addWestSection(sectionsPanel, decideWestInitialValues(nodes));
 			add(sectionsPanel);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		addGeneralButtons(e -> {
-			mapRenderer.onNodeWallsDefined(new NodeWallsDefinitions(createWallDef(eastImageButton, eastWallSpinners), createWallDef(southImageButton, eastWallSpinners), createWallDef(westImageButton, eastWallSpinners), createWallDef(northImageButton, eastWallSpinners)), src, dst);
+			mapRenderer.onNodeWallsDefined(new NodeWallsDefinitions(
+							createWallDef(eastImageButton, eastWallSpinners),
+							createWallDef(southImageButton, southWallSpinners),
+							createWallDef(westImageButton, westWallSpinners),
+							createWallDef(northImageButton, northWallSpinners)),
+					src,
+					dst);
 			closeDialog();
 		});
 	}
 
 	private WallDefinition decideEastInitialValues(List<MapNodeData> nodes) {
-		Optional<Wall> def = nodes.stream().filter(n -> n.getWalls().getEastWall() != null).map(mapNodeData -> mapNodeData.getWalls().getEastWall()).findFirst();
+		Optional<Wall> def = nodes.stream()
+				.filter(n -> n.getWalls().getEastWall() != null)
+				.map(mapNodeData -> mapNodeData.getWalls().getEastWall())
+				.findFirst();
 		WallDefinition initialValues = new WallDefinition(MISSING, DEF_V_SCALE, DEF_H_OFFSET, DEF_V_OFFSET);
 
 		if (def.isPresent()) {
@@ -98,17 +96,17 @@ public class WallTilingDialog extends DialogPane {
 
 			boolean allSameVerScale = nodes.stream()
 					.filter(n -> n.getWalls().getEastWall() != null)
-					.allMatch(d -> d.getWalls().getEastWall().getVScale() == wall.getVScale());
+					.allMatch(d -> Objects.equals(d.getWalls().getEastWall().getVScale(), wall.getVScale()));
 			initialValues.setVScale(allSameVerScale ? wall.getVScale() : DEF_V_SCALE);
 
 			boolean allSameHorOffset = nodes.stream()
 					.filter(n -> n.getWalls().getEastWall() != null)
-					.allMatch(d -> d.getWalls().getEastWall().getHOffset() == wall.getHOffset());
+					.allMatch(d -> Objects.equals(d.getWalls().getEastWall().getHOffset(), wall.getHOffset()));
 			initialValues.setHorizontalOffset(allSameHorOffset ? wall.getHOffset() : DEF_H_OFFSET);
 
 			boolean allSameVerOffset = nodes.stream()
 					.filter(n -> n.getWalls().getEastWall() != null)
-					.allMatch(d -> d.getWalls().getEastWall().getVOffset() == wall.getVOffset());
+					.allMatch(d -> Objects.equals(d.getWalls().getEastWall().getVOffset(), wall.getVOffset()));
 			initialValues.setVerticalOffset(allSameVerOffset ? wall.getVOffset() : DEF_V_OFFSET);
 		}
 
@@ -116,57 +114,108 @@ public class WallTilingDialog extends DialogPane {
 	}
 
 	private WallDefinition decideNorthInitialValues(List<MapNodeData> nodes) {
-		Optional<Wall> def = nodes.stream().filter(n -> n.getWalls().getNorthWall() != null).map(mapNodeData -> mapNodeData.getWalls().getNorthWall()).findFirst();
+		Optional<Wall> def = nodes.stream()
+				.filter(n -> n.getWalls().getNorthWall() != null)
+				.map(mapNodeData -> mapNodeData.getWalls().getNorthWall())
+				.findFirst();
 		WallDefinition initialValues = new WallDefinition(MISSING, DEF_V_SCALE, DEF_H_OFFSET, DEF_V_OFFSET);
 
 		if (def.isPresent()) {
-			SurfaceTextures definition = def.get().getDefinition();
+			Wall wall = def.get();
+			SurfaceTextures textureDefinition = wall.getDefinition();
 
-			boolean allSameTexture = nodes.stream().filter(n -> n.getWalls().getNorthWall() != null).allMatch(d -> d.getWalls().getNorthWall().getDefinition() == definition);
-			initialValues.setTexture(allSameTexture ? definition : MISSING);
+			boolean allSameTexture = nodes.stream()
+					.filter(n -> n.getWalls().getNorthWall() != null)
+					.allMatch(d -> d.getWalls().getNorthWall().getDefinition() == textureDefinition);
+			initialValues.setTexture(allSameTexture ? textureDefinition : MISSING);
 
-			boolean allSameVerScale = nodes.stream().filter(n -> n.getWalls().getNorthWall() != null).allMatch(d -> d.getWalls().getNorthWall().getDefinition() == definition);
-			initialValues.setVScale(allSameVerScale ? def.get().getVScale() : null);
+			boolean allSameVerScale = nodes.stream()
+					.filter(n -> n.getWalls().getNorthWall() != null)
+					.allMatch(d -> Objects.equals(d.getWalls().getNorthWall().getVScale(), wall.getVScale()));
+			initialValues.setVScale(allSameVerScale ? wall.getVScale() : DEF_V_SCALE);
 
-			boolean allSameHorOffset = nodes.stream().filter(n -> n.getWalls().getNorthWall() != null).allMatch(d -> d.getWalls().getNorthWall().getDefinition() == definition);
-			initialValues.setHorizontalOffset(allSameHorOffset ? def.get().getHOffset() : null);
+			boolean allSameHorOffset = nodes.stream()
+					.filter(n -> n.getWalls().getNorthWall() != null)
+					.allMatch(d -> Objects.equals(d.getWalls().getNorthWall().getHOffset(), wall.getHOffset()));
+			initialValues.setHorizontalOffset(allSameHorOffset ? wall.getHOffset() : DEF_H_OFFSET);
 
-			boolean allSameVerOffset = nodes.stream().filter(n -> n.getWalls().getNorthWall() != null).allMatch(d -> d.getWalls().getNorthWall().getDefinition() == definition);
-			initialValues.setVerticalOffset(allSameVerOffset ? def.get().getVOffset() : null);
+			boolean allSameVerOffset = nodes.stream()
+					.filter(n -> n.getWalls().getNorthWall() != null)
+					.allMatch(d -> Objects.equals(d.getWalls().getNorthWall().getVOffset(), wall.getVOffset()));
+			initialValues.setVerticalOffset(allSameVerOffset ? wall.getVOffset() : DEF_V_OFFSET);
 		}
 
 		return initialValues;
 	}
 
+	private WallDefinition decideSouthInitialValues(List<MapNodeData> nodes) {
+		Optional<Wall> def = nodes.stream()
+				.filter(n -> n.getWalls().getSouthWall() != null)
+				.map(mapNodeData -> mapNodeData.getWalls().getSouthWall())
+				.findFirst();
+		WallDefinition initialValues = new WallDefinition(MISSING, DEF_V_SCALE, DEF_H_OFFSET, DEF_V_OFFSET);
 
-	private SurfaceTextures decideWestIcon(List<MapNodeData> nodes) {
-		Optional<Wall> def = nodes.stream().filter(n -> n.getWalls().getWestWall() != null).map(mapNodeData -> mapNodeData.getWalls().getWestWall()).findFirst();
-		SurfaceTextures texture = MISSING;
 		if (def.isPresent()) {
-			boolean allSame = nodes.stream().filter(n -> n.getWalls().getWestWall() != null).allMatch(data -> data.getWalls().getWestWall().getDefinition() == def.get().getDefinition());
-			texture = allSame ? def.get().getDefinition() : MISSING;
+			Wall wall = def.get();
+			SurfaceTextures textureDefinition = wall.getDefinition();
+
+			boolean allSameTexture = nodes.stream()
+					.filter(n -> n.getWalls().getSouthWall() != null)
+					.allMatch(d -> d.getWalls().getSouthWall().getDefinition() == textureDefinition);
+			initialValues.setTexture(allSameTexture ? textureDefinition : MISSING);
+
+			boolean allSameVerScale = nodes.stream()
+					.filter(n -> n.getWalls().getSouthWall() != null)
+					.allMatch(d -> Objects.equals(d.getWalls().getSouthWall().getVScale(), wall.getVScale()));
+			initialValues.setVScale(allSameVerScale ? wall.getVScale() : DEF_V_SCALE);
+
+			boolean allSameHorOffset = nodes.stream()
+					.filter(n -> n.getWalls().getSouthWall() != null)
+					.allMatch(d -> Objects.equals(d.getWalls().getSouthWall().getHOffset(), wall.getHOffset()));
+			initialValues.setHorizontalOffset(allSameHorOffset ? wall.getHOffset() : DEF_H_OFFSET);
+
+			boolean allSameVerOffset = nodes.stream()
+					.filter(n -> n.getWalls().getSouthWall() != null)
+					.allMatch(d -> Objects.equals(d.getWalls().getSouthWall().getVOffset(), wall.getVOffset()));
+			initialValues.setVerticalOffset(allSameVerOffset ? wall.getVOffset() : DEF_V_OFFSET);
 		}
-		return texture;
+
+		return initialValues;
 	}
 
-	private SurfaceTextures decideNorthIcon(List<MapNodeData> nodes) {
-		Optional<Wall> def = nodes.stream().filter(n -> n.getWalls().getNorthWall() != null).map(mapNodeData -> mapNodeData.getWalls().getNorthWall()).findFirst();
-		SurfaceTextures texture = MISSING;
-		if (def.isPresent()) {
-			boolean allSame = nodes.stream().filter(n -> n.getWalls().getNorthWall() != null).allMatch(data -> data.getWalls().getNorthWall().getDefinition() == def.get().getDefinition());
-			texture = allSame ? def.get().getDefinition() : MISSING;
-		}
-		return texture;
-	}
+	private WallDefinition decideWestInitialValues(List<MapNodeData> nodes) {
+		Optional<Wall> def = nodes.stream()
+				.filter(n -> n.getWalls().getWestWall() != null)
+				.map(mapNodeData -> mapNodeData.getWalls().getWestWall())
+				.findFirst();
+		WallDefinition initialValues = new WallDefinition(MISSING, DEF_V_SCALE, DEF_H_OFFSET, DEF_V_OFFSET);
 
-	private SurfaceTextures decideSouthIcon(List<MapNodeData> nodes) {
-		Optional<Wall> def = nodes.stream().filter(n -> n.getWalls().getSouthWall() != null).map(mapNodeData -> mapNodeData.getWalls().getSouthWall()).findFirst();
-		SurfaceTextures texture = MISSING;
 		if (def.isPresent()) {
-			boolean allSame = nodes.stream().filter(n -> n.getWalls().getSouthWall() != null).allMatch(data -> data.getWalls().getSouthWall().getDefinition() == def.get().getDefinition());
-			texture = allSame ? def.get().getDefinition() : MISSING;
+			Wall wall = def.get();
+			SurfaceTextures textureDefinition = wall.getDefinition();
+
+			boolean allSameTexture = nodes.stream()
+					.filter(n -> n.getWalls().getWestWall() != null)
+					.allMatch(d -> d.getWalls().getWestWall().getDefinition() == textureDefinition);
+			initialValues.setTexture(allSameTexture ? textureDefinition : MISSING);
+
+			boolean allSameVerScale = nodes.stream()
+					.filter(n -> n.getWalls().getWestWall() != null)
+					.allMatch(d -> Objects.equals(d.getWalls().getWestWall().getVScale(), wall.getVScale()));
+			initialValues.setVScale(allSameVerScale ? wall.getVScale() : DEF_V_SCALE);
+
+			boolean allSameHorOffset = nodes.stream()
+					.filter(n -> n.getWalls().getWestWall() != null)
+					.allMatch(d -> Objects.equals(d.getWalls().getWestWall().getHOffset(), wall.getHOffset()));
+			initialValues.setHorizontalOffset(allSameHorOffset ? wall.getHOffset() : DEF_H_OFFSET);
+
+			boolean allSameVerOffset = nodes.stream()
+					.filter(n -> n.getWalls().getWestWall() != null)
+					.allMatch(d -> Objects.equals(d.getWalls().getWestWall().getVOffset(), wall.getVOffset()));
+			initialValues.setVerticalOffset(allSameVerOffset ? wall.getVOffset() : DEF_V_OFFSET);
 		}
-		return texture;
+
+		return initialValues;
 	}
 
 	private void addEastSection(JPanel sectionsPanel, WallDefinition initialValues) throws IOException {
@@ -175,17 +224,23 @@ public class WallTilingDialog extends DialogPane {
 		eastWallSpinners = new WallSpinners(spinnersPanel, initialValues);
 	}
 
-//	private void addNorthSection(JPanel sectionsPanel, WallDefinition initialValues) throws IOException {
-//		northImageButton = createImageButton(initialValues.getTexture());
-//		JPanel sec = createSection(sectionsPanel, LABEL_NORTH, northImageButton);
-//		Float vScale = initialValues.getVScale();
-//		Float hor = initialValues.getHorizontalOffset();
-//		Float ver = initialValues.getVerticalOffset();
-//		northWallVScale = addSpinnerLine(sec, LABEL_VER_SCALE, STEP_SIZE_V_SCALE, (vScale != null ? vScale : DEF_V_SCALE));
-//		northWallHorOffset = addSpinnerLine(sec, LABEL_HOR_OFFSET, STEP_SIZE_H_OFFSET, (hor != null ? hor : DEF_H_OFFSET));
-//		northWallVerOffset = addSpinnerLine(sec, LABEL_VER_OFFSET, STEP_SIZE_V_OFFSET, (ver != null ? ver : DEF_V_OFFSET));
-//	}
+	private void addNorthSection(JPanel sectionsPanel, WallDefinition initialValues) throws IOException {
+		northImageButton = createImageButton(initialValues.getTexture());
+		JPanel spinnersPanel = createSection(sectionsPanel, LABEL_NORTH, northImageButton);
+		northWallSpinners = new WallSpinners(spinnersPanel, initialValues);
+	}
 
+	private void addSouthSection(JPanel sectionsPanel, WallDefinition initialValues) throws IOException {
+		southImageButton = createImageButton(initialValues.getTexture());
+		JPanel spinnersPanel = createSection(sectionsPanel, LABEL_SOUTH, southImageButton);
+		southWallSpinners = new WallSpinners(spinnersPanel, initialValues);
+	}
+
+	private void addWestSection(JPanel sectionsPanel, WallDefinition initialValues) throws IOException {
+		westImageButton = createImageButton(initialValues.getTexture());
+		JPanel spinnersPanel = createSection(sectionsPanel, LABEL_WEST, westImageButton);
+		westWallSpinners = new WallSpinners(spinnersPanel, initialValues);
+	}
 
 	private JPanel createSection(JPanel sectionsPanel, String header, GalleryButton imageButton) {
 		JPanel section = new JPanel(new GridBagLayout());
@@ -217,7 +272,7 @@ public class WallTilingDialog extends DialogPane {
 		return new WallDefinition(isDefined ? def : null, isDefined ? ((Double) wallSpinners.getWallVScale().getModel().getValue()).floatValue() : null, isDefined ? ((Double) wallSpinners.getWallHorOffset().getModel().getValue()).floatValue() : null, isDefined ? ((Double) wallSpinners.getWallVerOffset().getModel().getValue()).floatValue() : null);
 	}
 
-	public String getDialogTitle() {
+	public String getDialogTitle( ) {
 		return "Tile Walls";
 	}
 

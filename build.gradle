@@ -38,7 +38,7 @@ project(":desktop") {
 
 
     dependencies {
-        implementation 'com.gadarts.necromine.shared:core:0.1'
+        implementation 'com.gadarts.necronemes:shared:0.1'
         implementation project(":core")
         api "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
@@ -54,7 +54,7 @@ project(":core") {
 
 
     dependencies {
-        implementation 'com.gadarts.necromine.shared:core:0.1'
+        implementation 'com.gadarts.necronemes:shared:0.1'
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         compileOnly 'org.projectlombok:lombok:1.18.22'
         annotationProcessor 'org.projectlombok:lombok:1.18.22'

@@ -7,24 +7,33 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public abstract class DialogPane extends JPanel {
+	public static final int GENERAL_BUTTON_WIDTH = 100;
+	public static final int GENERAL_BUTTON_HEIGHT = 25;
 	static final int SPINNER_WIDTH = 50;
-
 	private static final int PADDING = 10;
 	private static final String BUTTON_LABEL_OK = "OK";
-	public static final int GENERAL_BUTTON_WIDTH = 100;
 	private static final Color TEXT_COLOR = Color.BLACK;
-	public static final int GENERAL_BUTTON_HEIGHT = 25;
 	private static final String BUTTON_LABEL_CANCEL = "Cancel";
 
-	protected DialogPane() {
+	protected DialogPane( ) {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 	}
 
-	void init() {
+	JSpinner addSpinnerWithLabel(String label, JSpinner spinner) {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+		panel.add(new JLabel(label));
+		panel.add(spinner);
+		panel.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
+		add(panel);
+		return spinner;
+	}
+
+	void init( ) {
 		initializeView();
 	}
 
-	abstract void initializeView();
+	abstract void initializeView( );
 
 	protected Button addGeneralButtons(final ActionListener okClick) {
 		add(new JSeparator());
@@ -69,9 +78,9 @@ public abstract class DialogPane extends JPanel {
 	}
 
 
-	public abstract String getDialogTitle();
+	public abstract String getDialogTitle( );
 
-	void closeDialog() {
+	void closeDialog( ) {
 		((Dialog) getRootPane().getParent()).dispose();
 	}
 

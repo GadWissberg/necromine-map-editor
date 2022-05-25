@@ -1,5 +1,6 @@
 package com.gadarts.necromine.editor.desktop.dialogs;
 
+import com.gadarts.necromine.editor.desktop.GuiUtils;
 import com.gadarts.necromine.model.map.MapNodeData;
 import com.necromine.editor.MapRenderer;
 import com.necromine.editor.model.node.FlatNode;
@@ -10,8 +11,8 @@ import java.util.List;
 import static com.necromine.editor.model.node.FlatNode.MAX_HEIGHT;
 
 public class TilesLiftDialog extends DialogPane {
-	private static final String LABEL_HEIGHT = "Height: ";
 	static final float STEP = 0.1f;
+	private static final String LABEL_HEIGHT = "Height: ";
 	private final FlatNode src;
 	private final FlatNode dst;
 	private final MapRenderer mapRenderer;
@@ -25,10 +26,9 @@ public class TilesLiftDialog extends DialogPane {
 
 	@Override
 	void initializeView( ) {
-		addLabel(LABEL_HEIGHT);
-		JSpinner model = addHeightSpinner();
+		JSpinner spinner = addSpinnerWithLabel(LABEL_HEIGHT, createHeightSpinner());
 		addGeneralButtons(e -> {
-			float value = ((Double) model.getValue()).floatValue();
+			float value = ((Double) spinner.getValue()).floatValue();
 			if (value >= 0) {
 				mapRenderer.onTilesLift(src, dst, value);
 			}
@@ -36,17 +36,18 @@ public class TilesLiftDialog extends DialogPane {
 		});
 	}
 
-	private JSpinner addHeightSpinner( ) {
+
+	private JSpinner createHeightSpinner( ) {
 		List<MapNodeData> nodes = mapRenderer.getRegion(src, dst);
-		float initialValue = -1;
+		float value = -1;
 		if (nodes.stream().allMatch(n -> n.getHeight() == nodes.get(0).getHeight())) {
-			initialValue = nodes.get(0).getHeight();
+			value = nodes.get(0).getHeight();
 		}
-		return addSpinner(initialValue, MAX_HEIGHT, STEP, false);
+		return GuiUtils.createSpinner(value, -1, MAX_HEIGHT, STEP, false, SPINNER_WIDTH);
 	}
 
 	@Override
-	public String getDialogTitle() {
+	public String getDialogTitle( ) {
 		return "Lift Tiles";
 	}
 }

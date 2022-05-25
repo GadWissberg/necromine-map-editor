@@ -23,8 +23,8 @@ public class SetMapSizeDialog extends DialogPane {
 
 	@Override
 	void initializeView( ) {
-		JSpinner widthSpinner = addInputLine(LABEL_WIDTH, current.width);
-		JSpinner heightSpinner = addInputLine(LABEL_DEPTH, current.height);
+		JSpinner widthSpinner = addSpinnerWithLabel(LABEL_WIDTH, createValueSpinner(current.width));
+		JSpinner heightSpinner = addSpinnerWithLabel(LABEL_DEPTH, createValueSpinner(current.height));
 		addGeneralButtons((e -> {
 			int width = ((Double) widthSpinner.getValue()).intValue();
 			int depth = ((Double) heightSpinner.getValue()).intValue();
@@ -33,16 +33,12 @@ public class SetMapSizeDialog extends DialogPane {
 		}));
 	}
 
-	private JSpinner addInputLine(final String labelWidth, final float currentValue) {
-		addLabel(labelWidth);
-		JSpinner spinner = addValueSpinner(currentValue);
-		JFormattedTextField editor = ((JSpinner.NumberEditor) spinner.getEditor()).getTextField();
-		((NumberFormatter) editor.getFormatter()).setAllowsInvalid(false);
-		return spinner;
-	}
 
-	private JSpinner addValueSpinner(final float currentValue) {
-		return addSpinner(currentValue, MAXIMUM, STEP_SIZE, false);
+	private JSpinner createValueSpinner(final float currentValue) {
+		JSpinner jSpinner = addSpinner(currentValue, MAXIMUM, STEP_SIZE, false);
+		JFormattedTextField editor = ((JSpinner.NumberEditor) jSpinner.getEditor()).getTextField();
+		((NumberFormatter) editor.getFormatter()).setAllowsInvalid(false);
+		return jSpinner;
 	}
 
 	@Override

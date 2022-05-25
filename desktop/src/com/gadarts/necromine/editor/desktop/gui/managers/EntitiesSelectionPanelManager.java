@@ -98,7 +98,9 @@ public class EntitiesSelectionPanelManager extends BaseManager {
 
 	private DefaultMutableTreeNode createSectionNodeForTree(final String header, final ElementDefinition[] definitions) {
 		DefaultMutableTreeNode sectionNode = new DefaultMutableTreeNode(header);
-		Arrays.stream(definitions).forEach(def -> sectionNode.add(new DefaultMutableTreeNode(def, false)));
+		Arrays.stream(definitions)
+				.filter(d -> d.isCanBeSeenOnTheMap())
+				.forEach(def -> sectionNode.add(new DefaultMutableTreeNode(def, false)));
 		return sectionNode;
 	}
 
@@ -106,8 +108,8 @@ public class EntitiesSelectionPanelManager extends BaseManager {
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode(mode.getDisplayName());
 		EditorTree tree = new EditorTree(top);
 		Arrays.stream(modeToTreeSections.get(mode)).forEach(modeSection -> {
-			top.add(createSectionNodeForTree(modeSection.getHeader(), modeSection.getDefinitions()));
-			tree.setCellRenderer(new ResourcesTreeCellRenderer(modeSection.getEntryIcon()));
+			top.add(createSectionNodeForTree(modeSection.header(), modeSection.definitions()));
+			tree.setCellRenderer(new ResourcesTreeCellRenderer(modeSection.entryIcon()));
 			tree.addTreeSelectionListener(e -> {
 				TreePath path = e.getPath();
 				tree.setSelectionPath(path);

@@ -5,6 +5,6 @@ import java.awt.*;
 
 public abstract class EditorTreeCellRenderer extends DefaultTreeCellRenderer {
 	public EditorTreeCellRenderer() {
-		setBackgroundSelectionColor(Color.BLUE);
+		setBackgroundSelectionColor(Color.CYAN);
 	}
 }

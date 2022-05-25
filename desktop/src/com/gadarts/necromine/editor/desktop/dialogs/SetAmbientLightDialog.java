@@ -20,8 +20,8 @@ public class SetAmbientLightDialog extends DialogPane {
 
 	@Override
 	void initializeView( ) {
-		addLabel(LABEL_AMBIENT);
 		JSpinner spinner = addValueSpinner();
+		addSpinnerWithLabel(LABEL_AMBIENT, spinner);
 		addGeneralButtons((e -> {
 			mapRenderer.onAmbientLightValueSet(((Double) spinner.getValue()).floatValue());
 			closeDialog();
