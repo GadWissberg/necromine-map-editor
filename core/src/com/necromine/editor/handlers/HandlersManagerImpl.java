@@ -22,6 +22,7 @@ import com.necromine.editor.model.elements.CharacterDecal;
 import lombok.Getter;
 
 import java.awt.*;
+import java.util.Optional;
 
 @Getter
 public class HandlersManagerImpl implements HandlersManager, Disposable {
@@ -42,9 +43,9 @@ public class HandlersManagerImpl implements HandlersManager, Disposable {
 
 	@Override
 	public void dispose( ) {
-		logicHandlers.dispose();
-		resourcesHandler.dispose();
-		renderHandler.dispose();
+		Optional.ofNullable(renderHandler).ifPresent(r -> r.dispose());
+		Optional.ofNullable(resourcesHandler).ifPresent(r -> r.dispose());
+		Optional.ofNullable(logicHandlers).ifPresent(r -> r.dispose());
 	}
 
 	@Override

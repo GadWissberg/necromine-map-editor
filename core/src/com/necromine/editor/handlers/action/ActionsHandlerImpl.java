@@ -288,21 +288,19 @@ public class ActionsHandlerImpl implements ActionsHandler {
 	}
 
 	private void finishProcess(final Assets.SurfaceTextures selectedTile, final Model cursorTileModel) {
-		if (selectedTile != null) {
-			CursorHandlerModelData cursorHandlerModelData = services.cursorHandler().getCursorHandlerModelData();
-			Vector3 position = cursorHandlerModelData.getCursorTileModelInstance().transform.getTranslation(auxVector);
-			int dstRow = (int) position.z;
-			int dstCol = (int) position.x;
-			if (currentProcess instanceof PlaceTilesProcess) {
-				PlaceTilesProcess currentProcess = (PlaceTilesProcess) this.currentProcess;
-				currentProcess.finish(new PlaceTilesFinishProcessParameters(dstRow, dstCol, selectedTile, cursorTileModel));
-			} else if (currentProcess instanceof SelectTilesForLiftProcess) {
-				SelectTilesForLiftProcess currentProcess = (SelectTilesForLiftProcess) this.currentProcess;
-				currentProcess.finish(new SelectTilesForLiftFinishProcessParameters(dstRow, dstCol, services.eventsNotifier()));
-			} else if (currentProcess instanceof SelectTilesForWallTilingProcess) {
-				SelectTilesForWallTilingProcess currentProcess = (SelectTilesForWallTilingProcess) this.currentProcess;
-				currentProcess.finish(new SelectTilesForWallTilingFinishProcessParameters(dstRow, dstCol, services.eventsNotifier()));
-			}
+		CursorHandlerModelData cursorHandlerModelData = services.cursorHandler().getCursorHandlerModelData();
+		Vector3 position = cursorHandlerModelData.getCursorTileModelInstance().transform.getTranslation(auxVector);
+		int dstRow = (int) position.z;
+		int dstCol = (int) position.x;
+		if (currentProcess instanceof PlaceTilesProcess) {
+			PlaceTilesProcess currentProcess = (PlaceTilesProcess) this.currentProcess;
+			currentProcess.finish(new PlaceTilesFinishProcessParameters(dstRow, dstCol, selectedTile, cursorTileModel));
+		} else if (currentProcess instanceof SelectTilesForLiftProcess) {
+			SelectTilesForLiftProcess currentProcess = (SelectTilesForLiftProcess) this.currentProcess;
+			currentProcess.finish(new SelectTilesForLiftFinishProcessParameters(dstRow, dstCol, services.eventsNotifier()));
+		} else if (currentProcess instanceof SelectTilesForWallTilingProcess) {
+			SelectTilesForWallTilingProcess currentProcess = (SelectTilesForWallTilingProcess) this.currentProcess;
+			currentProcess.finish(new SelectTilesForWallTilingFinishProcessParameters(dstRow, dstCol, services.eventsNotifier()));
 		}
 		this.currentProcess = null;
 	}

@@ -19,6 +19,7 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Disposable;
+import com.gadarts.necromine.assets.Assets;
 import com.gadarts.necromine.assets.GameAssetsManager;
 import com.gadarts.necromine.model.ElementDefinition;
 import com.gadarts.necromine.model.characters.Direction;
@@ -32,6 +33,7 @@ import com.necromine.editor.handlers.action.ActionsHandler;
 import com.necromine.editor.mode.EditModes;
 import com.necromine.editor.mode.EditorMode;
 import com.necromine.editor.mode.ModeType;
+import com.necromine.editor.mode.tools.EditorTool;
 import com.necromine.editor.model.elements.*;
 import com.necromine.editor.model.node.FlatNode;
 import com.necromine.editor.utils.Utils;
@@ -102,11 +104,12 @@ public class RenderHandler implements Disposable {
 	public void draw(EditorMode mode,
 					 PlacedElements placedElements,
 					 Set<MapNodeData> initializedTiles,
-					 ElementDefinition selectedElement) {
+					 ElementDefinition selectedElement,
+					 EditorTool tool) {
 		int sam = Gdx.graphics.getBufferFormat().coverageSampling ? GL20.GL_COVERAGE_BUFFER_BIT_NV : 0;
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT | sam);
-		renderModels(initializedTiles, placedElements, mode, selectedElement);
+		renderModels(initializedTiles, placedElements, mode, selectedElement, tool);
 		renderDecals(handlersManager, mode, placedElements);
 	}
 
@@ -186,14 +189,15 @@ public class RenderHandler implements Disposable {
 	}
 
 
-	private void renderModels(final Set<MapNodeData> initializedTiles,
-							  final PlacedElements placedElements,
-							  final EditorMode mode,
-							  final ElementDefinition selectedElement) {
+	private void renderModels(Set<MapNodeData> initializedTiles,
+							  PlacedElements placedElements,
+							  EditorMode mode,
+							  ElementDefinition selectedElement,
+							  EditorTool tool) {
 		ModelBatch modelBatch = handlersManager.getRenderHandler().getModelBatch();
 		modelBatch.begin(camera);
 		renderAux(modelBatch);
-		renderCursor(mode, selectedElement);
+		renderCursor(mode, selectedElement, tool);
 		renderExistingProcess();
 		renderModelPlacedElements(initializedTiles, placedElements);
 		modelBatch.end();
@@ -228,12 +232,15 @@ public class RenderHandler implements Disposable {
 		}
 	}
 
-	public void renderCursor(final EditorMode mode, final ElementDefinition selectedElement) {
-		LogicHandlers logicHandlers = handlersManager.getLogicHandlers();
-		ModelInstance highlighter = logicHandlers.getCursorHandler().getHighlighter();
-		SelectionHandler selectionHandler = logicHandlers.getSelectionHandler();
-		if (mode.getType() == ModeType.EDIT && (selectedElement != null || selectionHandler.getSelectedTile() != null)) {
-			handlersManager.getRenderHandler().getModelBatch().render(highlighter);
+	public void renderCursor(final EditorMode mode, final ElementDefinition selectedElement, EditorTool tool) {
+		ModelInstance highlighter = handlersManager.getLogicHandlers().getCursorHandler().getHighlighter();
+		SelectionHandler selectionHandler = handlersManager.getLogicHandlers().getSelectionHandler();
+		if (highlighter != null && mode.getType() == ModeType.EDIT) {
+			Assets.SurfaceTextures selectedTile = selectionHandler.getSelectedTile();
+			boolean cursorAlwaysDisplayed = tool.isForceCursorDisplay();
+			if (((!cursorAlwaysDisplayed && (selectedElement != null || selectedTile != null)) || cursorAlwaysDisplayed)) {
+				handlersManager.getRenderHandler().getModelBatch().render(highlighter);
+			}
 		}
 		renderCursorObjectModel(selectedElement, mode);
 	}
@@ -298,10 +305,11 @@ public class RenderHandler implements Disposable {
 		});
 	}
 
-	public void render(final EditorMode mode,
-					   final PlacedElements placedElements,
-					   final ElementDefinition selectedElement) {
-		draw(mode, placedElements, placedElements.getPlacedTiles(), selectedElement);
+	public void render(EditorMode mode,
+					   PlacedElements placedElements,
+					   ElementDefinition selectedElement,
+					   EditorTool tool) {
+		draw(mode, placedElements, placedElements.getPlacedTiles(), selectedElement, tool);
 	}
 
 	@Override

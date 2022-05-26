@@ -20,8 +20,13 @@ public class DefineEnvObjectDialog extends DialogPane {
 
 	@Override
 	void initializeView( ) {
-		addLabel(LABEL_HEIGHT);
-		JSpinner spinner = addSpinner(element.getHeight(), FlatNode.MAX_HEIGHT, TilesLiftDialog.STEP, false);
+		JSpinner spinner = createSpinner(
+				element.getHeight(),
+				FlatNode.MAX_HEIGHT,
+				TilesLiftDialog.STEP,
+				0,
+				false);
+		addSpinnerWithLabel(LABEL_HEIGHT, spinner);
 		addGeneralButtons(e -> {
 			mapRenderer.onEnvObjectDefined(element, ((Double) spinner.getModel().getValue()).floatValue());
 			closeDialog();

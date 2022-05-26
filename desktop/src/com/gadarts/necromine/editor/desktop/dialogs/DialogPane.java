@@ -74,7 +74,11 @@ public abstract class DialogPane extends JPanel {
 	}
 
 	protected JSpinner createSpinner(double value, int maximum, float step, int minimum) {
-		return GuiUtils.createSpinner(value, minimum, maximum, step, true, SPINNER_WIDTH);
+		return createSpinner(value, maximum, step, minimum, true);
+	}
+
+	protected JSpinner createSpinner(double value, int maximum, float step, int minimum, boolean allowNegative) {
+		return GuiUtils.createSpinner(value, minimum, maximum, step, allowNegative, SPINNER_WIDTH);
 	}
 
 

@@ -43,7 +43,6 @@ public class SetMapSizeDialog extends DialogPane {
 
 	@Override
 	public String getDialogTitle( ) {
-//		return ToolbarDefinition.MAP_SIZE.getButtonProperties().getToolTip();
-		return "";
+		return "Set Map Size";
 	}
 }

@@ -122,7 +122,8 @@ public class MapRendererImpl extends Editor implements MapRenderer {
 		handlers.getRenderHandler().render(
 				mode,
 				placedElements,
-				handlers.getLogicHandlers().getSelectionHandler().getSelectedElement());
+				handlers.getLogicHandlers().getSelectionHandler().getSelectedElement(),
+				tool);
 	}
 
 

@@ -3,5 +3,7 @@ package com.necromine.editor.mode.tools;
 public interface EditorTool {
 	int ordinal( );
 
-	String name();
+	String name( );
+
+	boolean isForceCursorDisplay( );
 }
